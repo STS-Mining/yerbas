@@ -1,11 +1,11 @@
 // Copyright (c) 2011-2015 The Bitcoin Core developers
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/yerbas-config.h"
+#include "config/memeium-config.h"
 #endif
 
 #include "utilitydialog.h"
@@ -18,7 +18,6 @@
 #include "guiutil.h"
 #include "intro.h"
 #include "paymentrequestplus.h"
-#include "guiutil.h"
 
 #include "clientversion.h"
 #include "init.h"
@@ -29,12 +28,12 @@
 #include <QCloseEvent>
 #include <QLabel>
 #include <QRegExp>
-#include <QTextTable>
 #include <QTextCursor>
+#include <QTextTable>
 #include <QVBoxLayout>
 
 /** "Help message" or "About" dialog box */
-HelpMessageDialog::HelpMessageDialog(QWidget *parent, HelpMode helpMode) :
+HelpMessageDialog::HelpMessageDialog(QWidget* parent, HelpMode helpMode) :
     QDialog(parent),
     ui(new Ui::HelpMessageDialog)
 {
@@ -46,12 +45,11 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, HelpMode helpMode) :
      */
 #if defined(__x86_64__)
     version += " " + tr("(%1-bit)").arg(64);
-#elif defined(__i386__ )
+#elif defined(__i386__)
     version += " " + tr("(%1-bit)").arg(32);
 #endif
 
-    if (helpMode == about)
-    {
+    if (helpMode == about) {
         setWindowTitle(tr("About %1").arg(tr(PACKAGE_NAME)));
 
         /// HTML-format the license message from the core
@@ -74,7 +72,7 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, HelpMode helpMode) :
     } else if (helpMode == cmdline) {
         setWindowTitle(tr("Command-line options"));
         QString header = tr("Usage:") + "\n" +
-            "  yerbas-qt [" + tr("command-line options") + "]                     " + "\n";
+                         "  memeium-qt [" + tr("command-line options") + "]                     " + "\n";
         QTextCursor cursor(ui->helpMessage->document());
         cursor.insertText(version);
         cursor.insertBlock();
@@ -110,18 +108,17 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, HelpMode helpMode) :
         QTextCharFormat bold;
         bold.setFontWeight(QFont::Bold);
 
-        for (const QString &line : coreOptions.split("\n")) {
-            if (line.startsWith("  -"))
-            {
+        for (const QString& line : coreOptions.split("\n")) {
+            if (line.startsWith("  -")) {
                 cursor.currentTable()->appendRows(1);
                 cursor.movePosition(QTextCursor::PreviousCell);
                 cursor.movePosition(QTextCursor::NextRow);
                 cursor.insertText(line.trimmed());
                 cursor.movePosition(QTextCursor::NextCell);
             } else if (line.startsWith("   ")) {
-                cursor.insertText(line.trimmed()+' ');
+                cursor.insertText(line.trimmed() + ' ');
             } else if (line.size() > 0) {
-                //Title of a group
+                // Title of a group
                 if (cursor.currentTable())
                     cursor.currentTable()->appendRows(1);
                 cursor.movePosition(QTextCursor::Down);
@@ -140,13 +137,13 @@ HelpMessageDialog::HelpMessageDialog(QWidget *parent, HelpMode helpMode) :
         ui->aboutMessage->setText(tr("\
 <h3>PrivateSend Basics</h3> \
 PrivateSend gives you true financial privacy by obscuring the origins of your funds. \
-All the Yerbas in your wallet is comprised of different \"inputs\" which you can think of as separate, discrete coins.<br> \
+All the Memeium in your wallet is comprised of different \"inputs\" which you can think of as separate, discrete coins.<br> \
 PrivateSend uses an innovative process to mix your inputs with the inputs of two other people, without having your coins ever leave your wallet. \
 You retain control of your money at all times.<hr> \
 <b>The PrivateSend process works like this:</b>\
 <ol type=\"1\"> \
 <li>PrivateSend begins by breaking your transaction inputs down into standard denominations. \
-These denominations are 0.1 YERB, 1 YERB, 10 YERB, 100 YERB and 1000 YERB -- sort of like the paper money you use every day.</li> \
+These denominations are 0.1 MMM, 1 MMM, 10 MMM, 100 MMM and 1000 MMM -- sort of like the paper money you use every day.</li> \
 <li>Your wallet then sends requests to specially configured software nodes on the network, called \"smartnodes.\" \
 These smartnodes are informed then that you are interested in mixing a certain denomination. \
 No identifiable information is sent to the smartnodes, so they never know \"who\" you are.</li> \
@@ -162,8 +159,7 @@ your funds will already be mixed. No additional waiting is required.</li> \
 This means those 1000 addresses last for about 100 mixing events. When 900 of them are used, your wallet must create more addresses. \
 It can only do this, however, if you have automatic backups enabled.<br> \
 Consequently, users who have backups disabled will also have PrivateSend disabled. <hr>\
-For more information, see the <a href=\"https://docs.yerbas.org/en/stable/wallets/yerbascore/privatesend-instantsend.html\">PrivateSend documentation</a>."
-        ));
+For more information, see the <a href=\"https://docs.memeium.org/en/stable/wallets/memeiumcore/privatesend-instantsend.html\">PrivateSend documentation</a>."));
         ui->aboutMessage->setWordWrap(true);
         ui->helpMessage->setVisible(false);
     }
@@ -198,7 +194,7 @@ void HelpMessageDialog::on_okButton_accepted()
 
 
 /** "Shutdown" window */
-ShutdownWindow::ShutdownWindow(QWidget *parent, Qt::WindowFlags f):
+ShutdownWindow::ShutdownWindow(QWidget* parent, Qt::WindowFlags f) :
     QWidget(parent, f)
 {
     setObjectName("ShutdownWindow");
@@ -206,20 +202,20 @@ ShutdownWindow::ShutdownWindow(QWidget *parent, Qt::WindowFlags f):
     /* Open CSS when configured */
     this->setStyleSheet(GUIUtil::loadStyleSheet());
 
-    QVBoxLayout *layout = new QVBoxLayout();
+    QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget(new QLabel(
         tr("%1 is shutting down...").arg(tr(PACKAGE_NAME)) + "<br /><br />" +
         tr("Do not shut down the computer until this window disappears.")));
     setLayout(layout);
 }
 
-QWidget *ShutdownWindow::showShutdownWindow(BitcoinGUI *window)
+QWidget* ShutdownWindow::showShutdownWindow(BitcoinGUI* window)
 {
     if (!window)
         return nullptr;
 
     // Show a simple window indicating shutdown status
-    QWidget *shutdownWindow = new ShutdownWindow();
+    QWidget* shutdownWindow = new ShutdownWindow();
     shutdownWindow->setWindowTitle(window->windowTitle());
 
     // Center shutdown window at where main window was
@@ -229,7 +225,7 @@ QWidget *ShutdownWindow::showShutdownWindow(BitcoinGUI *window)
     return shutdownWindow;
 }
 
-void ShutdownWindow::closeEvent(QCloseEvent *event)
+void ShutdownWindow::closeEvent(QCloseEvent* event)
 {
     event->ignore();
 }

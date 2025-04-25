@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,9 +13,9 @@
 
 #include "evo/specialtx.h"
 
-#include "smartnode/activesmartnode.h"
 #include "chainparams.h"
 #include "init.h"
+#include "smartnode/activesmartnode.h"
 #include "smartnode/smartnode-sync.h"
 #include "univalue.h"
 #include "validation.h"
@@ -146,7 +146,7 @@ void CQuorum::StartCachePopulatorThread(std::shared_ptr<CQuorum> _this)
     // this thread will exit after some time
     // when then later some other thread tries to get keys, it will be much faster
     _this->cachePopulatorThread = std::thread([_this, t]() {
-        RenameThread("yerbas-q-cachepop");
+        RenameThread("memeium-q-cachepop");
         for (size_t i = 0; i < _this->members.size() && !_this->stopCachePopulatorThread && !ShutdownRequested(); i++) {
             if (_this->qc.validMembers[i]) {
                 _this->GetPubKeyShare(i);
@@ -387,7 +387,7 @@ CQuorumCPtr CQuorumManager::GetQuorum(Consensus::LLMQType llmqType, const CBlock
         return nullptr;
     }
 
-     LOCK2(cs_main, quorumsCacheCs);
+    LOCK2(cs_main, quorumsCacheCs);
 
     auto it = quorumsCache.find(std::make_pair(llmqType, quorumHash));
     if (it != quorumsCache.end()) {

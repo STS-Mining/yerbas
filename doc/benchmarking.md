@@ -1,16 +1,16 @@
-Benchmarking
-============
+# Benchmarking
 
-Yerbas Core has an internal benchmarking framework, with benchmarks
+Memeium Core has an internal benchmarking framework, with benchmarks
 for cryptographic algorithms such as SHA1, SHA256, SHA512 and RIPEMD160. As well as the rolling bloom filter.
 
-Running
----------------------
-After compiling Yerbas Core, the benchmarks can be run with:
+## Running
 
-    src/bench/bench_yerbas
+After compiling Memeium Core, the benchmarks can be run with:
+
+    src/bench/bench_memeium
 
 The output will look similar to:
+
 ```
 #Benchmark,count,min(ns),max(ns),average(ns),min_cycles,max_cycles,average_cycles
 BLSDKG_BuildQuorumVerificationVectors_parallel_10,704,1399697,1497810,1430036,3211716,3436845,3281333
@@ -149,15 +149,16 @@ strings_2_multi_to_string,2097152,462,509,489,1061,1169,1123
 strings_2_strptintf,1441792,714,742,727,1639,1704,1669
 ```
 
-Help
----------------------
+## Help
+
 `-?` will print a list of options and exit:
 
-    src/bench/bench_yerbas -?
+    src/bench/bench_memeium -?
 
-Notes
----------------------
+## Notes
+
 More benchmarks are needed for, in no particular order:
+
 - Script Validation
 - CCoinDBView caching
 - Coins database

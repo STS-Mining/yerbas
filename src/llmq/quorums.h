@@ -1,19 +1,19 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_QUORUMS_H
-#define YERBAS_QUORUMS_H
+#ifndef MEMEIUM_QUORUMS_H
+#define MEMEIUM_QUORUMS_H
 
-#include "evo/evodb.h"
 #include "evo/deterministicmns.h"
+#include "evo/evodb.h"
 #include "llmq/quorums_commitment.h"
 
-#include "validationinterface.h"
 #include "consensus/params.h"
 #include "saltedhasher.h"
 #include "unordered_lru_cache.h"
+#include "validationinterface.h"
 
 #include "bls/bls.h"
 #include "bls/bls_worker.h"
@@ -35,6 +35,7 @@ class CDKGSessionManager;
 class CQuorum
 {
     friend class CQuorumManager;
+
 public:
     const Consensus::LLMQParams& params;
     CFinalCommitment qc;
@@ -54,7 +55,8 @@ private:
     std::thread cachePopulatorThread;
 
 public:
-    CQuorum(const Consensus::LLMQParams& _params, CBLSWorker& _blsWorker) : params(_params), blsCache(_blsWorker), stopCachePopulatorThread(false) {}
+    CQuorum(const Consensus::LLMQParams& _params, CBLSWorker& _blsWorker) :
+        params(_params), blsCache(_blsWorker), stopCachePopulatorThread(false) {}
     ~CQuorum();
     void Init(const CFinalCommitment& _qc, const CBlockIndex* _pindexQuorum, const uint256& _minedBlockHash, const std::vector<CDeterministicMNCPtr>& _members);
 
@@ -93,7 +95,7 @@ private:
 public:
     CQuorumManager(CEvoDB& _evoDb, CBLSWorker& _blsWorker, CDKGSessionManager& _dkgManager);
 
-    void UpdatedBlockTip(const CBlockIndex *pindexNew, bool fInitialDownload);
+    void UpdatedBlockTip(const CBlockIndex* pindexNew, bool fInitialDownload);
 
     bool HasQuorum(Consensus::LLMQType llmqType, const uint256& quorumHash);
 
@@ -106,7 +108,7 @@ public:
 
 private:
     // all private methods here are cs_main-free
-    void EnsureQuorumConnections(Consensus::LLMQType llmqType, const CBlockIndex *pindexNew);
+    void EnsureQuorumConnections(Consensus::LLMQType llmqType, const CBlockIndex* pindexNew);
 
     bool BuildQuorumFromCommitment(const CFinalCommitment& qc, const CBlockIndex* pindexQuorum, const uint256& minedBlockHash, std::shared_ptr<CQuorum>& quorum) const;
     bool BuildQuorumContributions(const CFinalCommitment& fqc, std::shared_ptr<CQuorum>& quorum) const;
@@ -118,4 +120,4 @@ extern CQuorumManager* quorumManager;
 
 } // namespace llmq
 
-#endif //YERBAS_QUORUMS_H
+#endif // MEMEIUM_QUORUMS_H

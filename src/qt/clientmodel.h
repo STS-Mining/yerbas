@@ -1,6 +1,6 @@
 // Copyright (c) 2011-2015 The Bitcoin Core developers
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,8 +10,8 @@
 #include "evo/deterministicmns.h"
 #include "sync.h"
 
-#include <QObject>
 #include <QDateTime>
+#include <QObject>
 
 #include <atomic>
 
@@ -34,23 +34,23 @@ enum BlockSource {
 
 enum NumConnections {
     CONNECTIONS_NONE = 0,
-    CONNECTIONS_IN   = (1U << 0),
-    CONNECTIONS_OUT  = (1U << 1),
-    CONNECTIONS_ALL  = (CONNECTIONS_IN | CONNECTIONS_OUT),
+    CONNECTIONS_IN = (1U << 0),
+    CONNECTIONS_OUT = (1U << 1),
+    CONNECTIONS_ALL = (CONNECTIONS_IN | CONNECTIONS_OUT),
 };
 
-/** Model for Yerbas network client. */
+/** Model for Memeium network client. */
 class ClientModel : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ClientModel(OptionsModel *optionsModel, QObject *parent = 0);
+    explicit ClientModel(OptionsModel* optionsModel, QObject* parent = 0);
     ~ClientModel();
 
-    OptionsModel *getOptionsModel();
-    PeerTableModel *getPeerTableModel();
-    BanTableModel *getBanTableModel();
+    OptionsModel* getOptionsModel();
+    PeerTableModel* getPeerTableModel();
+    BanTableModel* getBanTableModel();
 
     //! Return number of connections, default is in- and outbound (total)
     int getNumConnections(unsigned int flags = CONNECTIONS_ALL) const;
@@ -71,7 +71,7 @@ public:
     quint64 getTotalBytesRecv() const;
     quint64 getTotalBytesSent() const;
 
-    double getVerificationProgress(const CBlockIndex *tip) const;
+    double getVerificationProgress(const CBlockIndex* tip) const;
     QDateTime getLastBlockDate() const;
 
     //! Return true if core is doing initial block download
@@ -96,11 +96,11 @@ public:
     mutable std::atomic<int64_t> cachedBestHeaderTime;
 
 private:
-    OptionsModel *optionsModel;
-    PeerTableModel *peerTableModel;
-    BanTableModel *banTableModel;
+    OptionsModel* optionsModel;
+    PeerTableModel* peerTableModel;
+    BanTableModel* banTableModel;
 
-    QTimer *pollTimer;
+    QTimer* pollTimer;
 
     // The cache for mn list is not technically needed because CDeterministicMNManager
     // caches it internally for recent blocks but it's not enough to get consistent
@@ -119,14 +119,14 @@ Q_SIGNALS:
     void mempoolSizeChanged(long count, size_t mempoolSizeInBytes);
     void islockCountChanged(size_t count);
     void networkActiveChanged(bool networkActive);
-    void alertsChanged(const QString &warnings);
+    void alertsChanged(const QString& warnings);
     void bytesChanged(quint64 totalBytesIn, quint64 totalBytesOut);
 
     //! Fired when a message should be reported to the user
-    void message(const QString &title, const QString &message, unsigned int style);
+    void message(const QString& title, const QString& message, unsigned int style);
 
     // Show progress dialog e.g. for verifychain
-    void showProgress(const QString &title, int nProgress);
+    void showProgress(const QString& title, int nProgress);
 
 public Q_SLOTS:
     void updateTimer();

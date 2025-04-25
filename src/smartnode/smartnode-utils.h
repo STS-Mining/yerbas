@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,7 +14,7 @@ class CSmartnodeUtils
 {
 public:
     static void ProcessSmartnodeConnections(CConnman& connman);
-    static void DoMaintenance(CConnman &connman);
+    static void DoMaintenance(CConnman& connman);
 };
 
-#endif//SMARTNODE_UTILS_H
+#endif // SMARTNODE_UTILS_H

@@ -7,7 +7,7 @@
 #define BITCOIN_COMPAT_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/yerbas-config.h"
+#include "config/memeium-config.h"
 #endif
 
 #include <type_traits>

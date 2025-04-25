@@ -1,31 +1,31 @@
-# /etc/conf.d/yerbasd: config file for /etc/init.d/yerbasd
+# /etc/conf.d/memeiumd: config file for /etc/init.d/memeiumd
 
 # Config file location
-#BITCOIND_CONFIGFILE="/etc/yerbascore/yerbas.conf"
+#BITCOIND_CONFIGFILE="/etc/memeiumcore/memeium.conf"
 
 # What directory to write pidfile to?  (created and owned by $BITCOIND_USER)
-#BITCOIND_PIDDIR="/var/run/yerbasd"
+#BITCOIND_PIDDIR="/var/run/memeiumd"
 
 # What filename to give the pidfile
-#BITCOIND_PIDFILE="${BITCOIND_PIDDIR}/yerbasd.pid"
+#BITCOIND_PIDFILE="${BITCOIND_PIDDIR}/memeiumd.pid"
 
-# Where to write yerbasd data (be mindful that the blockchain is large)
-#BITCOIND_DATADIR="/var/lib/yerbasd"
+# Where to write memeiumd data (be mindful that the blockchain is large)
+#BITCOIND_DATADIR="/var/lib/memeiumd"
 
-# User and group to own yerbasd process
-#BITCOIND_USER="yerbascore"
-#BITCOIND_GROUP="yerbascore"
+# User and group to own memeiumd process
+#BITCOIND_USER="memeiumcore"
+#BITCOIND_GROUP="memeiumcore"
 
-# Path to yerbasd executable
-#BITCOIND_BIN="/usr/bin/yerbasd"
+# Path to memeiumd executable
+#BITCOIND_BIN="/usr/bin/memeiumd"
 
-# Nice value to run yerbasd under
+# Nice value to run memeiumd under
 #BITCOIND_NICE=0
 
 # Additional options (avoid -conf and -datadir, use flags above)
 #BITCOIND_OPTS=""
 
-# The timeout in seconds OpenRC will wait for yerbasd to terminate
+# The timeout in seconds OpenRC will wait for memeiumd to terminate
 # after a SIGTERM has been raised.
 # Note that this will be mapped as argument to start-stop-daemon's
 # '--retry' option, which means you can specify a retry schedule

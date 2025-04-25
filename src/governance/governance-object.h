@@ -1,11 +1,12 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef GOVERNANCE_OBJECT_H
 #define GOVERNANCE_OBJECT_H
 
+#include "bls/bls.h"
 #include "cachemultimap.h"
 #include "governance-exceptions.h"
 #include "governance-vote.h"
@@ -15,7 +16,6 @@
 #include "sync.h"
 #include "util.h"
 #include "utilstrencodings.h"
-#include "bls/bls.h"
 
 #include <univalue.h>
 
@@ -45,7 +45,7 @@ static const int64_t GOVERNANCE_ORPHAN_EXPIRATION_TIME = 10 * 60;
 // FOR SEEN MAP ARRAYS - GOVERNANCE OBJECTS AND VOTES
 static const int SEEN_OBJECT_IS_VALID = 0;
 static const int SEEN_OBJECT_ERROR_INVALID = 1;
-static const int SEEN_OBJECT_EXECUTED = 3; //used for triggers
+static const int SEEN_OBJECT_EXECUTED = 3; // used for triggers
 static const int SEEN_OBJECT_UNKNOWN = 4;  // the default
 
 typedef std::pair<CGovernanceVote, int64_t> vote_time_pair_t;
@@ -101,9 +101,9 @@ struct vote_rec_t {
 };
 
 /**
-* Governance Object
-*
-*/
+ * Governance Object
+ *
+ */
 
 class CGovernanceObject
 {

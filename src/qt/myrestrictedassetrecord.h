@@ -18,8 +18,7 @@ class CWalletTx;
 class MyRestrictedAssetRecord
 {
 public:
-    enum Type
-    {
+    enum Type {
         Other,
         Frozen,
         UnFrozen,
@@ -30,28 +29,26 @@ public:
     /** Number of confirmation recommended for accepting a transaction */
     static const int RecommendedNumConfirmations = 6;
 
-    MyRestrictedAssetRecord():
-            hash(), time(0), type(Other), address(""), assetName("YERB"), idx(0)
+    MyRestrictedAssetRecord() :
+        hash(), time(0), type(Other), address(""), assetName("MMM"), idx(0)
     {
     }
 
-    MyRestrictedAssetRecord(uint256 _hash, qint64 _time):
-            hash(_hash), time(_time), type(Other), address(""), assetName("YERB"), idx(0)
+    MyRestrictedAssetRecord(uint256 _hash, qint64 _time) :
+        hash(_hash), time(_time), type(Other), address(""), assetName("MMM"), idx(0)
     {
     }
 
-    MyRestrictedAssetRecord(uint256 _hash, qint64 _time,
-                      Type _type, const std::string &_address,
-                      const CAmount& _debit, const CAmount& _credit):
-            hash(_hash), time(_time), type(_type), address(_address),
-            assetName("YERB"), idx(0)
+    MyRestrictedAssetRecord(uint256 _hash, qint64 _time, Type _type, const std::string& _address, const CAmount& _debit, const CAmount& _credit) :
+        hash(_hash), time(_time), type(_type), address(_address),
+        assetName("MMM"), idx(0)
     {
     }
 
     /** Decompose CWallet transaction to model transaction records.
      */
-    static bool showTransaction(const CWalletTx &wtx);
-    static QList<MyRestrictedAssetRecord> decomposeTransaction(const CWallet *wallet, const CWalletTx &wtx);
+    static bool showTransaction(const CWalletTx& wtx);
+    static QList<MyRestrictedAssetRecord> decomposeTransaction(const CWallet* wallet, const CWalletTx& wtx);
 
     /** @name Immutable transaction attributes
       @{*/
@@ -73,6 +70,4 @@ public:
 
     /** Return the output index of the subtransaction  */
     int getOutputIndex() const;
-
 };
-

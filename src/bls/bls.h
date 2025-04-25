@@ -1,10 +1,10 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_CRYPTO_BLS_H
-#define YERBAS_CRYPTO_BLS_H
+#ifndef MEMEIUM_CRYPTO_BLS_H
+#define MEMEIUM_CRYPTO_BLS_H
 
 #include "hash.h"
 #include "serialize.h"
@@ -55,7 +55,8 @@ public:
     {
         struct NullHash {
             uint256 hash;
-            NullHash() {
+            NullHash()
+            {
                 char buf[_SerSize];
                 memset(buf, 0, _SerSize);
                 CHashWriter ss(SER_GETHASH, 0);
@@ -316,7 +317,7 @@ protected:
 };
 
 #ifndef BUILD_BITCOIN_INTERNAL
-template<typename BLSObject>
+template <typename BLSObject>
 class CBLSLazyWrapper
 {
 private:
@@ -367,7 +368,7 @@ public:
         s.seek(BLSObject::SerSize);
     }
 
-    template<typename Stream>
+    template <typename Stream>
     inline void Serialize(Stream& s) const
     {
         std::unique_lock<std::mutex> l(mutex);
@@ -382,7 +383,7 @@ public:
         s.write(buf, sizeof(buf));
     }
 
-    template<typename Stream>
+    template <typename Stream>
     inline void Unserialize(Stream& s)
     {
         std::unique_lock<std::mutex> l(mutex);
@@ -449,6 +450,7 @@ public:
         }
         return hash;
     }
+
 private:
     void UpdateHash() const
     {
@@ -476,4 +478,4 @@ typedef std::shared_ptr<BLSSignatureVector> BLSSignatureVectorPtr;
 
 bool BLSInit();
 
-#endif // YERBAS_CRYPTO_BLS_H
+#endif // MEMEIUM_CRYPTO_BLS_H

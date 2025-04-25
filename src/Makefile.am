@@ -1,6 +1,6 @@
 # Copyright (c) 2013-2016 The Bitcoin Core developers
 # Copyright (c) 2014-2018 The Dash Core developers
-# Copyright (c) 2022 The Yerbas Endeavor developers
+# Copyright (c) 2022 The Memeium Endeavor developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -50,36 +50,36 @@ BITCOIN_INCLUDES += $(UNIVALUE_CFLAGS)
 
 BLS_LIBS=-lchiabls -lgmp
 
-LIBBITCOIN_SERVER=libyerbas_server.a
-LIBBITCOIN_COMMON=libyerbas_common.a
-LIBBITCOIN_CONSENSUS=libyerbas_consensus.a
-LIBBITCOIN_CLI=libyerbas_cli.a
-LIBBITCOIN_UTIL=libyerbas_util.a
-LIBBITCOIN_CRYPTO_BASE=crypto/libyerbas_crypto_base.a
-LIBBITCOINQT=qt/libyerbasqt.a
+LIBBITCOIN_SERVER=libmemeium_server.a
+LIBBITCOIN_COMMON=libmemeium_common.a
+LIBBITCOIN_CONSENSUS=libmemeium_consensus.a
+LIBBITCOIN_CLI=libmemeium_cli.a
+LIBBITCOIN_UTIL=libmemeium_util.a
+LIBBITCOIN_CRYPTO_BASE=crypto/libmemeium_crypto_base.a
+LIBBITCOINQT=qt/libmemeiumqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 
 if ENABLE_ZMQ
-LIBBITCOIN_ZMQ=libyerbas_zmq.a
+LIBBITCOIN_ZMQ=libmemeium_zmq.a
 endif
 if BUILD_BITCOIN_LIBS
-LIBBITCOINCONSENSUS=libyerbasconsensus.la
+LIBBITCOINCONSENSUS=libmemeiumconsensus.la
 endif
 if ENABLE_WALLET
-LIBBITCOIN_WALLET=libyerbas_wallet.a
+LIBBITCOIN_WALLET=libmemeium_wallet.a
 endif
 
 LIBBITCOIN_CRYPTO= $(LIBBITCOIN_CRYPTO_BASE)
 if ENABLE_SSE41
-LIBBITCOIN_CRYPTO_SSE41 = crypto/libyerbas_crypto_sse41.a
+LIBBITCOIN_CRYPTO_SSE41 = crypto/libmemeium_crypto_sse41.a
 LIBBITCOIN_CRYPTO += $(LIBBITCOIN_CRYPTO_SSE41)
 endif
 if ENABLE_AVX2
-LIBBITCOIN_CRYPTO_AVX2 = crypto/libyerbas_crypto_avx2.a
+LIBBITCOIN_CRYPTO_AVX2 = crypto/libmemeium_crypto_avx2.a
 LIBBITCOIN_CRYPTO += $(LIBBITCOIN_CRYPTO_AVX2)
 endif
 if ENABLE_SHANI
-LIBBITCOIN_CRYPTO_SHANI = crypto/libyerbas_crypto_shani.a
+LIBBITCOIN_CRYPTO_SHANI = crypto/libmemeium_crypto_shani.a
 LIBBITCOIN_CRYPTO += $(LIBBITCOIN_CRYPTO_SHANI)
 endif
 
@@ -106,15 +106,15 @@ TESTS =
 BENCHMARKS =
 
 if BUILD_BITCOIND
-  bin_PROGRAMS += yerbasd
+  bin_PROGRAMS += memeiumd
 endif
 
 if BUILD_BITCOIN_UTILS
-  bin_PROGRAMS += yerbas-cli #yerbas-tx
+  bin_PROGRAMS += memeium-cli #memeium-tx
 endif
 
 .PHONY: FORCE check-symbols check-security
-# yerbas core #
+# memeium core #
 BITCOIN_CORE_H = \
   addrdb.h \
   addressindex.h \
@@ -281,12 +281,12 @@ obj/build.h: FORCE
 	@$(MKDIR_P) $(builddir)/obj
 	@$(top_srcdir)/share/genbuild.sh "$(abs_top_builddir)/src/obj/build.h" \
 	  "$(abs_top_srcdir)"
-libyerbas_util_a-clientversion.$(OBJEXT): obj/build.h
+libmemeium_util_a-clientversion.$(OBJEXT): obj/build.h
 
-# server: shared between yerbasd and yerbas-qt
-libyerbas_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
-libyerbas_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libyerbas_server_a_SOURCES = \
+# server: shared between memeiumd and memeium-qt
+libmemeium_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
+libmemeium_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libmemeium_server_a_SOURCES = \
   addrdb.cpp \
   addrman.cpp \
   assets/assets.cpp \
@@ -381,20 +381,20 @@ libyerbas_server_a_SOURCES = \
   $(BITCOIN_CORE_H)
 
 if ENABLE_ZMQ
-libyerbas_zmq_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(ZMQ_CFLAGS)
-libyerbas_zmq_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libyerbas_zmq_a_SOURCES = \
+libmemeium_zmq_a_CPPFLAGS = $(BITCOIN_INCLUDES) $(ZMQ_CFLAGS)
+libmemeium_zmq_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libmemeium_zmq_a_SOURCES = \
   zmq/zmqabstractnotifier.cpp \
   zmq/zmqnotificationinterface.cpp \
   zmq/zmqpublishnotifier.cpp
 endif
 
 
-# wallet: shared between yerbasd and yerbas-qt, but only linked
+# wallet: shared between memeiumd and memeium-qt, but only linked
 # when wallet enabled
-libyerbas_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-libyerbas_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libyerbas_wallet_a_SOURCES = \
+libmemeium_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libmemeium_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libmemeium_wallet_a_SOURCES = \
   keepass.cpp \
   privatesend/privatesend-client.cpp \
   privatesend/privatesend-util.cpp \
@@ -407,9 +407,9 @@ libyerbas_wallet_a_SOURCES = \
   $(BITCOIN_CORE_H)
 
 # crypto primitives library
-crypto_libyerbas_crypto_base_a_CPPFLAGS = $(AM_CPPFLAGS) $(PIC_FLAGS)
-crypto_libyerbas_crypto_base_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS)
-crypto_libyerbas_crypto_base_a_SOURCES = \
+crypto_libmemeium_crypto_base_a_CPPFLAGS = $(AM_CPPFLAGS) $(PIC_FLAGS)
+crypto_libmemeium_crypto_base_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(PIC_FLAGS)
+crypto_libmemeium_crypto_base_a_SOURCES = \
   crypto/aes.cpp \
   crypto/aes.h \
   crypto/chacha_poly_aead.h \
@@ -470,28 +470,28 @@ crypto_libyerbas_crypto_base_a_SOURCES = \
   crypto/sha512.h
 
 if USE_ASM
-crypto_libyerbas_crypto_base_a_SOURCES += crypto/sha256_sse4.cpp
+crypto_libmemeium_crypto_base_a_SOURCES += crypto/sha256_sse4.cpp
 endif
 
-crypto_libyerbas_crypto_sse41_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libyerbas_crypto_sse41_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libyerbas_crypto_sse41_a_CXXFLAGS += $(SSE41_CXXFLAGS)
-crypto_libyerbas_crypto_sse41_a_CPPFLAGS += -DENABLE_SSE41
-crypto_libyerbas_crypto_sse41_a_SOURCES = crypto/sha256_sse41.cpp
+crypto_libmemeium_crypto_sse41_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libmemeium_crypto_sse41_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libmemeium_crypto_sse41_a_CXXFLAGS += $(SSE41_CXXFLAGS)
+crypto_libmemeium_crypto_sse41_a_CPPFLAGS += -DENABLE_SSE41
+crypto_libmemeium_crypto_sse41_a_SOURCES = crypto/sha256_sse41.cpp
 
-crypto_libyerbas_crypto_avx2_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libyerbas_crypto_avx2_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libyerbas_crypto_avx2_a_CXXFLAGS += $(AVX2_CXXFLAGS)
-crypto_libyerbas_crypto_avx2_a_CPPFLAGS += -DENABLE_AVX2
-crypto_libyerbas_crypto_avx2_a_SOURCES = crypto/sha256_avx2.cpp
+crypto_libmemeium_crypto_avx2_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libmemeium_crypto_avx2_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libmemeium_crypto_avx2_a_CXXFLAGS += $(AVX2_CXXFLAGS)
+crypto_libmemeium_crypto_avx2_a_CPPFLAGS += -DENABLE_AVX2
+crypto_libmemeium_crypto_avx2_a_SOURCES = crypto/sha256_avx2.cpp
 
-crypto_libyerbas_crypto_shani_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-crypto_libyerbas_crypto_shani_a_CPPFLAGS = $(AM_CPPFLAGS)
-crypto_libyerbas_crypto_shani_a_CXXFLAGS += $(SHANI_CXXFLAGS)
-crypto_libyerbas_crypto_shani_a_CPPFLAGS += -DENABLE_SHANI
-crypto_libyerbas_crypto_shani_a_SOURCES = crypto/sha256_shani.cpp
+crypto_libmemeium_crypto_shani_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+crypto_libmemeium_crypto_shani_a_CPPFLAGS = $(AM_CPPFLAGS)
+crypto_libmemeium_crypto_shani_a_CXXFLAGS += $(SHANI_CXXFLAGS)
+crypto_libmemeium_crypto_shani_a_CPPFLAGS += -DENABLE_SHANI
+crypto_libmemeium_crypto_shani_a_SOURCES = crypto/sha256_shani.cpp
 
-crypto_libyerbas_crypto_base_a_SOURCES += \
+crypto_libmemeium_crypto_base_a_SOURCES += \
   cryptonote/aesb.c \
   cryptonote/c_blake256.c \
   cryptonote/c_groestl.c \
@@ -520,9 +520,9 @@ crypto_libyerbas_crypto_base_a_SOURCES += \
   cryptonote/warnings.h
 
 # consensus: shared between all executables that validate any consensus rules.
-libyerbas_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-libyerbas_consensus_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libyerbas_consensus_a_SOURCES = \
+libmemeium_consensus_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libmemeium_consensus_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libmemeium_consensus_a_SOURCES = \
   amount.h \
   founder_payment.h \
   arith_uint256.cpp \
@@ -546,7 +546,7 @@ libyerbas_consensus_a_SOURCES = \
   primitives/transaction.h \
   pubkey.cpp \
   pubkey.h \
-  script/yerbasconsensus.cpp \
+  script/memeiumconsensus.cpp \
   script/interpreter.cpp \
   script/interpreter.h \
   script/script.cpp \
@@ -564,10 +564,10 @@ libyerbas_consensus_a_SOURCES = \
   LibBoolEE.cpp \
   LibBoolEE.h
 
-# common: shared between yerbasd, and yerbas-qt and non-server tools
-libyerbas_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-libyerbas_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libyerbas_common_a_SOURCES = \
+# common: shared between memeiumd, and memeium-qt and non-server tools
+libmemeium_common_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libmemeium_common_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libmemeium_common_a_SOURCES = \
   base58.cpp \
   founder_payment.cpp \
   bip39.cpp \
@@ -594,9 +594,9 @@ libyerbas_common_a_SOURCES = \
 # util: shared between all executables.
 # This library *must* be included to make sure that the glibc
 # backward-compatibility objects and their sanity checks are linked.
-libyerbas_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-libyerbas_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libyerbas_util_a_SOURCES = \
+libmemeium_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libmemeium_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libmemeium_util_a_SOURCES = \
   bls/bls_batchverifier.h \
   bls/bls_ies.cpp \
   bls/bls_ies.h \
@@ -622,31 +622,31 @@ libyerbas_util_a_SOURCES = \
   $(BITCOIN_CORE_H)
 
 if GLIBC_BACK_COMPAT
-libyerbas_util_a_SOURCES += compat/glibc_compat.cpp
+libmemeium_util_a_SOURCES += compat/glibc_compat.cpp
 AM_LDFLAGS += -Wl,--wrap=log2f -Wl,--wrap=__divmoddi4
 endif
 
-# cli: shared between yerbas-cli and yerbas-qt
-libyerbas_cli_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-libyerbas_cli_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-libyerbas_cli_a_SOURCES = \
+# cli: shared between memeium-cli and memeium-qt
+libmemeium_cli_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+libmemeium_cli_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libmemeium_cli_a_SOURCES = \
   rpc/client.cpp \
   $(BITCOIN_CORE_H)
 
-nodist_libyerbas_util_a_SOURCES = $(srcdir)/obj/build.h
+nodist_libmemeium_util_a_SOURCES = $(srcdir)/obj/build.h
 #
 
-# yerbasd binary #
-yerbasd_SOURCES = yerbasd.cpp
-yerbasd_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-yerbasd_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-yerbasd_LDFLAGS = $(LDFLAGS_WRAP_EXCEPTIONS) $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
+# memeiumd binary #
+memeiumd_SOURCES = memeiumd.cpp
+memeiumd_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+memeiumd_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+memeiumd_LDFLAGS = $(LDFLAGS_WRAP_EXCEPTIONS) $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
 
 if TARGET_WINDOWS
-yerbasd_SOURCES += yerbasd-res.rc
+memeiumd_SOURCES += memeiumd-res.rc
 endif
 
-yerbasd_LDADD = \
+memeiumd_LDADD = \
   $(LIBBITCOIN_SERVER) \
   $(LIBBITCOIN_WALLET) \
   $(LIBBITCOIN_COMMON) \
@@ -660,37 +660,37 @@ yerbasd_LDADD = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-yerbasd_LDADD += $(BACKTRACE_LIB) $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(BLS_LIBS)
+memeiumd_LDADD += $(BACKTRACE_LIB) $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(BLS_LIBS)
 
-# yerbas-cli binary #
-yerbas_cli_SOURCES = yerbas-cli.cpp
-yerbas_cli_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
-yerbas_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-yerbas_cli_LDFLAGS = $(LDFLAGS_WRAP_EXCEPTIONS) $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
+# memeium-cli binary #
+memeium_cli_SOURCES = memeium-cli.cpp
+memeium_cli_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
+memeium_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+memeium_cli_LDFLAGS = $(LDFLAGS_WRAP_EXCEPTIONS) $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
 
 if TARGET_WINDOWS
-yerbas_cli_SOURCES += yerbas-cli-res.rc
+memeium_cli_SOURCES += memeium-cli-res.rc
 endif
 
-yerbas_cli_LDADD = \
+memeium_cli_LDADD = \
   $(LIBBITCOIN_CLI) \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_UTIL) \
   $(LIBBITCOIN_CRYPTO)
-yerbas_cli_LDADD += $(BACKTRACE_LIB) $(BOOST_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS) $(BLS_LIBS)
+memeium_cli_LDADD += $(BACKTRACE_LIB) $(BOOST_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(EVENT_LIBS) $(BLS_LIBS)
 #
 
-# yerbas-tx binary #
-yerbas_tx_SOURCES = yerbas-tx.cpp
-yerbas_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
-yerbas_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-yerbas_tx_LDFLAGS = $(LDFLAGS_WRAP_EXCEPTIONS) $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
+# memeium-tx binary #
+memeium_tx_SOURCES = memeium-tx.cpp
+memeium_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
+memeium_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+memeium_tx_LDFLAGS = $(LDFLAGS_WRAP_EXCEPTIONS) $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
 
 if TARGET_WINDOWS
-yerbas_tx_SOURCES += yerbas-tx-res.rc
+memeium_tx_SOURCES += memeium-tx-res.rc
 endif
 
-yerbas_tx_LDADD = \
+memeium_tx_LDADD = \
   $(LIBUNIVALUE) \
   $(LIBBITCOIN_COMMON) \
   $(LIBBITCOIN_UTIL) \
@@ -698,22 +698,22 @@ yerbas_tx_LDADD = \
   $(LIBBITCOIN_CRYPTO) \
   $(LIBSECP256K1)
 
-yerbas_tx_LDADD += $(BACKTRACE_LIB) $(BOOST_LIBS) $(CRYPTO_LIBS) $(BLS_LIBS)
+memeium_tx_LDADD += $(BACKTRACE_LIB) $(BOOST_LIBS) $(CRYPTO_LIBS) $(BLS_LIBS)
 #
 
-# yerbasconsensus library #
+# memeiumconsensus library #
 if BUILD_BITCOIN_LIBS
-include_HEADERS = script/yerbasconsensus.h
-libyerbasconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libyerbas_crypto_base_a_SOURCES) $(libyerbas_consensus_a_SOURCES)
+include_HEADERS = script/memeiumconsensus.h
+libmemeiumconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libmemeium_crypto_base_a_SOURCES) $(libmemeium_consensus_a_SOURCES)
 
 if GLIBC_BACK_COMPAT
-  libyerbasconsensus_la_SOURCES += compat/glibc_compat.cpp
+  libmemeiumconsensus_la_SOURCES += compat/glibc_compat.cpp
 endif
 
-libyerbasconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(LIBTOOL_APP_LDFLAGS)
-libyerbasconsensus_la_LIBADD = $(LIBSECP256K1) $(BLS_LIBS)
-libyerbasconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL
-libyerbasconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libmemeiumconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+libmemeiumconsensus_la_LIBADD = $(LIBSECP256K1) $(BLS_LIBS)
+libmemeiumconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL
+libmemeiumconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
 #
@@ -746,12 +746,12 @@ EXTRA_DIST = $(CTAES_DIST)
 EXTRA_DIST += $(IMMER_DIST)
 
 
-config/yerbas-config.h: config/stamp-h1
+config/memeium-config.h: config/stamp-h1
 	@$(MAKE) -C $(top_builddir) $(subdir)/$(@)
-config/stamp-h1: $(top_srcdir)/$(subdir)/config/yerbas-config.h.in $(top_builddir)/config.status
+config/stamp-h1: $(top_srcdir)/$(subdir)/config/memeium-config.h.in $(top_builddir)/config.status
 	$(AM_V_at)$(MAKE) -C $(top_builddir) $(subdir)/$(@)
-$(top_srcdir)/$(subdir)/config/yerbas-config.h.in:  $(am__configure_deps)
-	$(AM_V_at)$(MAKE) -C $(top_srcdir) $(subdir)/config/yerbas-config.h.in
+$(top_srcdir)/$(subdir)/config/memeium-config.h.in:  $(am__configure_deps)
+	$(AM_V_at)$(MAKE) -C $(top_srcdir) $(subdir)/config/memeium-config.h.in
 
 
 clean-local:

@@ -1,11 +1,11 @@
-// Copyright (c) 2022 The Yerbas developers
+// Copyright (c) 2022 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <primitives/powcache.h>
-#include <primitives/block.h>
 #include <flat-database.h>
 #include <hash.h>
+#include <primitives/block.h>
+#include <primitives/powcache.h>
 #include <sync.h>
 #include <util.h>
 
@@ -15,9 +15,8 @@ CPowCache* CPowCache::instance = nullptr;
 
 CPowCache& CPowCache::Instance()
 {
-    if (CPowCache::instance == nullptr)
-    {
-        int  powCacheSize     = gArgs.GetArg("-powcachesize", DEFAULT_POW_CACHE_SIZE);
+    if (CPowCache::instance == nullptr) {
+        int powCacheSize = gArgs.GetArg("-powcachesize", DEFAULT_POW_CACHE_SIZE);
         bool powCacheValidate = gArgs.GetArg("-powcachevalidate", 0) > 0 ? true : false;
         powCacheSize = powCacheSize == 0 ? DEFAULT_POW_CACHE_SIZE : powCacheSize;
 
@@ -30,14 +29,14 @@ void CPowCache::DoMaintenance()
 {
     LOCK(cs_pow);
     // If cache has grown enough, save it:
-    if (cacheMap.size() - nLoadedSize > 100)
-    {
+    if (cacheMap.size() - nLoadedSize > 100) {
         CFlatDB<CPowCache> flatDb("powcache.dat", "powCache");
         flatDb.Dump(*this);
     }
 }
 
-CPowCache::CPowCache(int maxSize, bool validate) : unordered_lru_cache<uint256, uint256, std::hash<uint256>>(maxSize),
+CPowCache::CPowCache(int maxSize, bool validate) :
+    unordered_lru_cache<uint256, uint256, std::hash<uint256>>(maxSize),
     nVersion(CURRENT_VERSION),
     nLoadedSize(0),
     bValidate(validate)
@@ -51,7 +50,7 @@ CPowCache::~CPowCache()
 
 void CPowCache::Clear()
 {
-   cacheMap.clear();
+    cacheMap.clear();
 }
 
 void CPowCache::CheckAndRemove()

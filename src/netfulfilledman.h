@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -21,7 +21,7 @@ private:
     typedef std::map<std::string, int64_t> fulfilledreqmapentry_t;
     typedef std::map<CService, fulfilledreqmapentry_t> fulfilledreqmap_t;
 
-    //keep track of what node has/was asked for and when
+    // keep track of what node has/was asked for and when
     fulfilledreqmap_t mapFulfilledRequests;
     CCriticalSection cs_mapFulfilledRequests;
 
@@ -33,7 +33,8 @@ public:
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
+    inline void SerializationOp(Stream& s, Operation ser_action)
+    {
         LOCK(cs_mapFulfilledRequests);
         READWRITE(mapFulfilledRequests);
     }

@@ -1,12 +1,12 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/yerbas-config.h"
+#include "config/memeium-config.h"
 #endif
 
 #include "chainparamsbase.h"
@@ -20,16 +20,16 @@
 
 #include <stdio.h>
 
+#include "support/events.h"
 #include <event2/buffer.h>
 #include <event2/keyvalq_struct.h>
-#include "support/events.h"
 
 #include <univalue.h>
 
 static const char DEFAULT_RPCCONNECT[] = "127.0.0.1";
-static const int DEFAULT_HTTP_CLIENT_TIMEOUT=900;
-static const bool DEFAULT_NAMED=false;
-static const int CONTINUE_EXECUTION=-1;
+static const int DEFAULT_HTTP_CLIENT_TIMEOUT = 900;
+static const bool DEFAULT_NAMED = false;
+static const int CONTINUE_EXECUTION = -1;
 
 std::string HelpMessageCli()
 {
@@ -49,7 +49,7 @@ std::string HelpMessageCli()
     strUsage += HelpMessageOpt("-rpcpassword=<pw>", _("Password for JSON-RPC connections"));
     strUsage += HelpMessageOpt("-rpcclienttimeout=<n>", strprintf(_("Timeout in seconds during HTTP requests, or 0 for no timeout. (default: %d)"), DEFAULT_HTTP_CLIENT_TIMEOUT));
     strUsage += HelpMessageOpt("-stdin", _("Read extra arguments from standard input, one per line until EOF/Ctrl-D (recommended for sensitive information such as passphrases)"));
-    strUsage += HelpMessageOpt("-rpcwallet=<walletname>", _("Send RPC for non-default wallet on RPC server (argument is wallet filename in yerbasd directory, required if yerbasd/-Qt runs with multiple wallets)"));
+    strUsage += HelpMessageOpt("-rpcwallet=<walletname>", _("Send RPC for non-default wallet on RPC server (argument is wallet filename in memeiumd directory, required if memeiumd/-Qt runs with multiple wallets)"));
 
     return strUsage;
 }
@@ -66,11 +66,10 @@ std::string HelpMessageCli()
 class CConnectionFailed : public std::runtime_error
 {
 public:
-
     explicit inline CConnectionFailed(const std::string& msg) :
         std::runtime_error(msg)
-    {}
-
+    {
+    }
 };
 
 //
@@ -89,14 +88,14 @@ static int AppInitRPC(int argc, char* argv[])
         return true;
     }
 
-    if (argc<2 || gArgs.IsArgSet("-?") || gArgs.IsArgSet("-h") || gArgs.IsArgSet("-help") || gArgs.IsArgSet("-version")) {
+    if (argc < 2 || gArgs.IsArgSet("-?") || gArgs.IsArgSet("-h") || gArgs.IsArgSet("-help") || gArgs.IsArgSet("-version")) {
         std::string strUsage = strprintf(_("%s RPC client version"), _(PACKAGE_NAME)) + " " + FormatFullVersion() + "\n";
         if (!gArgs.IsArgSet("-version")) {
             strUsage += "\n" + _("Usage:") + "\n" +
-                  "  yerbas-cli [options] <command> [params]  " + strprintf(_("Send command to %s"), _(PACKAGE_NAME)) + "\n" +
-                  "  yerbas-cli [options] -named <command> [name=value] ... " + strprintf(_("Send command to %s (with named arguments)"), _(PACKAGE_NAME)) + "\n" +
-                  "  yerbas-cli [options] help                " + _("List commands") + "\n" +
-                  "  yerbas-cli [options] help <command>      " + _("Get help for a command") + "\n";
+                        "  memeium-cli [options] <command> [params]  " + strprintf(_("Send command to %s"), _(PACKAGE_NAME)) + "\n" +
+                        "  memeium-cli [options] -named <command> [name=value] ... " + strprintf(_("Send command to %s (with named arguments)"), _(PACKAGE_NAME)) + "\n" +
+                        "  memeium-cli [options] help                " + _("List commands") + "\n" +
+                        "  memeium-cli [options] help <command>      " + _("Get help for a command") + "\n";
 
             strUsage += "\n" + HelpMessageCli();
         }
@@ -116,7 +115,7 @@ static int AppInitRPC(int argc, char* argv[])
     try {
         gArgs.ReadConfigFile(gArgs.GetArg("-conf", BITCOIN_CONF_FILENAME));
     } catch (const std::exception& e) {
-        fprintf(stderr,"Error reading configuration file: %s\n", e.what());
+        fprintf(stderr, "Error reading configuration file: %s\n", e.what());
         return EXIT_FAILURE;
     }
     if (!datadirFromCmdLine && !fs::is_directory(GetDataDir(false))) {
@@ -130,8 +129,7 @@ static int AppInitRPC(int argc, char* argv[])
         fprintf(stderr, "Error: %s\n", e.what());
         return EXIT_FAILURE;
     }
-    if (gArgs.GetBoolArg("-rpcssl", false))
-    {
+    if (gArgs.GetBoolArg("-rpcssl", false)) {
         fprintf(stderr, "Error: SSL mode for RPC (-rpcssl) is no longer supported.\n");
         return EXIT_FAILURE;
     }
@@ -140,18 +138,18 @@ static int AppInitRPC(int argc, char* argv[])
 
 
 /** Reply structure for request_done to fill in */
-struct HTTPReply
-{
-    HTTPReply(): status(0), error(-1) {}
+struct HTTPReply {
+    HTTPReply() :
+        status(0), error(-1) {}
 
     int status;
     int error;
     std::string body;
 };
 
-const char *http_errorstring(int code)
+const char* http_errorstring(int code)
 {
-    switch(code) {
+    switch (code) {
 #if LIBEVENT_VERSION_NUMBER >= 0x02010300
     case EVREQ_HTTP_TIMEOUT:
         return "timeout reached";
@@ -171,9 +169,9 @@ const char *http_errorstring(int code)
     }
 }
 
-static void http_request_done(struct evhttp_request *req, void *ctx)
+static void http_request_done(struct evhttp_request* req, void* ctx)
 {
-    HTTPReply *reply = static_cast<HTTPReply*>(ctx);
+    HTTPReply* reply = static_cast<HTTPReply*>(ctx);
 
     if (req == nullptr) {
         /* If req is nullptr, it means an error occurred while connecting: the
@@ -185,11 +183,10 @@ static void http_request_done(struct evhttp_request *req, void *ctx)
 
     reply->status = evhttp_request_get_response_code(req);
 
-    struct evbuffer *buf = evhttp_request_get_input_buffer(req);
-    if (buf)
-    {
+    struct evbuffer* buf = evhttp_request_get_input_buffer(req);
+    if (buf) {
         size_t size = evbuffer_get_length(buf);
-        const char *data = (const char*)evbuffer_pullup(buf, size);
+        const char* data = (const char*)evbuffer_pullup(buf, size);
         if (data)
             reply->body = std::string(data, size);
         evbuffer_drain(buf, size);
@@ -197,9 +194,9 @@ static void http_request_done(struct evhttp_request *req, void *ctx)
 }
 
 #if LIBEVENT_VERSION_NUMBER >= 0x02010300
-static void http_error_cb(enum evhttp_request_error err, void *ctx)
+static void http_error_cb(enum evhttp_request_error err, void* ctx)
 {
-    HTTPReply *reply = static_cast<HTTPReply*>(ctx);
+    HTTPReply* reply = static_cast<HTTPReply*>(ctx);
     reply->error = err;
 }
 #endif
@@ -237,8 +234,7 @@ UniValue CallRPC(const std::string& strMethod, const UniValue& params)
         if (!GetAuthCookie(&strRPCUserColonPass)) {
             throw std::runtime_error(strprintf(
                 _("Could not locate RPC credentials. No authentication cookie could be found, and no rpcpassword is set in the configuration file (%s)"),
-                    GetConfigFile(gArgs.GetArg("-conf", BITCOIN_CONF_FILENAME)).string().c_str()));
-
+                GetConfigFile(gArgs.GetArg("-conf", BITCOIN_CONF_FILENAME)).string().c_str()));
         }
     } else {
         strRPCUserColonPass = gArgs.GetArg("-rpcuser", "") + ":" + gArgs.GetArg("-rpcpassword", "");
@@ -260,12 +256,11 @@ UniValue CallRPC(const std::string& strMethod, const UniValue& params)
     std::string endpoint = "/";
     std::string walletName = gArgs.GetArg("-rpcwallet", "");
     if (!walletName.empty()) {
-        char *encodedURI = evhttp_uriencode(walletName.c_str(), walletName.size(), false);
+        char* encodedURI = evhttp_uriencode(walletName.c_str(), walletName.size(), false);
         if (encodedURI) {
-            endpoint = "/wallet/"+ std::string(encodedURI);
+            endpoint = "/wallet/" + std::string(encodedURI);
             free(encodedURI);
-        }
-        else {
+        } else {
             throw CConnectionFailed("uri-encode failed");
         }
     }
@@ -297,7 +292,7 @@ UniValue CallRPC(const std::string& strMethod, const UniValue& params)
     return reply;
 }
 
-int CommandLineRPC(int argc, char *argv[])
+int CommandLineRPC(int argc, char* argv[])
 {
     std::string strPrint;
     int nRet = 0;
@@ -311,7 +306,7 @@ int CommandLineRPC(int argc, char *argv[])
         if (gArgs.GetBoolArg("-stdin", false)) {
             // Read one arg per line from stdin and append
             std::string line;
-            while (std::getline(std::cin,line))
+            while (std::getline(std::cin, line))
                 args.push_back(line);
         }
         if (args.size() < 1)
@@ -320,7 +315,7 @@ int CommandLineRPC(int argc, char *argv[])
         args.erase(args.begin()); // Remove trailing method name from arguments vector
 
         UniValue params;
-        if(gArgs.GetBoolArg("-named", DEFAULT_NAMED)) {
+        if (gArgs.GetBoolArg("-named", DEFAULT_NAMED)) {
             params = RPCConvertNamedValues(strMethod, args);
         } else {
             params = RPCConvertValues(strMethod, args);
@@ -334,7 +329,7 @@ int CommandLineRPC(int argc, char *argv[])
 
                 // Parse reply
                 const UniValue& result = find_value(reply, "result");
-                const UniValue& error  = find_value(reply, "error");
+                const UniValue& error = find_value(reply, "error");
 
                 if (!error.isNull()) {
                     // Error
@@ -343,17 +338,16 @@ int CommandLineRPC(int argc, char *argv[])
                         throw CConnectionFailed("server in warmup");
                     strPrint = "error: " + error.write();
                     nRet = abs(code);
-                    if (error.isObject())
-                    {
+                    if (error.isObject()) {
                         UniValue errCode = find_value(error, "code");
-                        UniValue errMsg  = find_value(error, "message");
-                        strPrint = errCode.isNull() ? "" : "error code: "+errCode.getValStr()+"\n";
+                        UniValue errMsg = find_value(error, "message");
+                        strPrint = errCode.isNull() ? "" : "error code: " + errCode.getValStr() + "\n";
 
                         if (errMsg.isStr())
-                            strPrint += "error message:\n"+errMsg.get_str();
+                            strPrint += "error message:\n" + errMsg.get_str();
 
                         if (errCode.isNum() && errCode.get_int() == RPC_WALLET_NOT_SPECIFIED) {
-                            strPrint += "\nTry adding \"-rpcwallet=<filename>\" option to yerbas-cli command line.";
+                            strPrint += "\nTry adding \"-rpcwallet=<filename>\" option to memeium-cli command line.";
                         }
                     }
                 } else {
@@ -367,23 +361,19 @@ int CommandLineRPC(int argc, char *argv[])
                 }
                 // Connection succeeded, no need to retry.
                 break;
-            }
-            catch (const CConnectionFailed&) {
+            } catch (const CConnectionFailed&) {
                 if (fWait)
                     MilliSleep(1000);
                 else
                     throw;
             }
         } while (fWait);
-    }
-    catch (const boost::thread_interrupted&) {
+    } catch (const boost::thread_interrupted&) {
         throw;
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         strPrint = std::string("error: ") + e.what();
         nRet = EXIT_FAILURE;
-    }
-    catch (...) {
+    } catch (...) {
         PrintExceptionContinue(std::current_exception(), "CommandLineRPC()");
         throw;
     }

@@ -1,10 +1,10 @@
 // Copyright (c) 2018-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_PROVIDERTX_H
-#define YERBAS_PROVIDERTX_H
+#ifndef MEMEIUM_PROVIDERTX_H
+#define MEMEIUM_PROVIDERTX_H
 
 #include "bls/bls.h"
 #include "consensus/validation.h"
@@ -238,41 +238,43 @@ public:
     }
 };
 
-class CFutureTx {
-	static const uint16_t CURRENT_VERSION = 1;
-public:
-	uint16_t nVersion{CURRENT_VERSION};// message version
-	uint32_t maturity;
-	uint16_t lockOutputIndex;
+class CFutureTx
+{
+    static const uint16_t CURRENT_VERSION = 1;
 
 public:
-	ADD_SERIALIZE_METHODS;
+    uint16_t nVersion{CURRENT_VERSION}; // message version
+    uint32_t maturity;
+    uint16_t lockOutputIndex;
 
-	template <typename Stream, typename Operation>
-	inline void SerializationOp(Stream& s, Operation ser_action)
-	{
-		READWRITE(nVersion);
-		READWRITE(maturity);
-		READWRITE(lockOutputIndex);
+public:
+    ADD_SERIALIZE_METHODS;
 
-	}
-
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action)
+    {
+        READWRITE(nVersion);
+        READWRITE(maturity);
+        READWRITE(lockOutputIndex);
+    }
 };
 
-class CAssetTx {
+class CAssetTx
+{
 public:
     static const uint16_t CURRENT_VERSION = 1;
 
-    uint16_t nVersion{CURRENT_VERSION};// message version
+    uint16_t nVersion{CURRENT_VERSION}; // message version
     uint16_t type;
-    CAmount fee; // fee was paid for this asset creation/reisue in addition to miner fee.
+    CAmount fee;        // fee was paid for this asset creation/reisue in addition to miner fee.
     uint256 inputsHash; // replay protection
 
 public:
     ADD_SERIALIZE_METHODS;
 
-    template<typename Stream, typename Operation>
-    inline void SerializationOp(Stream &s, Operation ser_action) {
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action)
+    {
         READWRITE(nVersion);
         READWRITE(type);
         READWRITE(fee);
@@ -281,7 +283,8 @@ public:
 
     std::string ToString() const;
 
-    void ToJson(UniValue &obj) const {
+    void ToJson(UniValue& obj) const
+    {
         obj.clear();
         obj.setObject();
         obj.pushKV("version", nVersion);
@@ -297,4 +300,4 @@ bool CheckProUpServTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CVa
 bool CheckProUpRegTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CValidationState& state);
 bool CheckProUpRevTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CValidationState& state);
 
-#endif //YERBAS_PROVIDERTX_H
+#endif // MEMEIUM_PROVIDERTX_H

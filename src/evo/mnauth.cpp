@@ -1,16 +1,16 @@
 // Copyright (c) 2019-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "mnauth.h"
 
-#include "smartnode/activesmartnode.h"
 #include "evo/deterministicmns.h"
-#include "smartnode/smartnode-sync.h"
 #include "net.h"
 #include "net_processing.h"
 #include "netmessagemaker.h"
+#include "smartnode/activesmartnode.h"
+#include "smartnode/smartnode-sync.h"
 #include "validation.h"
 
 #include <unordered_set>
@@ -103,7 +103,7 @@ void CMNAuth::ProcessMessage(CNode* pnode, const std::string& strCommand, CDataS
         connman.ForEachNode([&](CNode* pnode2) {
             if (pnode2->verifiedProRegTxHash == mnauth.proRegTxHash) {
                 LogPrint(BCLog::NET, "CMNAuth::ProcessMessage -- Smartnode %s has already verified as peer %d, dropping new connection. peer=%d\n",
-                        mnauth.proRegTxHash.ToString(), pnode2->GetId(), pnode->GetId());
+                    mnauth.proRegTxHash.ToString(), pnode2->GetId(), pnode->GetId());
                 pnode->fDisconnect = true;
             }
         });
@@ -152,7 +152,7 @@ void CMNAuth::NotifySmartnodeListChanged(bool undo, const CDeterministicMNList& 
 
         if (doRemove) {
             LogPrint(BCLog::NET, "CMNAuth::NotifySmartnodeListChanged -- Disconnecting MN %s due to key changed/removed, peer=%d\n",
-                     pnode->verifiedProRegTxHash.ToString(), pnode->GetId());
+                pnode->verifiedProRegTxHash.ToString(), pnode->GetId());
             pnode->fDisconnect = true;
         }
     });

@@ -1,16 +1,16 @@
 // Copyright (c) 2019-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_QUORUMS_INSTANTSEND_H
-#define YERBAS_QUORUMS_INSTANTSEND_H
+#ifndef MEMEIUM_QUORUMS_INSTANTSEND_H
+#define MEMEIUM_QUORUMS_INSTANTSEND_H
 
 #include "quorums_signing.h"
 
 #include "coins.h"
-#include "unordered_lru_cache.h"
 #include "primitives/transaction.h"
+#include "unordered_lru_cache.h"
 
 #include <unordered_map>
 #include <unordered_set>
@@ -28,7 +28,7 @@ public:
 public:
     ADD_SERIALIZE_METHODS
 
-    template<typename Stream, typename Operation>
+    template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(inputs);
@@ -51,7 +51,8 @@ private:
     unordered_lru_cache<COutPoint, uint256, SaltedOutpointHasher, 10000> outpointCache;
 
 public:
-    CInstantSendDb(CDBWrapper& _db) : db(_db) {}
+    CInstantSendDb(CDBWrapper& _db) :
+        db(_db) {}
 
     void WriteNewInstantSendLock(const uint256& hash, const CInstantSendLock& islock);
     void RemoveInstantSendLock(CDBBatch& batch, const uint256& hash, CInstantSendLockPtr islock);
@@ -178,4 +179,4 @@ bool IsInstantSendEnabled();
 
 } // namespace llmq
 
-#endif//YERBAS_QUORUMS_INSTANTSEND_H
+#endif // MEMEIUM_QUORUMS_INSTANTSEND_H

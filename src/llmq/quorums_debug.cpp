@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -34,7 +34,7 @@ UniValue CDKGDebugSessionStatus::ToJson(int detailLevel) const
             }
         }
         if (pindex != nullptr) {
-            dmnMembers = CLLMQUtils::GetAllQuorumMembers((Consensus::LLMQType) llmqType, pindex);
+            dmnMembers = CLLMQUtils::GetAllQuorumMembers((Consensus::LLMQType)llmqType, pindex);
         }
     }
 

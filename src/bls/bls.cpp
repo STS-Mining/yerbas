@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -303,8 +303,8 @@ CBLSSignature CBLSSignature::AggregateInsecure(const std::vector<CBLSSignature>&
 }
 
 CBLSSignature CBLSSignature::AggregateSecure(const std::vector<CBLSSignature>& sigs,
-                                             const std::vector<CBLSPublicKey>& pks,
-                                             const uint256& hash)
+    const std::vector<CBLSPublicKey>& pks,
+    const uint256& hash)
 {
     if (sigs.size() != pks.size() || sigs.empty()) {
         return CBLSSignature();

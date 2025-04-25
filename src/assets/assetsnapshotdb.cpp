@@ -1,10 +1,10 @@
-// Copyright (c) 2019 The Yerbas Core developers
+// Copyright (c) 2019 The Memeium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "assetsnapshotdb.h"
-#include "validation.h"
 #include "base58.h"
+#include "validation.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/thread.hpp>
@@ -17,26 +17,29 @@ CAssetSnapshotDBEntry::CAssetSnapshotDBEntry()
 }
 
 CAssetSnapshotDBEntry::CAssetSnapshotDBEntry(
-    const std::string & p_assetName, int p_snapshotHeight,
-    const std::set<std::pair<std::string, CAmount>> & p_ownersAndAmounts
-)
+    const std::string& p_assetName,
+    int p_snapshotHeight,
+    const std::set<std::pair<std::string, CAmount>>& p_ownersAndAmounts)
 {
     SetNull();
 
     height = p_snapshotHeight;
     assetName = p_assetName;
-    for (auto const & currPair : p_ownersAndAmounts) {
+    for (auto const& currPair : p_ownersAndAmounts) {
         ownersAndAmounts.insert(currPair);
     }
 
     heightAndName = std::to_string(height) + assetName;
 }
 
-CAssetSnapshotDB::CAssetSnapshotDB(size_t nCacheSize, bool fMemory, bool fWipe) : CDBWrapper(GetDataDir() / "rewards" / "assetsnapshot", nCacheSize, fMemory, fWipe) {
+CAssetSnapshotDB::CAssetSnapshotDB(size_t nCacheSize, bool fMemory, bool fWipe) :
+    CDBWrapper(GetDataDir() / "rewards" / "assetsnapshot", nCacheSize, fMemory, fWipe)
+{
 }
 
 bool CAssetSnapshotDB::AddAssetOwnershipSnapshot(
-    const std::string & p_assetName, int p_height)
+    const std::string& p_assetName,
+    int p_height)
 {
     LogPrint(BCLog::REWARDS, "AddAssetOwnershipSnapshot: Adding snapshot for '%s' at height %d\n",
         p_assetName.c_str(), p_height);
@@ -75,13 +78,12 @@ bool CAssetSnapshotDB::AddAssetOwnershipSnapshot(
         }
 
         //  Move these into the main set
-        for (auto const & currPair : tempOwnersAndAmounts) {
+        for (auto const& currPair : tempOwnersAndAmounts) {
             //  Verify that the address is valid
             CTxDestination dest = DecodeDestination(currPair.first);
             if (IsValidDestination(dest)) {
                 ownersAndAmounts.insert(currPair);
-            }
-            else {
+            } else {
                 LogPrint(BCLog::REWARDS, "AddAssetOwnershipSnapshot: Address '%s' is invalid.\n", currPair.first.c_str());
             }
         }
@@ -110,8 +112,9 @@ bool CAssetSnapshotDB::AddAssetOwnershipSnapshot(
 }
 
 bool CAssetSnapshotDB::RetrieveOwnershipSnapshot(
-    const std::string & p_assetName, int p_height,
-    CAssetSnapshotDBEntry & p_snapshotEntry)
+    const std::string& p_assetName,
+    int p_height,
+    CAssetSnapshotDBEntry& p_snapshotEntry)
 {
     //  Load up the snapshot entries at this height
     std::string heightAndName = std::to_string(p_height) + p_assetName;
@@ -131,7 +134,8 @@ bool CAssetSnapshotDB::RetrieveOwnershipSnapshot(
 }
 
 bool CAssetSnapshotDB::RemoveOwnershipSnapshot(
-    const std::string & p_assetName, int p_height)
+    const std::string& p_assetName,
+    int p_height)
 {
     //  Load up the snapshot entries at this height
     std::string heightAndName = std::to_string(p_height) + p_assetName;

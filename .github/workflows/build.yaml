@@ -1,4 +1,4 @@
-name: Yerbas Build
+name: Memeium Build
 on:
   push:
     branches:
@@ -12,16 +12,16 @@ on:
   workflow_dispatch:
 
 env:
-  COIN_NAME: yerbas
-  BUILD_DIR: yerbas-build
-  COMPRESS_DIR: yerbas-compress
-  TEST_DIR: yerbas-test
+  COIN_NAME: memeium
+  BUILD_DIR: memeium-build
+  COMPRESS_DIR: memeium-compress
+  TEST_DIR: memeium-test
 
 permissions:
-    contents: read
-    checks: write
-    id-token: write
-    
+  contents: read
+  checks: write
+  id-token: write
+
 jobs:
   get-version:
     name: Get Version
@@ -39,7 +39,7 @@ jobs:
         uses: christian-draeger/read-properties@1.1.1
         with:
           path: build.properties
-          properties: 'release-version candidate-version snapshot-version'
+          properties: "release-version candidate-version snapshot-version"
 
       - name: Choose version
         id: selected-version
@@ -94,9 +94,9 @@ jobs:
         run: |
           make -j$(nproc)
           mkdir -p ${BUILD_DIR} ${BUILD_DIR}_not_strip ${TEST_DIR}
-          cp src/{yerbas-cli,yerbasd,qt/yerbas-qt} ${BUILD_DIR}/
-          mv src/{yerbas-cli,yerbasd,qt/yerbas-qt} ${BUILD_DIR}_not_strip/
-          mv src/test/test_yerbas ${TEST_DIR}
+          cp src/{memeium-cli,memeiumd,qt/memeium-qt} ${BUILD_DIR}/
+          mv src/{memeium-cli,memeiumd,qt/memeium-qt} ${BUILD_DIR}_not_strip/
+          mv src/test/test_memeium ${TEST_DIR}
           strip ${BUILD_DIR}/*
 
       - name: Build Debug Binaries
@@ -107,7 +107,7 @@ jobs:
           ./configure --prefix=`pwd`/depends/x86_64-pc-linux-gnu --disable-tests --enable-debug
           make -j$(nproc)
           mkdir -p ${BUILD_DIR}_debug
-          mv src/{yerbas-cli,yerbasd,qt/yerbas-qt} ${BUILD_DIR}_debug/
+          mv src/{memeium-cli,memeiumd,qt/memeium-qt} ${BUILD_DIR}_debug/
 
       - name: Generate Checksum and Compress
         run: |
@@ -196,9 +196,9 @@ jobs:
         run: |
           make -j$(nproc)
           mkdir -p ${BUILD_DIR} ${BUILD_DIR}_not_strip ${TEST_DIR}
-          cp src/{yerbas-cli,yerbasd,qt/yerbas-qt} ${BUILD_DIR}/
-          mv src/{yerbas-cli,yerbasd,qt/yerbas-qt} ${BUILD_DIR}_not_strip/
-          mv src/test/test_yerbas ${TEST_DIR}
+          cp src/{memeium-cli,memeiumd,qt/memeium-qt} ${BUILD_DIR}/
+          mv src/{memeium-cli,memeiumd,qt/memeium-qt} ${BUILD_DIR}_not_strip/
+          mv src/test/test_memeium ${TEST_DIR}
           strip ${BUILD_DIR}/*
 
       - name: Build Debug Binaries
@@ -209,7 +209,7 @@ jobs:
           ./configure --prefix=`pwd`/depends/x86_64-pc-linux-gnu --disable-tests --enable-debug
           make -j$(nproc)
           mkdir -p ${BUILD_DIR}_debug
-          mv src/{yerbas-cli,yerbasd,qt/yerbas-qt} ${BUILD_DIR}_debug/
+          mv src/{memeium-cli,memeiumd,qt/memeium-qt} ${BUILD_DIR}_debug/
 
       - name: Generate Checksum and Compress
         run: |
@@ -281,7 +281,7 @@ jobs:
         run: |
           brew install automake libtool pkg-config miniupnpc librsvg libnatpmp zeromq python
           pip3 install ds_store mac_alias
-          pip3 install -U pip setuptools 
+          pip3 install -U pip setuptools
 
       - name: Build Depends
         run: |
@@ -298,9 +298,9 @@ jobs:
         run: |
           make -j8
           mkdir -p ${BUILD_DIR} ${BUILD_DIR}_not_strip ${TEST_DIR}
-          cp src/{yerbas-cli,yerbasd,qt/yerbas-qt} ${BUILD_DIR}/
-          mv src/{yerbas-cli,yerbasd,qt/yerbas-qt} ${BUILD_DIR}_not_strip/
-          mv src/test/test_yerbas ${TEST_DIR}
+          cp src/{memeium-cli,memeiumd,qt/memeium-qt} ${BUILD_DIR}/
+          mv src/{memeium-cli,memeiumd,qt/memeium-qt} ${BUILD_DIR}_not_strip/
+          mv src/test/test_memeium ${TEST_DIR}
           strip ${BUILD_DIR}/*
 
       - name: Generate Checksum and Compress
@@ -352,10 +352,10 @@ jobs:
         run: |
           make deploy
           mkdir -p macos-dmg
-          mv Yerbas-Qt.dmg macos-dmg/
+          mv Memeium-Qt.dmg macos-dmg/
           cd macos-dmg
-          echo "sha256: `shasum Yerbas-Qt.dmg`" >> checksums.txt
-          echo "openssl-sha256: `openssl sha256 Yerbas-Qt.dmg`" >> checksums.txt
+          echo "sha256: `shasum Memeium-Qt.dmg`" >> checksums.txt
+          echo "openssl-sha256: `openssl sha256 Memeium-Qt.dmg`" >> checksums.txt
           cd ..
 
       - name: Upload dmg file
@@ -393,8 +393,8 @@ jobs:
         run: |
           make -j$(nproc)
           mkdir -p ${BUILD_DIR} ${TEST_DIR}
-          mv src/{yerbas-cli,yerbasd,qt/yerbas-qt} ${BUILD_DIR}/
-          mv src/test/test_yerbas ${TEST_DIR}/
+          mv src/{memeium-cli,memeiumd,qt/memeium-qt} ${BUILD_DIR}/
+          mv src/test/test_memeium ${TEST_DIR}/
 
       - name: Build Debug Binaries
         run: |
@@ -404,7 +404,7 @@ jobs:
           ./configure --prefix=`pwd`/depends/aarch64-linux-gnu --disable-tests --enable-debug
           make -j$(nproc)
           mkdir -p ${BUILD_DIR}_debug
-          mv src/{yerbas-cli,yerbasd,qt/yerbas-qt} ${BUILD_DIR}_debug/
+          mv src/{memeium-cli,memeiumd,qt/memeium-qt} ${BUILD_DIR}_debug/
 
       - name: Generate Checksum and Compress
         run: |
@@ -450,7 +450,7 @@ jobs:
         with:
           name: ${{ env.COIN_NAME }}-arm64-test-${{ needs.get-version.outputs.version }}
           path: ${{ env.TEST_DIR }}
-          
+
   build-win64:
     name: Win64 Build
     needs: get-version
@@ -484,9 +484,9 @@ jobs:
         run: |
           make -j$(nproc)
           mkdir -p ${BUILD_DIR} ${BUILD_DIR}_not_strip ${TEST_DIR}
-          cp src/{yerbas-cli.exe,yerbasd.exe,qt/yerbas-qt.exe} ${BUILD_DIR}/
-          mv src/{yerbas-cli.exe,yerbasd.exe,qt/yerbas-qt.exe} ${BUILD_DIR}_not_strip/
-          mv src/test/test_yerbas.exe ${TEST_DIR}
+          cp src/{memeium-cli.exe,memeiumd.exe,qt/memeium-qt.exe} ${BUILD_DIR}/
+          mv src/{memeium-cli.exe,memeiumd.exe,qt/memeium-qt.exe} ${BUILD_DIR}_not_strip/
+          mv src/test/test_memeium.exe ${TEST_DIR}
           strip ${BUILD_DIR}/*
 
       - name: Generate Checksum and Compress

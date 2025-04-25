@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,8 +7,8 @@
 
 #include "quorums.h"
 #include "quorums_blockprocessor.h"
-#include "quorums_commitment.h"
 #include "quorums_chainlocks.h"
+#include "quorums_commitment.h"
 #include "quorums_debug.h"
 #include "quorums_dkgsessionmgr.h"
 #include "quorums_instantsend.h"
@@ -66,7 +66,7 @@ void DestroyLLMQSystem()
 
 void StartLLMQSystem()
 {
-    //quorumBlockProcessor->UpgradeDB();
+    // quorumBlockProcessor->UpgradeDB();
 
     if (blsWorker) {
         blsWorker->Start();

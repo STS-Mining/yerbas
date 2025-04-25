@@ -1,18 +1,21 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/yerbas-config.h"
+#include "config/memeium-config.h"
 #endif
 
 #include "init.h"
 
 #include "addrman.h"
 #include "amount.h"
+#include "assets/assetdb.h"
+#include "assets/assets.h"
+#include "assets/snapshotrequestdb.h"
 #include "base58.h"
 #include "chain.h"
 #include "chainparams.h"
@@ -20,52 +23,49 @@
 #include "compat/sanity.h"
 #include "consensus/validation.h"
 #include "fs.h"
-#include "httpserver.h"
 #include "httprpc.h"
+#include "httpserver.h"
 #include "key.h"
-#include "validation.h"
 #include "miner.h"
-#include "rpc/mining.h"
-#include "netbase.h"
 #include "net.h"
 #include "net_processing.h"
+#include "netbase.h"
 #include "policy/feerate.h"
 #include "policy/fees.h"
 #include "policy/policy.h"
-#include "rpc/server.h"
-#include "rpc/register.h"
 #include "rpc/blockchain.h"
-#include "script/standard.h"
-#include "script/sigcache.h"
+#include "rpc/mining.h"
+#include "rpc/register.h"
+#include "rpc/server.h"
 #include "scheduler.h"
+#include "script/sigcache.h"
+#include "script/standard.h"
 #include "timedata.h"
+#include "torcontrol.h"
 #include "txdb.h"
 #include "txmempool.h"
-#include "torcontrol.h"
 #include "ui_interface.h"
 #include "util.h"
 #include "utilmoneystr.h"
+#include "validation.h"
 #include "validationinterface.h"
-#include "assets/assets.h"
-#include "assets/assetdb.h"
-#include "assets/snapshotrequestdb.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #endif
 
-#include "smartnode/activesmartnode.h"
 #include "dsnotificationinterface.h"
 #include "flat-database.h"
 #include "governance/governance.h"
+#include "smartnode/activesmartnode.h"
 #ifdef ENABLE_WALLET
 #include "keepass.h"
 #endif
+#include "messagesigner.h"
+#include "netfulfilledman.h"
 #include "smartnode/smartnode-meta.h"
 #include "smartnode/smartnode-payments.h"
 #include "smartnode/smartnode-sync.h"
 #include "smartnode/smartnode-utils.h"
-#include "messagesigner.h"
-#include "netfulfilledman.h"
 #ifdef ENABLE_WALLET
 #include "privatesend/privatesend-client.h"
 #endif // ENABLE_WALLET
@@ -78,9 +78,9 @@
 
 #include <primitives/powcache.h>
 
+#include <memory>
 #include <stdint.h>
 #include <stdio.h>
-#include <memory>
 
 #include "bls/bls.h"
 
@@ -125,7 +125,7 @@ static CDSNotificationInterface* pdsNotificationInterface = nullptr;
 #define MIN_CORE_FILEDESCRIPTORS 150
 #endif
 
-static const char* FEE_ESTIMATES_FILENAME="fee_estimates.dat";
+static const char* FEE_ESTIMATES_FILENAME = "fee_estimates.dat";
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -174,15 +174,17 @@ bool ShutdownRequested()
  * This is a minimally invasive approach to shutdown on LevelDB read errors from the
  * chainstate, while keeping user interface out of the common library, which is shared
  * between bitcoind, and bitcoin-qt and non-server tools.
-*/
+ */
 class CCoinsViewErrorCatcher : public CCoinsViewBacked
 {
 public:
-    CCoinsViewErrorCatcher(CCoinsView* view) : CCoinsViewBacked(view) {}
-    bool GetCoin(const COutPoint &outpoint, Coin &coin) const override {
+    CCoinsViewErrorCatcher(CCoinsView* view) :
+        CCoinsViewBacked(view) {}
+    bool GetCoin(const COutPoint& outpoint, Coin& coin) const override
+    {
         try {
             return CCoinsViewBacked::GetCoin(outpoint, coin);
-        } catch(const std::runtime_error& e) {
+        } catch (const std::runtime_error& e) {
             uiInterface.ThreadSafeMessageBox(_("Error reading from database, shutting down."), "", CClientUIInterface::MSG_ERROR);
             LogPrintf("Error reading from database: %s\n", e.what());
             // Starting the shutdown sequence and returning false to the caller would be
@@ -195,7 +197,7 @@ public:
     // Writes do not need similar protection, as failure to write is handled by the caller.
 };
 
-static CCoinsViewErrorCatcher *pcoinscatcher = nullptr;
+static CCoinsViewErrorCatcher* pcoinscatcher = nullptr;
 static std::unique_ptr<ECCVerifyHandle> globalVerifyHandle;
 
 void Interrupt(boost::thread_group& threadGroup)
@@ -224,7 +226,7 @@ void PrepareShutdown()
     /// for example if the data directory was found to be locked.
     /// Be sure that anything that writes files or flushes caches only does this if the respective
     /// module was initialized.
-    RenameThread("yerbas-shutoff");
+    RenameThread("memeium-shutoff");
     mempool.AddTransactionsUpdated(1);
     StopHTTPRPC();
     StopREST();
@@ -252,7 +254,7 @@ void PrepareShutdown()
     // Because these depend on each-other, we make sure that neither can be
     // using the other before destroying them.
     UnregisterValidationInterface(peerLogic.get());
-    if(g_connman) g_connman->Stop();
+    if (g_connman) g_connman->Stop();
     peerLogic.reset();
     g_connman.reset();
 
@@ -274,8 +276,7 @@ void PrepareShutdown()
         DumpMempool();
     }
 
-    if (fFeeEstimatesInitialized)
-    {
+    if (fFeeEstimatesInitialized) {
         ::feeEstimator.FlushUnconfirmed(::mempool);
         fs::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
         CAutoFile est_fileout(fsbridge::fopen(est_path, "wb"), SER_DISK, CLIENT_VERSION);
@@ -315,7 +316,7 @@ void PrepareShutdown()
         delete pblocktree;
         pblocktree = nullptr;
 
-        /** YERB START */
+        /** MMM START */
         delete passets;
         passets = nullptr;
 
@@ -370,7 +371,7 @@ void PrepareShutdown()
         delete pDistributeSnapshotDb;
         pDistributeSnapshotDb = nullptr;
 
-        /** YERB END */
+        /** MMM END */
         llmq::DestroyLLMQSystem();
         delete deterministicMNManager;
         deterministicMNManager = nullptr;
@@ -416,21 +417,21 @@ void PrepareShutdown()
 }
 
 /**
-* Shutdown is split into 2 parts:
-* Part 1: shut down everything but the main wallet instance (done in PrepareShutdown() )
-* Part 2: delete wallet instance
-*
-* In case of a restart PrepareShutdown() was already called before, but this method here gets
-* called implicitly when the parent object is deleted. In this case we have to skip the
-* PrepareShutdown() part because it was already executed and just delete the wallet instance.
-*/
+ * Shutdown is split into 2 parts:
+ * Part 1: shut down everything but the main wallet instance (done in PrepareShutdown() )
+ * Part 2: delete wallet instance
+ *
+ * In case of a restart PrepareShutdown() was already called before, but this method here gets
+ * called implicitly when the parent object is deleted. In this case we have to skip the
+ * PrepareShutdown() part because it was already executed and just delete the wallet instance.
+ */
 void Shutdown()
 {
     // Shutdown part 1: prepare shutdown
-    if(!fRequestRestart) {
+    if (!fRequestRestart) {
         PrepareShutdown();
     }
-   // Shutdown part 2: Stop TOR thread and delete wallet instance
+    // Shutdown part 2: Stop TOR thread and delete wallet instance
     StopTorControl();
 #ifdef ENABLE_WALLET
     for (CWalletRef pwallet : vpwallets) {
@@ -459,7 +460,7 @@ static void HandleSIGHUP(int)
 }
 
 #ifndef WIN32
-static void registerSignalHandler(int signal, void(*handler)(int))
+static void registerSignalHandler(int signal, void (*handler)(int))
 {
     struct sigaction sa;
     sa.sa_handler = handler;
@@ -508,10 +509,9 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-blocknotify=<cmd>", _("Execute command when the best block changes (%s in cmd is replaced by block hash)"));
     if (showDebug)
         strUsage += HelpMessageOpt("-blocksonly", strprintf(_("Whether to operate in a blocks only mode (default: %u)"), DEFAULT_BLOCKSONLY));
-    strUsage +=HelpMessageOpt("-assumevalid=<hex>", strprintf(_("If this block is in the chain assume that it and its ancestors are valid and potentially skip their script verification (0 to verify all, default: %s, testnet: %s)"), defaultChainParams->GetConsensus().defaultAssumeValid.GetHex(), testnetChainParams->GetConsensus().defaultAssumeValid.GetHex()));
+    strUsage += HelpMessageOpt("-assumevalid=<hex>", strprintf(_("If this block is in the chain assume that it and its ancestors are valid and potentially skip their script verification (0 to verify all, default: %s, testnet: %s)"), defaultChainParams->GetConsensus().defaultAssumeValid.GetHex(), testnetChainParams->GetConsensus().defaultAssumeValid.GetHex()));
     strUsage += HelpMessageOpt("-conf=<file>", strprintf(_("Specify configuration file (default: %s)"), BITCOIN_CONF_FILENAME));
-    if (mode == HMM_BITCOIND)
-    {
+    if (mode == HMM_BITCOIND) {
 #if HAVE_DECL_DAEMON
         strUsage += HelpMessageOpt("-daemon", _("Run in the background as a daemon and accept commands"));
 #endif
@@ -532,13 +532,14 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-syncmempool", strprintf(_("Sync mempool from other nodes on start (default: %u)"), DEFAULT_SYNC_MEMPOOL));
     strUsage += HelpMessageOpt("-blockreconstructionextratxn=<n>", strprintf(_("Extra transactions to keep in memory for compact block reconstructions (default: %u)"), DEFAULT_BLOCK_RECONSTRUCTION_EXTRA_TXN));
     strUsage += HelpMessageOpt("-par=<n>", strprintf(_("Set the number of script verification threads (%u to %d, 0 = auto, <0 = leave that many cores free, default: %d)"),
-        -GetNumCores(), MAX_SCRIPTCHECK_THREADS, DEFAULT_SCRIPTCHECK_THREADS));
+                                               -GetNumCores(), MAX_SCRIPTCHECK_THREADS, DEFAULT_SCRIPTCHECK_THREADS));
 #ifndef WIN32
     strUsage += HelpMessageOpt("-pid=<file>", strprintf(_("Specify pid file (default: %s)"), BITCOIN_PID_FILENAME));
 #endif
     strUsage += HelpMessageOpt("-prune=<n>", strprintf(_("Reduce storage requirements by enabling pruning (deleting) of old blocks. This allows the pruneblockchain RPC to be called to delete specific blocks, and enables automatic pruning of old blocks if a target size in MiB is provided. This mode is incompatible with -txindex and -rescan. "
-            "Warning: Reverting this setting requires re-downloading the entire blockchain. "
-            "(default: 0 = disable pruning blocks, 1 = allow manual pruning via RPC, >%u = automatically prune block files to stay under the specified target size in MiB)"), MIN_DISK_SPACE_FOR_BLOCK_FILES / 1024 / 1024));
+                                                         "Warning: Reverting this setting requires re-downloading the entire blockchain. "
+                                                         "(default: 0 = disable pruning blocks, 1 = allow manual pruning via RPC, >%u = automatically prune block files to stay under the specified target size in MiB)"),
+                                                 MIN_DISK_SPACE_FOR_BLOCK_FILES / 1024 / 1024));
     strUsage += HelpMessageOpt("-reindex-chainstate", _("Rebuild chain state from the currently indexed blocks"));
     strUsage += HelpMessageOpt("-reindex", _("Rebuild chain state and block index from the blk*.dat files on disk"));
 #ifndef WIN32
@@ -588,7 +589,7 @@ std::string HelpMessage(HelpMessageMode mode)
 #endif
     strUsage += HelpMessageOpt("-whitebind=<addr>", _("Bind to given address and whitelist peers connecting to it. Use [host]:port notation for IPv6"));
     strUsage += HelpMessageOpt("-whitelist=<IP address or network>", _("Whitelist peers connecting from the given IP address (e.g. 1.2.3.4) or CIDR notated network (e.g. 1.2.3.0/24). Can be specified multiple times.") +
-        " " + _("Whitelisted peers cannot be DoS banned and their transactions are always relayed, even if they are already in the mempool, useful e.g. for a gateway"));
+                                                                         " " + _("Whitelisted peers cannot be DoS banned and their transactions are always relayed, even if they are already in the mempool, useful e.g. for a gateway"));
     strUsage += HelpMessageOpt("-maxuploadtarget=<n>", strprintf(_("Tries to keep outbound traffic under the given target (in MiB per 24h), 0 = no limit (default: %d)"), DEFAULT_MAX_UPLOAD_TARGET));
 
 #ifdef ENABLE_WALLET
@@ -613,8 +614,7 @@ std::string HelpMessage(HelpMessageMode mode)
 
     strUsage += HelpMessageGroup(_("Debugging/Testing options:"));
     strUsage += HelpMessageOpt("-uacomment=<cmt>", _("Append comment to the user agent string"));
-    if (showDebug)
-    {
+    if (showDebug) {
         strUsage += HelpMessageOpt("-checkblocks=<n>", strprintf(_("How many blocks to check at startup (default: %u, 0 = all)"), DEFAULT_CHECKBLOCKS));
         strUsage += HelpMessageOpt("-checklevel=<n>", strprintf(_("How thorough the block verification of -checkblocks is (0-4, default: %u)"), DEFAULT_CHECKLEVEL));
         strUsage += HelpMessageOpt("-checkblockindex", strprintf("Do a full consistency check for mapBlockIndex, setBlockIndexCandidates, chainActive and mapBlocksUnlinked occasionally. Also sets -checkmempool (default: %u)", defaultChainParams->DefaultConsistencyChecks()));
@@ -635,15 +635,14 @@ std::string HelpMessage(HelpMessageMode mode)
         strUsage += HelpMessageOpt("-watchquorums=<n>", strprintf("Watch and validate quorum communication (default: %u)", llmq::DEFAULT_WATCH_QUORUMS));
     }
     strUsage += HelpMessageOpt("-debug=<category>", strprintf(_("Output debugging information (default: %u, supplying <category> is optional)"), 0) + ". " +
-        _("If <category> is not supplied or if <category> = 1, output all debugging information.") + " " + _("<category> can be:") + " " + ListLogCategories() + ".");
+                                                        _("If <category> is not supplied or if <category> = 1, output all debugging information.") + " " + _("<category> can be:") + " " + ListLogCategories() + ".");
     strUsage += HelpMessageOpt("-debugexclude=<category>", strprintf(_("Exclude debugging information for a category. Can be used in conjunction with -debug=1 to output debug logs for all categories except one or more specified categories.")));
     if (showDebug)
         strUsage += HelpMessageOpt("-nodebug", "Turn off debugging messages, same as -debug=0");
     strUsage += HelpMessageOpt("-help-debug", _("Show all debugging options (usage: --help -help-debug)"));
     strUsage += HelpMessageOpt("-logips", strprintf(_("Include IP addresses in debug output (default: %u)"), DEFAULT_LOGIPS));
     strUsage += HelpMessageOpt("-logtimestamps", strprintf(_("Prepend debug output with timestamp (default: %u)"), DEFAULT_LOGTIMESTAMPS));
-    if (showDebug)
-    {
+    if (showDebug) {
         strUsage += HelpMessageOpt("-logtimemicros", strprintf("Add microsecond precision to debug timestamps (default: %u)", DEFAULT_LOGTIMEMICROS));
         strUsage += HelpMessageOpt("-logthreadnames", strprintf("Add thread names to debug messages (default: %u)", DEFAULT_LOGTHREADNAMES));
         strUsage += HelpMessageOpt("-mocktime=<n>", "Replace actual time with <n> seconds since epoch (default: 0)");
@@ -651,17 +650,16 @@ std::string HelpMessage(HelpMessageMode mode)
         strUsage += HelpMessageOpt("-maxtipage=<n>", strprintf("Maximum tip age in seconds to consider node in initial block download (default: %u)", DEFAULT_MAX_TIP_AGE));
     }
     strUsage += HelpMessageOpt("-maxtxfee=<amt>", strprintf(_("Maximum total fees (in %s) to use in a single wallet transaction or raw transaction; setting this too low may abort large transactions (default: %s)"),
-        CURRENCY_UNIT, FormatMoney(DEFAULT_TRANSACTION_MAXFEE)));
+                                                      CURRENCY_UNIT, FormatMoney(DEFAULT_TRANSACTION_MAXFEE)));
     strUsage += HelpMessageOpt("-printtoconsole", _("Send trace/debug info to console instead of debug.log file"));
     strUsage += HelpMessageOpt("-printtodebuglog", strprintf(_("Send trace/debug info to debug.log file (default: %u)"), 1));
-    if (showDebug)
-    {
+    if (showDebug) {
         strUsage += HelpMessageOpt("-printpriority", strprintf("Log transaction fee per kB when mining blocks (default: %u)", DEFAULT_PRINTPRIORITY));
     }
     strUsage += HelpMessageOpt("-shrinkdebugfile", _("Shrink debug.log file on client startup (default: 1 when no -debug)"));
     AppendParamsHelpMessages(strUsage, showDebug);
-    strUsage += HelpMessageOpt("-litemode", strprintf(_("Disable all Yerbas specific functionality (Smartnodes, PrivateSend, InstantSend, Governance) (0-1, default: %u)"), 0));
-    strUsage += HelpMessageOpt("-sporkaddr=<yerbasaddress>", strprintf(_("Override spork address. Only useful for regtest and devnet. Using this on mainnet or testnet will ban you.")));
+    strUsage += HelpMessageOpt("-litemode", strprintf(_("Disable all Memeium specific functionality (Smartnodes, PrivateSend, InstantSend, Governance) (0-1, default: %u)"), 0));
+    strUsage += HelpMessageOpt("-sporkaddr=<memeiumaddress>", strprintf(_("Override spork address. Only useful for regtest and devnet. Using this on mainnet or testnet will ban you.")));
     strUsage += HelpMessageOpt("-minsporkkeys=<n>", strprintf(_("Overrides minimum spork signers to change spork value. Only useful for regtest and devnet. Using this on mainnet or testnet will ban you.")));
 
     strUsage += HelpMessageGroup(_("Smartnode options:"));
@@ -692,7 +690,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-datacarrier", strprintf(_("Relay and mine data carrier transactions (default: %u)"), DEFAULT_ACCEPT_DATACARRIER));
     strUsage += HelpMessageOpt("-datacarriersize", strprintf(_("Maximum size of data in data carrier transactions we relay and mine (default: %u)"), MAX_OP_RETURN_RELAY));
     strUsage += HelpMessageOpt("-minrelaytxfee=<amt>", strprintf(_("Fees (in %s/kB) smaller than this are considered zero fee for relaying, mining and transaction creation (default: %s)"),
-        CURRENCY_UNIT, FormatMoney(DEFAULT_MIN_RELAY_TX_FEE)));
+                                                           CURRENCY_UNIT, FormatMoney(DEFAULT_MIN_RELAY_TX_FEE)));
     strUsage += HelpMessageOpt("-whitelistrelay", strprintf(_("Accept relayed transactions received from whitelisted peers even when not relaying transactions (default: %d)"), DEFAULT_WHITELISTRELAY));
     strUsage += HelpMessageOpt("-whitelistforcerelay", strprintf(_("Force relay of transactions from whitelisted peers even if they violate local relay policy (default: %d)"), DEFAULT_WHITELISTFORCERELAY));
 
@@ -723,8 +721,8 @@ std::string HelpMessage(HelpMessageMode mode)
 
 std::string LicenseInfo()
 {
-    const std::string URL_SOURCE_CODE = "<https://github.com/The-Yerbas-Endeavor/yerbas>";
-    const std::string URL_WEBSITE = "<https://yerbas.org>";
+    const std::string URL_SOURCE_CODE = "<https://github.com/The-Memeium-Endeavor/memeium>";
+    const std::string URL_WEBSITE = "<https://memeium.org>";
 
     return CopyrightHolders(_("Copyright (C)"), 2014, COPYRIGHT_YEAR) + "\n" +
            "\n" +
@@ -743,7 +741,7 @@ std::string LicenseInfo()
            "\n";
 }
 
-static void BlockNotifyCallback(bool initialSync, const CBlockIndex *pBlockIndex)
+static void BlockNotifyCallback(bool initialSync, const CBlockIndex* pBlockIndex)
 {
     if (initialSync || !pBlockIndex)
         return;
@@ -758,7 +756,7 @@ static bool fHaveGenesis = false;
 static boost::mutex cs_GenesisWait;
 static CConditionVariable condvar_GenesisWait;
 
-static void BlockNotifyGenesisWait(bool, const CBlockIndex *pBlockIndex)
+static void BlockNotifyGenesisWait(bool, const CBlockIndex* pBlockIndex)
 {
     if (pBlockIndex != nullptr) {
         {
@@ -769,14 +767,15 @@ static void BlockNotifyGenesisWait(bool, const CBlockIndex *pBlockIndex)
     }
 }
 
-struct CImportingNow
-{
-    CImportingNow() {
+struct CImportingNow {
+    CImportingNow()
+    {
         assert(fImporting == false);
         fImporting = true;
     }
 
-    ~CImportingNow() {
+    ~CImportingNow()
+    {
         assert(fImporting == true);
         fImporting = false;
     }
@@ -801,11 +800,10 @@ void CleanupBlockRevFiles()
     for (fs::directory_iterator it(blocksdir); it != fs::directory_iterator(); it++) {
         if (is_regular_file(*it) &&
             it->path().filename().string().length() == 12 &&
-            it->path().filename().string().substr(8,4) == ".dat")
-        {
-            if (it->path().filename().string().substr(0,3) == "blk")
-                mapBlockFiles[it->path().filename().string().substr(3,5)] = it->path();
-            else if (it->path().filename().string().substr(0,3) == "rev")
+            it->path().filename().string().substr(8, 4) == ".dat") {
+            if (it->path().filename().string().substr(0, 3) == "blk")
+                mapBlockFiles[it->path().filename().string().substr(3, 5)] = it->path();
+            else if (it->path().filename().string().substr(0, 3) == "rev")
                 remove(it->path());
         }
     }
@@ -827,68 +825,68 @@ void CleanupBlockRevFiles()
 void ThreadImport(std::vector<fs::path> vImportFiles)
 {
     const CChainParams& chainparams = Params();
-    RenameThread("yerbas-loadblk");
+    RenameThread("memeium-loadblk");
 
     {
-    CImportingNow imp;
+        CImportingNow imp;
 
-    // -reindex
-    if (fReindex) {
-        int nFile = 0;
-        while (true) {
-            CDiskBlockPos pos(nFile, 0);
-            if (!fs::exists(GetBlockPosFilename(pos, "blk")))
-                break; // No block files left to reindex
-            FILE *file = OpenBlockFile(pos, true);
-            if (!file)
-                break; // This error is logged in OpenBlockFile
-            LogPrintf("Reindexing block file blk%05u.dat...\n", (unsigned int)nFile);
-            LoadExternalBlockFile(chainparams, file, &pos);
-            nFile++;
+        // -reindex
+        if (fReindex) {
+            int nFile = 0;
+            while (true) {
+                CDiskBlockPos pos(nFile, 0);
+                if (!fs::exists(GetBlockPosFilename(pos, "blk")))
+                    break; // No block files left to reindex
+                FILE* file = OpenBlockFile(pos, true);
+                if (!file)
+                    break; // This error is logged in OpenBlockFile
+                LogPrintf("Reindexing block file blk%05u.dat...\n", (unsigned int)nFile);
+                LoadExternalBlockFile(chainparams, file, &pos);
+                nFile++;
+            }
+            pblocktree->WriteReindexing(false);
+            fReindex = false;
+            LogPrintf("Reindexing finished\n");
+            // To avoid ending up in a situation without genesis block, re-try initializing (no-op if reindexing worked):
+            LoadGenesisBlock(chainparams);
         }
-        pblocktree->WriteReindexing(false);
-        fReindex = false;
-        LogPrintf("Reindexing finished\n");
-        // To avoid ending up in a situation without genesis block, re-try initializing (no-op if reindexing worked):
-        LoadGenesisBlock(chainparams);
-    }
 
-    // hardcoded $DATADIR/bootstrap.dat
-    fs::path pathBootstrap = GetDataDir() / "bootstrap.dat";
-    if (fs::exists(pathBootstrap)) {
-        FILE *file = fsbridge::fopen(pathBootstrap, "rb");
-        if (file) {
-            fs::path pathBootstrapOld = GetDataDir() / "bootstrap.dat.old";
-            LogPrintf("Importing bootstrap.dat...\n");
-            LoadExternalBlockFile(chainparams, file);
-            RenameOver(pathBootstrap, pathBootstrapOld);
-        } else {
-            LogPrintf("Warning: Could not open bootstrap file %s\n", pathBootstrap.string());
+        // hardcoded $DATADIR/bootstrap.dat
+        fs::path pathBootstrap = GetDataDir() / "bootstrap.dat";
+        if (fs::exists(pathBootstrap)) {
+            FILE* file = fsbridge::fopen(pathBootstrap, "rb");
+            if (file) {
+                fs::path pathBootstrapOld = GetDataDir() / "bootstrap.dat.old";
+                LogPrintf("Importing bootstrap.dat...\n");
+                LoadExternalBlockFile(chainparams, file);
+                RenameOver(pathBootstrap, pathBootstrapOld);
+            } else {
+                LogPrintf("Warning: Could not open bootstrap file %s\n", pathBootstrap.string());
+            }
         }
-    }
 
-    // -loadblock=
-    for (const fs::path& path : vImportFiles) {
-        FILE *file = fsbridge::fopen(path, "rb");
-        if (file) {
-            LogPrintf("Importing blocks file %s...\n", path.string());
-            LoadExternalBlockFile(chainparams, file);
-        } else {
-            LogPrintf("Warning: Could not open blocks file %s\n", path.string());
+        // -loadblock=
+        for (const fs::path& path : vImportFiles) {
+            FILE* file = fsbridge::fopen(path, "rb");
+            if (file) {
+                LogPrintf("Importing blocks file %s...\n", path.string());
+                LoadExternalBlockFile(chainparams, file);
+            } else {
+                LogPrintf("Warning: Could not open blocks file %s\n", path.string());
+            }
         }
-    }
 
-    // scan for better chains in the block chain database, that are not yet connected in the active best chain
-    CValidationState state;
-    if (!ActivateBestChain(state, chainparams)) {
-        LogPrintf("Failed to connect best block (%s)\n", FormatStateMessage(state));
-        StartShutdown();
-    }
+        // scan for better chains in the block chain database, that are not yet connected in the active best chain
+        CValidationState state;
+        if (!ActivateBestChain(state, chainparams)) {
+            LogPrintf("Failed to connect best block (%s)\n", FormatStateMessage(state));
+            StartShutdown();
+        }
 
-    if (gArgs.GetBoolArg("-stopafterblockimport", DEFAULT_STOPAFTERBLOCKIMPORT)) {
-        LogPrintf("Stopping after block import\n");
-        StartShutdown();
-    }
+        if (gArgs.GetBoolArg("-stopafterblockimport", DEFAULT_STOPAFTERBLOCKIMPORT)) {
+            LogPrintf("Stopping after block import\n");
+            StartShutdown();
+        }
     } // End scope of CImportingNow
 
     // force UpdatedBlockTip to initialize nCachedBlockHeight for DS, MN payments and budgets
@@ -929,12 +927,12 @@ void ThreadImport(std::vector<fs::path> vImportFiles)
 }
 
 /** Sanity checks
- *  Ensure that Yerbas Core is running in a usable environment with all
+ *  Ensure that Memeium Core is running in a usable environment with all
  *  necessary library support.
  */
 bool InitSanityCheck(void)
 {
-    if(!ECC_InitSanityCheck()) {
+    if (!ECC_InitSanityCheck()) {
         InitError("Elliptic curve cryptography sanity check failure. Aborting.");
         return false;
     }
@@ -999,7 +997,7 @@ void InitParameterInteraction()
             // smartnodes MUST be able to handle at least DEFAULT_MAX_PEER_CONNECTIONS connections
             gArgs.ForceSetArg("-maxconnections", itostr(DEFAULT_SN_MAX_PEER_CONNECTIONS));
             LogPrintf("%s: parameter interaction: -smartnodeblsprivkey=... -> setting -maxconnections=%d instead of specified -maxconnections=%d\n",
-                    __func__, DEFAULT_SN_MAX_PEER_CONNECTIONS, gArgs.GetArg("-maxconnections", DEFAULT_MAX_PEER_CONNECTIONS));
+                __func__, DEFAULT_SN_MAX_PEER_CONNECTIONS, gArgs.GetArg("-maxconnections", DEFAULT_MAX_PEER_CONNECTIONS));
         }
     }
 
@@ -1073,7 +1071,7 @@ void InitParameterInteraction()
     }
 }
 
-static std::string ResolveErrMsg(const char * const optname, const std::string& strBind)
+static std::string ResolveErrMsg(const char* const optname, const std::string& strBind)
 {
     return strprintf(_("Cannot resolve -%s address: '%s'"), optname, strBind);
 }
@@ -1088,10 +1086,11 @@ void InitLogging()
     fLogIPs = gArgs.GetBoolArg("-logips", DEFAULT_LOGIPS);
 
     LogPrintf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    LogPrintf("Yerbas Core version %s\n", FormatFullVersion());
+    LogPrintf("Memeium Core version %s\n", FormatFullVersion());
 }
 
-namespace { // Variables internal to initialization process only
+namespace
+{ // Variables internal to initialization process only
 
 int nMaxConnections;
 int nUserMaxConnections;
@@ -1132,7 +1131,7 @@ bool AppInitBasicSetup()
     // which is not correct. Can be removed, when GCCs winbase.h is fixed!
 #define PROCESS_DEP_ENABLE 0x00000001
 #endif
-    typedef BOOL (WINAPI *PSETPROCDEPPOL)(DWORD);
+    typedef BOOL(WINAPI * PSETPROCDEPPOL)(DWORD);
     PSETPROCDEPPOL setProcDEPPol = (PSETPROCDEPPOL)GetProcAddress(GetModuleHandleA("Kernel32.dll"), "SetProcessDEPPolicy");
     if (setProcDEPPol != nullptr) setProcDEPPol(PROCESS_DEP_ENABLE);
 #endif
@@ -1230,8 +1229,8 @@ bool AppInitParameterInteraction()
     // Now remove the logging categories which were explicitly excluded
     for (const std::string& cat : gArgs.GetArgs("-debugexclude")) {
         uint64_t flag;
-            if (!GetLogCategory(&flag, &cat)) {
-                InitWarning(strprintf(_("Unsupported logging category %s=%s."), "-debugexclude", cat));
+        if (!GetLogCategory(&flag, &cat)) {
+            InitWarning(strprintf(_("Unsupported logging category %s=%s."), "-debugexclude", cat));
         }
         logCategories &= ~flag;
     }
@@ -1290,8 +1289,7 @@ bool AppInitParameterInteraction()
         return InitError(strprintf(_("-maxmempool must be at least %d MB"), std::ceil(nMempoolSizeMin / 1000000.0)));
     // incremental relay fee sets the minimum feerate increase necessary for BIP 125 replacement in the mempool
     // and the amount the mempool min fee increases above the feerate of txs evicted due to mempool limiting.
-    if (gArgs.IsArgSet("-incrementalrelayfee"))
-    {
+    if (gArgs.IsArgSet("-incrementalrelayfee")) {
         CAmount n = 0;
         if (!ParseMoney(gArgs.GetArg("-incrementalrelayfee", ""), n))
             return InitError(AmountErrMsg("incrementalrelayfee", gArgs.GetArg("-incrementalrelayfee", "")));
@@ -1312,8 +1310,8 @@ bool AppInitParameterInteraction()
     if (nPruneArg < 0) {
         return InitError(_("Prune cannot be configured with a negative value."));
     }
-    nPruneTarget = (uint64_t) nPruneArg * 1024 * 1024;
-    if (nPruneArg == 1) {  // manual pruning: -prune=1
+    nPruneTarget = (uint64_t)nPruneArg * 1024 * 1024;
+    if (nPruneArg == 1) { // manual pruning: -prune=1
         LogPrintf("Block pruning enabled.  Use RPC call pruneblockchain(height) to manually prune block and undo files.\n");
         nPruneTarget = std::numeric_limits<uint64_t>::max();
         fPruneMode = true;
@@ -1351,13 +1349,12 @@ bool AppInitParameterInteraction()
     } else if (incrementalRelayFee > ::minRelayTxFee) {
         // Allow only setting incrementalRelayFee to control both
         ::minRelayTxFee = incrementalRelayFee;
-        LogPrintf("Increasing minrelaytxfee to %s to match incrementalrelayfee\n",::minRelayTxFee.ToString());
+        LogPrintf("Increasing minrelaytxfee to %s to match incrementalrelayfee\n", ::minRelayTxFee.ToString());
     }
 
     // Sanity check argument for min fee for including tx in block
     // TODO: Harmonize which arguments need sanity checking and where that happens
-    if (gArgs.IsArgSet("-blockmintxfee"))
-    {
+    if (gArgs.IsArgSet("-blockmintxfee")) {
         CAmount n = 0;
         if (!ParseMoney(gArgs.GetArg("-blockmintxfee", ""), n))
             return InitError(AmountErrMsg("blockmintxfee", gArgs.GetArg("-blockmintxfee", "")));
@@ -1365,8 +1362,7 @@ bool AppInitParameterInteraction()
 
     // Feerate used to define dust.  Shouldn't be changed lightly as old
     // implementations may inadvertently create non-standard transactions
-    if (gArgs.IsArgSet("-dustrelayfee"))
-    {
+    if (gArgs.IsArgSet("-dustrelayfee")) {
         CAmount n = 0;
         if (!ParseMoney(gArgs.GetArg("-dustrelayfee", ""), n) || 0 == n)
             return InitError(AmountErrMsg("dustrelayfee", gArgs.GetArg("-dustrelayfee", "")));
@@ -1422,8 +1418,7 @@ bool AppInitParameterInteraction()
                 }
             }
             bool found = false;
-            for (int j=0; j<(int)Consensus::MAX_VERSION_BITS_DEPLOYMENTS; ++j)
-            {
+            for (int j = 0; j < (int)Consensus::MAX_VERSION_BITS_DEPLOYMENTS; ++j) {
                 if (vDeploymentParams[0].compare(VersionBitsDeploymentInfo[j].name) == 0) {
                     UpdateVersionBitsParameters(Consensus::DeploymentPos(j), nStartTime, nTimeout, nWindowSize, nThreshold);
                     found = true;
@@ -1524,7 +1519,7 @@ static bool LockDataDirectory(bool probeOnly)
 {
     std::string strDataDir = GetDataDir().string();
 
-    // Make sure only a single Yerbas Core process is using the data directory.
+    // Make sure only a single Memeium Core process is using the data directory.
     fs::path pathLockFile = GetDataDir() / ".lock";
     FILE* file = fsbridge::fopen(pathLockFile, "a"); // empty lock file; created if it doesn't exist.
     if (file) fclose(file);
@@ -1537,7 +1532,7 @@ static bool LockDataDirectory(bool probeOnly)
         if (probeOnly) {
             lock.unlock();
         }
-    } catch(const boost::interprocess::interprocess_exception& e) {
+    } catch (const boost::interprocess::interprocess_exception& e) {
         return InitError(strprintf(_("Cannot obtain a lock on data directory %s. %s is probably already running.") + " %s.", strDataDir, _(PACKAGE_NAME), e.what()));
     }
     return true;
@@ -1604,7 +1599,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     LogPrintf("Using %u threads for script verification\n", nScriptCheckThreads);
     if (nScriptCheckThreads) {
-        for (int i=0; i<nScriptCheckThreads-1; i++)
+        for (int i = 0; i < nScriptCheckThreads - 1; i++)
             threadGroup.create_thread(&ThreadScriptCheck);
     }
 
@@ -1614,7 +1609,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     } else {
         vSporkAddresses = Params().SporkAddresses();
     }
-    for (const auto& address: vSporkAddresses) {
+    for (const auto& address : vSporkAddresses) {
         if (!sporkManager.SetSporkAddress(address)) {
             return InitError(_("Invalid spork address specified with -sporkaddr"));
         }
@@ -1643,8 +1638,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
      * that the server is there and will be ready later).  Warmup mode will
      * be disabled when initialisation is finished.
      */
-    if (gArgs.GetBoolArg("-server", false))
-    {
+    if (gArgs.GetBoolArg("-server", false)) {
         uiInterface.InitMessage.connect(SetRPCWarmupStatus);
         if (!AppInitServers(threadGroup))
             return InitError(_("Unable to start HTTP server. See debug log for details."));
@@ -1662,7 +1656,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     keePassInt.init();
 #endif // ENABLE_WALLET
     bool fGenerate = gArgs.GetBoolArg("-regtest", false) ? false : DEFAULT_GENERATE;
-	GenerateYerbass(fGenerate, gArgs.GetArg("-genproclimit", DEFAULT_GENERATE_THREADS), chainparams);
+    GenerateMemeiums(fGenerate, gArgs.GetArg("-genproclimit", DEFAULT_GENERATE_THREADS), chainparams);
     // ********************************************************* Step 6: network initialization
     // Note that we absolutely cannot open any actual connections
     // until the very end ("start node") as the UTXO/block state
@@ -1739,7 +1733,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     // An empty string is used to not override the onion proxy (in which case it defaults to -proxy set above, or none)
     std::string onionArg = gArgs.GetArg("-onion", "");
     if (onionArg != "") {
-        if (onionArg == "0") { // Handle -noonion/-onion=0
+        if (onionArg == "0") {   // Handle -noonion/-onion=0
             SetLimited(NET_TOR); // set onions as unreachable
         } else {
             CService onionProxy;
@@ -1778,25 +1772,24 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     pdsNotificationInterface = new CDSNotificationInterface(connman);
     RegisterValidationInterface(pdsNotificationInterface);
 
-    uint64_t nMaxOutboundLimit = 0; //unlimited unless -maxuploadtarget is set
+    uint64_t nMaxOutboundLimit = 0; // unlimited unless -maxuploadtarget is set
     uint64_t nMaxOutboundTimeframe = MAX_UPLOAD_TIMEFRAME;
 
     if (gArgs.IsArgSet("-maxuploadtarget")) {
-        nMaxOutboundLimit = gArgs.GetArg("-maxuploadtarget", DEFAULT_MAX_UPLOAD_TARGET)*1024*1024;
+        nMaxOutboundLimit = gArgs.GetArg("-maxuploadtarget", DEFAULT_MAX_UPLOAD_TARGET) * 1024 * 1024;
     }
 
     // ********************************************************* Step 7a: check lite mode and load sporks
 
-    // lite mode disables all Yerbas-specific functionality
+    // lite mode disables all Memeium-specific functionality
     fLiteMode = gArgs.GetBoolArg("-litemode", false);
     LogPrintf("fLiteMode %d\n", fLiteMode);
 
-    if(fLiteMode) {
-        InitWarning(_("You are starting in lite mode, most Yerbas-specific functionality is disabled."));
+    if (fLiteMode) {
+        InitWarning(_("You are starting in lite mode, most Memeium-specific functionality is disabled."));
     }
 
-    if((!fLiteMode && fTxIndex == false)
-       && chainparams.NetworkIDString() != CBaseChainParams::REGTEST) { // TODO remove this when pruning is fixed. See https://github.com/The-Yerbas-Endeavor/yerbas/pull/1817 and https://github.com/The-Yerbas-Endeavor/yerbas/pull/1743
+    if ((!fLiteMode && fTxIndex == false) && chainparams.NetworkIDString() != CBaseChainParams::REGTEST) { // TODO remove this when pruning is fixed. See https://github.com/The-Memeium-Endeavor/memeium/pull/1817 and https://github.com/The-Memeium-Endeavor/memeium/pull/1743
         return InitError(_("Transaction index can't be disabled in full mode. Either start with -litemode command line switch or enable transaction index."));
     }
 
@@ -1821,7 +1814,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     nBlockTreeDBCache = std::min(nBlockTreeDBCache, (gArgs.GetBoolArg("-txindex", DEFAULT_TXINDEX) ? nMaxBlockDBAndTxIndexCache : nMaxBlockDBCache) << 20);
     nTotalCache -= nBlockTreeDBCache;
     int64_t nCoinDBCache = std::min(nTotalCache / 2, (nTotalCache / 4) + (1 << 23)); // use 25%-50% of the remainder for disk cache
-    nCoinDBCache = std::min(nCoinDBCache, nMaxCoinsDBCache << 20); // cap total coins db cache
+    nCoinDBCache = std::min(nCoinDBCache, nMaxCoinsDBCache << 20);                   // cap total coins db cache
     nTotalCache -= nCoinDBCache;
     nCoinCacheUsage = nTotalCache; // the rest goes to in-memory cache
     int64_t nMempoolSizeMax = gArgs.GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000;
@@ -1858,8 +1851,8 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                 pblocktree = new CBlockTreeDB(nBlockTreeDBCache, false, fReset);
                 llmq::InitLLMQSystem(*evoDb, &scheduler, false, fReset || fReindexChainState);
 
-                
-                /** YERB START */
+
+                /** MMM START */
                 {
                     // Basic assets
                     delete passets;
@@ -1906,7 +1899,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                     // Restricted assets
                     prestricteddb = new CRestrictedDB(nBlockTreeDBCache, false, fReset);
                     passetsVerifierCache = new CLRUCache<std::string, CNullAssetTxVerifierString>(
-                            MAX_CACHE_ASSETS_SIZE);
+                        MAX_CACHE_ASSETS_SIZE);
                     passetsQualifierCache = new CLRUCache<std::string, int8_t>(MAX_CACHE_ASSETS_SIZE);
                     passetsRestrictionCache = new CLRUCache<std::string, int8_t>(MAX_CACHE_ASSETS_SIZE);
                     passetsGlobalRestrictionCache = new CLRUCache<std::string, int8_t>(MAX_CACHE_ASSETS_SIZE);
@@ -1926,10 +1919,10 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
 
                     if (!passetsdb->ReadReissuedMempoolState())
                         LogPrintf(
-                                "Database failed to load last Reissued Mempool State. Will have to start from empty state");
+                            "Database failed to load last Reissued Mempool State. Will have to start from empty state");
 
                     LogPrintf("Successfully loaded assets from database.\nCache of assets size: %d\n",
-                              passetsCache->Size());
+                        passetsCache->Size());
 
                     // Check for changed -disablemessaging state
                     if (gArgs.GetArg("-disablemessaging", false)) {
@@ -1939,11 +1932,11 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                         LogPrintf("Messaging is enabled\n");
                     }
                 }
-                /** YERB END */
+                /** MMM END */
 
                 if (fReset) {
                     pblocktree->WriteReindexing(true);
-                    //If we're reindexing in prune mode, wipe away unusable block files and all undo data files
+                    // If we're reindexing in prune mode, wipe away unusable block files and all undo data files
                     if (fPruneMode)
                         CleanupBlockRevFiles();
                 }
@@ -2040,7 +2033,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                     assert(chainActive.Tip() != NULL);
                 }
 
-                //deterministicMNManager->UpgradeDBIfNeeded();
+                // deterministicMNManager->UpgradeDBIfNeeded();
 
                 if (!is_coinsview_empty) {
                     uiInterface.InitMessage(_("Verifying blocks..."));
@@ -2055,14 +2048,14 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
                         RPCNotifyBlockChange(true, tip);
                         if (tip && tip->nTime > GetAdjustedTime() + 2 * 60 * 60) {
                             strLoadError = _("The block database contains a block which appears to be from the future. "
-                                    "This may be due to your computer's date and time being set incorrectly. "
-                                    "Only rebuild the block database if you are sure that your computer's date and time are correct");
+                                             "This may be due to your computer's date and time being set incorrectly. "
+                                             "Only rebuild the block database if you are sure that your computer's date and time are correct");
                             break;
                         }
                     }
 
                     if (!CVerifyDB().VerifyDB(chainparams, pcoinsdbview, gArgs.GetArg("-checklevel", DEFAULT_CHECKLEVEL),
-                                  gArgs.GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
+                            gArgs.GetArg("-checkblocks", DEFAULT_CHECKBLOCKS))) {
                         strLoadError = _("Corrupted block database detected");
                         break;
                     }
@@ -2074,7 +2067,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
             }
 
             fLoaded = true;
-        } while(false);
+        } while (false);
 
         if (!fLoaded && !fRequestShutdown) {
             // first suggest a reindex
@@ -2099,8 +2092,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     // As LoadBlockIndex can take several minutes, it's possible the user
     // requested to kill the GUI during the last operation. If so, exit.
     // As the program has not fully started yet, Shutdown() is possibly overkill.
-    if (fRequestShutdown)
-    {
+    if (fRequestShutdown) {
         LogPrintf("Shutdown requested. Exiting.\n");
         return false;
     }
@@ -2115,7 +2107,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
         ::feeEstimator.Read(est_filein);
     fFeeEstimatesInitialized = true;
 
-        // ********************************************************* Step 8a: load powcache.dat
+    // ********************************************************* Step 8a: load powcache.dat
 
     {
         fs::path pathDB = GetDataDir();
@@ -2124,7 +2116,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
         // Always load the powcache if available:
         uiInterface.InitMessage(_("Loading POW cache..."));
         CFlatDB<CPowCache> flatdb7(strDBName, "powCache");
-        if(!flatdb7.Load(CPowCache::Instance())) {
+        if (!flatdb7.Load(CPowCache::Instance())) {
             return InitError(_("Failed to load POW cache from") + "\n" + (pathDB / strDBName).string());
         }
     }
@@ -2139,8 +2131,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     // As InitLoadWallet can take several minutes, it's possible the user
     // requested to kill the GUI during the last operation. If so, exit.
-    if (fRequestShutdown)
-    {
+    if (fRequestShutdown) {
         LogPrintf("Shutdown requested. Exiting.\n");
         return false;
     }
@@ -2160,8 +2151,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     // As PruneAndFlush can take several minutes, it's possible the user
     // requested to kill the GUI during the last operation. If so, exit.
-    if (fRequestShutdown)
-    {
+    if (fRequestShutdown) {
         LogPrintf("Shutdown requested. Exiting.\n");
         return false;
     }
@@ -2183,17 +2173,17 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
         LogPrintf("  blsPubKeyOperator: %s\n", keyOperator.GetPublicKey().ToString());
     }
 
-    if(fLiteMode && fSmartnodeMode) {
+    if (fLiteMode && fSmartnodeMode) {
         return InitError(_("You can not start a smartnode in lite mode."));
     }
 
-    if(fSmartnodeMode) {
+    if (fSmartnodeMode) {
 #ifdef ENABLE_WALLET
         if (!vpwallets.empty()) {
             return InitError(_("You can not start a smartnode with wallet enabled."));
         }
-#endif //ENABLE_WALLET
-        // Create and register activeSmartnodeManager, will init later in ThreadImport
+#endif // ENABLE_WALLET
+       //  Create and register activeSmartnodeManager, will init later in ThreadImport
         activeSmartnodeManager = new CActiveSmartnodeManager();
         RegisterValidationInterface(activeSmartnodeManager);
     }
@@ -2224,7 +2214,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     if (privateSendClient.fEnablePrivateSend) {
         LogPrintf("PrivateSend: autostart=%d, multisession=%d, "
-            "sessions=%d, rounds=%d, amount=%d, denoms=%d\n",
+                  "sessions=%d, rounds=%d, amount=%d, denoms=%d\n",
             privateSendClient.fPrivateSendRunning, privateSendClient.fPrivateSendMultiSession,
             privateSendClient.nPrivateSendSessions, privateSendClient.nPrivateSendRounds,
             privateSendClient.nPrivateSendAmount, privateSendClient.nPrivateSendDenoms);
@@ -2252,12 +2242,12 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     uiInterface.InitMessage(_("Loading smartnode cache..."));
     CFlatDB<CSmartnodeMetaMan> flatdb1(strDBName, "magicSmartnodeCache");
     if (fLoadCacheFiles) {
-        if(!flatdb1.Load(mmetaman)) {
+        if (!flatdb1.Load(mmetaman)) {
             return InitError(_("Failed to load smartnode cache from") + "\n" + (pathDB / strDBName).string());
         }
     } else {
         CSmartnodeMetaMan mmetamanTmp;
-        if(!flatdb1.Dump(mmetamanTmp)) {
+        if (!flatdb1.Dump(mmetamanTmp)) {
             return InitError(_("Failed to clear smartnode cache at") + "\n" + (pathDB / strDBName).string());
         }
     }
@@ -2266,13 +2256,13 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     uiInterface.InitMessage(_("Loading governance cache..."));
     CFlatDB<CGovernanceManager> flatdb3(strDBName, "magicGovernanceCache");
     if (fLoadCacheFiles) {
-        if(!flatdb3.Load(governance)) {
+        if (!flatdb3.Load(governance)) {
             return InitError(_("Failed to load governance cache from") + "\n" + (pathDB / strDBName).string());
         }
         governance.InitOnLoad();
     } else {
         CGovernanceManager governanceTmp;
-        if(!flatdb3.Dump(governanceTmp)) {
+        if (!flatdb3.Dump(governanceTmp)) {
             return InitError(_("Failed to clear governance cache at") + "\n" + (pathDB / strDBName).string());
         }
     }
@@ -2281,18 +2271,18 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     uiInterface.InitMessage(_("Loading fulfilled requests cache..."));
     CFlatDB<CNetFulfilledRequestManager> flatdb4(strDBName, "magicFulfilledCache");
     if (fLoadCacheFiles) {
-        if(!flatdb4.Load(netfulfilledman)) {
+        if (!flatdb4.Load(netfulfilledman)) {
             return InitError(_("Failed to load fulfilled requests cache from") + "\n" + (pathDB / strDBName).string());
         }
     } else {
         CNetFulfilledRequestManager netfulfilledmanTmp;
-        if(!flatdb4.Dump(netfulfilledmanTmp)) {
+        if (!flatdb4.Dump(netfulfilledmanTmp)) {
             return InitError(_("Failed to clear fulfilled requests cache at") + "\n" + (pathDB / strDBName).string());
         }
     }
 
 
-    // ********************************************************* Step 10c: schedule Yerbas-specific tasks
+    // ********************************************************* Step 10c: schedule Memeium-specific tasks
 
     if (!fLiteMode) {
         scheduler.scheduleEvery(boost::bind(&CNetFulfilledRequestManager::DoMaintenance, boost::ref(netfulfilledman)), 60 * 1000);
@@ -2350,8 +2340,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     // As importing blocks can take several minutes, it's possible the user
     // requested to kill the GUI during one of the last operations. If so, exit.
-    if (fRequestShutdown)
-    {
+    if (fRequestShutdown) {
         LogPrintf("Shutdown requested. Exiting.\n");
         return false;
     }
@@ -2359,8 +2348,8 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     // ********************************************************* Step 12: start node
 
     //// debug print
-    LogPrintf("mapBlockIndex.size() = %u\n",   mapBlockIndex.size());
-    LogPrintf("chainActive.Height() = %d\n",   chainActive.Height());
+    LogPrintf("mapBlockIndex.size() = %u\n", mapBlockIndex.size());
+    LogPrintf("chainActive.Height() = %d\n", chainActive.Height());
     if (gArgs.GetBoolArg("-listenonion", DEFAULT_LISTEN_ONION))
         StartTorControl(threadGroup, scheduler);
 
@@ -2378,8 +2367,8 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
     connOptions.nBestHeight = chainActive.Height();
     connOptions.uiInterface = &uiInterface;
     connOptions.m_msgproc = peerLogic.get();
-    connOptions.nSendBufferMaxSize = 1000*gArgs.GetArg("-maxsendbuffer", DEFAULT_MAXSENDBUFFER);
-    connOptions.nReceiveFloodSize = 1000*gArgs.GetArg("-maxreceivebuffer", DEFAULT_MAXRECEIVEBUFFER);
+    connOptions.nSendBufferMaxSize = 1000 * gArgs.GetArg("-maxsendbuffer", DEFAULT_MAXSENDBUFFER);
+    connOptions.nReceiveFloodSize = 1000 * gArgs.GetArg("-maxreceivebuffer", DEFAULT_MAXRECEIVEBUFFER);
 
     connOptions.nMaxOutboundTimeframe = nMaxOutboundTimeframe;
     connOptions.nMaxOutboundLimit = nMaxOutboundLimit;
@@ -2430,8 +2419,7 @@ bool AppInitMain(boost::thread_group& threadGroup, CScheduler& scheduler)
 #endif
 
     // Final check if the user requested to kill the GUI during one of the last operations. If so, exit.
-    if (fRequestShutdown)
-    {
+    if (fRequestShutdown) {
         LogPrintf("Shutdown requested. Exiting.\n");
         return false;
     }

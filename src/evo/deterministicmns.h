@@ -1,10 +1,10 @@
 // Copyright (c) 2018-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_DETERMINISTICMNS_H
-#define YERBAS_DETERMINISTICMNS_H
+#ifndef MEMEIUM_DETERMINISTICMNS_H
+#define MEMEIUM_DETERMINISTICMNS_H
 
 #include "arith_uint256.h"
 #include "bls/bls.h"
@@ -12,8 +12,8 @@
 #include "evodb.h"
 #include "providertx.h"
 #include "simplifiedmns.h"
-#include <saltedhasher.h>
 #include "sync.h"
+#include <saltedhasher.h>
 
 #include "immer/map.hpp"
 #include "immer/map_transient.hpp"
@@ -27,7 +27,7 @@ class CValidationState;
 
 namespace llmq
 {
-    class CFinalCommitment;
+class CFinalCommitment;
 } // namespace llmq
 
 class CDeterministicMNState
@@ -45,7 +45,7 @@ public:
     // sha256(proTxHash, confirmedHash) to speed up quorum calculations
     // please note that this is NOT a double-sha256 hash
     uint256 confirmedHashWithProRegTxHash;
-    //collateral amount used in quorum calculations
+    // collateral amount used in quorum calculations
     CAmount nCollateralAmount;
 
     CKeyID keyIDOwner;
@@ -126,38 +126,38 @@ class CDeterministicMNStateDiff
 {
 public:
     enum Field : uint32_t {
-        Field_nRegisteredHeight                 = 0x0001,
-        Field_nLastPaidHeight                   = 0x0002,
-        Field_nPoSePenalty                      = 0x0004,
-        Field_nPoSeRevivedHeight                = 0x0008,
-        Field_nPoSeBanHeight                    = 0x0010,
-        Field_nRevocationReason                 = 0x0020,
-        Field_confirmedHash                     = 0x0040,
-        Field_confirmedHashWithProRegTxHash     = 0x0080,
-        Field_keyIDOwner                        = 0x0100,
-        Field_pubKeyOperator                    = 0x0200,
-        Field_keyIDVoting                       = 0x0400,
-        Field_addr                              = 0x0800,
-        Field_scriptPayout                      = 0x1000,
-        Field_scriptOperatorPayout              = 0x2000,
-        Field_nCollateralAmount                 = 0x4000,
+        Field_nRegisteredHeight = 0x0001,
+        Field_nLastPaidHeight = 0x0002,
+        Field_nPoSePenalty = 0x0004,
+        Field_nPoSeRevivedHeight = 0x0008,
+        Field_nPoSeBanHeight = 0x0010,
+        Field_nRevocationReason = 0x0020,
+        Field_confirmedHash = 0x0040,
+        Field_confirmedHashWithProRegTxHash = 0x0080,
+        Field_keyIDOwner = 0x0100,
+        Field_pubKeyOperator = 0x0200,
+        Field_keyIDVoting = 0x0400,
+        Field_addr = 0x0800,
+        Field_scriptPayout = 0x1000,
+        Field_scriptOperatorPayout = 0x2000,
+        Field_nCollateralAmount = 0x4000,
     };
 
-#define DMN_STATE_DIFF_ALL_FIELDS \
-    DMN_STATE_DIFF_LINE(nRegisteredHeight) \
-    DMN_STATE_DIFF_LINE(nLastPaidHeight) \
-    DMN_STATE_DIFF_LINE(nPoSePenalty) \
-    DMN_STATE_DIFF_LINE(nPoSeRevivedHeight) \
-    DMN_STATE_DIFF_LINE(nPoSeBanHeight) \
-    DMN_STATE_DIFF_LINE(nRevocationReason) \
-    DMN_STATE_DIFF_LINE(confirmedHash) \
+#define DMN_STATE_DIFF_ALL_FIELDS                      \
+    DMN_STATE_DIFF_LINE(nRegisteredHeight)             \
+    DMN_STATE_DIFF_LINE(nLastPaidHeight)               \
+    DMN_STATE_DIFF_LINE(nPoSePenalty)                  \
+    DMN_STATE_DIFF_LINE(nPoSeRevivedHeight)            \
+    DMN_STATE_DIFF_LINE(nPoSeBanHeight)                \
+    DMN_STATE_DIFF_LINE(nRevocationReason)             \
+    DMN_STATE_DIFF_LINE(confirmedHash)                 \
     DMN_STATE_DIFF_LINE(confirmedHashWithProRegTxHash) \
-    DMN_STATE_DIFF_LINE(keyIDOwner) \
-    DMN_STATE_DIFF_LINE(pubKeyOperator) \
-    DMN_STATE_DIFF_LINE(keyIDVoting) \
-    DMN_STATE_DIFF_LINE(addr) \
-    DMN_STATE_DIFF_LINE(scriptPayout) \
-    DMN_STATE_DIFF_LINE(scriptOperatorPayout) \
+    DMN_STATE_DIFF_LINE(keyIDOwner)                    \
+    DMN_STATE_DIFF_LINE(pubKeyOperator)                \
+    DMN_STATE_DIFF_LINE(keyIDVoting)                   \
+    DMN_STATE_DIFF_LINE(addr)                          \
+    DMN_STATE_DIFF_LINE(scriptPayout)                  \
+    DMN_STATE_DIFF_LINE(scriptOperatorPayout)          \
     DMN_STATE_DIFF_LINE(nCollateralAmount)
 
 public:
@@ -169,7 +169,11 @@ public:
     CDeterministicMNStateDiff() {}
     CDeterministicMNStateDiff(const CDeterministicMNState& a, const CDeterministicMNState& b)
     {
-#define DMN_STATE_DIFF_LINE(f) if (a.f != b.f) { state.f = b.f; fields |= Field_##f; }
+#define DMN_STATE_DIFF_LINE(f) \
+    if (a.f != b.f) {          \
+        state.f = b.f;         \
+        fields |= Field_##f;   \
+    }
         DMN_STATE_DIFF_ALL_FIELDS
 #undef DMN_STATE_DIFF_LINE
     }
@@ -180,14 +184,16 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(VARINT(fields));
-#define DMN_STATE_DIFF_LINE(f) if (fields & Field_##f) READWRITE(state.f);
+#define DMN_STATE_DIFF_LINE(f) \
+    if (fields & Field_##f) READWRITE(state.f);
         DMN_STATE_DIFF_ALL_FIELDS
 #undef DMN_STATE_DIFF_LINE
     }
 
     void ApplyToState(CDeterministicMNState& target) const
     {
-#define DMN_STATE_DIFF_LINE(f) if (fields & Field_##f) target.f = state.f;
+#define DMN_STATE_DIFF_LINE(f) \
+    if (fields & Field_##f) target.f = state.f;
         DMN_STATE_DIFF_ALL_FIELDS
 #undef DMN_STATE_DIFF_LINE
     }
@@ -222,13 +228,13 @@ public:
         READWRITE(pdmnState);
     }
 
-    template<typename Stream>
+    template <typename Stream>
     void Serialize(Stream& s) const
     {
         NCONST_PTR(this)->SerializationOp(s, CSerActionSerialize(), false);
     }
 
-    template<typename Stream>
+    template <typename Stream>
     void Unserialize(Stream& s, bool oldFormat = false)
     {
         SerializationOp(s, CSerActionUnserialize(), oldFormat);
@@ -264,13 +270,13 @@ void UnserializeImmerMap(Stream& is, immer::map<K, T, Hash, Equal>& m)
 
 // For some reason the compiler is not able to choose the correct Serialize/Deserialize methods without a specialized
 // version of SerReadWrite. It otherwise always chooses the version that calls a.Serialize()
-template<typename Stream, typename K, typename T, typename Hash, typename Equal>
+template <typename Stream, typename K, typename T, typename Hash, typename Equal>
 inline void SerReadWrite(Stream& s, const immer::map<K, T, Hash, Equal>& m, CSerActionSerialize ser_action)
 {
     ::SerializeImmerMap(s, m);
 }
 
-template<typename Stream, typename K, typename T, typename Hash, typename Equal>
+template <typename Stream, typename K, typename T, typename Hash, typename Equal>
 inline void SerReadWrite(Stream& s, immer::map<K, T, Hash, Equal>& obj, CSerActionUnserialize ser_action)
 {
     ::UnserializeImmerMap(s, obj);
@@ -282,7 +288,7 @@ class CDeterministicMNList
 public:
     typedef immer::map<uint256, CDeterministicMNCPtr> MnMap;
     typedef immer::map<uint64_t, uint256> MnInternalIdMap;
-    typedef immer::map<uint256, std::pair<uint256, uint32_t> > MnUniquePropertyMap;
+    typedef immer::map<uint256, std::pair<uint256, uint32_t>> MnUniquePropertyMap;
 
 private:
     uint256 blockHash;
@@ -312,7 +318,7 @@ public:
         READWRITE(nTotalRegisteredCount);
     }
 
-    template<typename Stream>
+    template <typename Stream>
     void Serialize(Stream& s) const
     {
         NCONST_PTR(this)->SerializationOpBase(s, CSerActionSerialize());
@@ -323,8 +329,9 @@ public:
         }
     }
 
-    template<typename Stream>
-    void Unserialize(Stream& s) {
+    template <typename Stream>
+    void Unserialize(Stream& s)
+    {
         mnMap = MnMap();
         mnUniquePropertyMap = MnUniquePropertyMap();
         mnInternalIdMap = MnInternalIdMap();
@@ -554,7 +561,7 @@ private:
 class CDeterministicMNListDiff
 {
 public:
-    int nHeight{-1}; //memory only
+    int nHeight{-1}; // memory only
 
     std::vector<CDeterministicMNCPtr> addedMNs;
     // keys are all relating to the internalId of MNs
@@ -562,7 +569,7 @@ public:
     std::set<uint64_t> removedMns;
 
 public:
-    template<typename Stream>
+    template <typename Stream>
     void Serialize(Stream& s) const
     {
         s << addedMNs;
@@ -577,7 +584,7 @@ public:
         }
     }
 
-    template<typename Stream>
+    template <typename Stream>
     void Unserialize(Stream& s)
     {
         updatedMNs.clear();
@@ -619,8 +626,9 @@ public:
     std::set<uint256> removedMns;
 
 public:
-    template<typename Stream>
-    void Unserialize(Stream& s) {
+    template <typename Stream>
+    void Unserialize(Stream& s)
+    {
         addedMNs.clear();
         s >> prevBlockHash;
         s >> blockHash;
@@ -640,8 +648,8 @@ public:
 
 class CDeterministicMNManager
 {
-    static const int  DISK_SNAPSHOT_PERIOD = 576; // once per day
-    static const int DISK_SNAPSHOTS = 3;// keep cache for 3 disk snapshots to have 2 full days covered
+    static const int DISK_SNAPSHOT_PERIOD = 576; // once per day
+    static const int DISK_SNAPSHOTS = 3;         // keep cache for 3 disk snapshots to have 2 full days covered
     static const int LIST_DIFFS_CACHE_SIZE = DISK_SNAPSHOT_PERIOD * DISK_SNAPSHOTS;
 
 public:
@@ -686,4 +694,4 @@ private:
 
 extern CDeterministicMNManager* deterministicMNManager;
 
-#endif //YERBAS_DETERMINISTICMNS_H
+#endif // MEMEIUM_DETERMINISTICMNS_H

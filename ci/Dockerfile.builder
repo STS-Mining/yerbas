@@ -17,9 +17,9 @@ RUN pip3 install pyzmq # really needed?
 RUN pip3 install jinja2
 RUN pip3 install flake8
 
-# yerbas_hash
-RUN git clone https://github.com/The-Yerbas-Endeavor/yerbas_hash
-RUN cd yerbas_hash && python3 setup.py install
+# memeium_hash
+RUN git clone https://github.com/The-Memeium-Endeavor/memeium_hash
+RUN cd memeium_hash && python3 setup.py install
 
 ARG USER_ID=1000
 ARG GROUP_ID=1000
@@ -27,8 +27,8 @@ ARG GROUP_ID=1000
 # add user with specified (or default) user/group ids
 ENV USER_ID ${USER_ID}
 ENV GROUP_ID ${GROUP_ID}
-RUN groupadd -g ${GROUP_ID} yerbas
-RUN useradd -u ${USER_ID} -g yerbas -s /bin/bash -m -d /yerbas yerbas
+RUN groupadd -g ${GROUP_ID} memeium
+RUN useradd -u ${USER_ID} -g memeium -s /bin/bash -m -d /memeium memeium
 
 # Packages needed for all target builds
 RUN dpkg --add-architecture i386
@@ -55,13 +55,13 @@ RUN \
   update-alternatives --set x86_64-w64-mingw32-g++  /usr/bin/x86_64-w64-mingw32-g++-posix; \
   exit 0
 
-RUN mkdir /yerbas-src && \
+RUN mkdir /memeium-src && \
   mkdir -p /cache/ccache && \
   mkdir /cache/depends && \
   mkdir /cache/sdk-sources && \
-  chown $USER_ID:$GROUP_ID /yerbas-src && \
+  chown $USER_ID:$GROUP_ID /memeium-src && \
   chown $USER_ID:$GROUP_ID /cache && \
   chown $USER_ID:$GROUP_ID /cache -R
-WORKDIR /yerbas-src
+WORKDIR /memeium-src
 
-USER yerbas
+USER memeium

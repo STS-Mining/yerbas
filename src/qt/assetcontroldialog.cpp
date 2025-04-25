@@ -14,40 +14,41 @@
 #include "txmempool.h"
 #include "walletmodel.h"
 
-#include "wallet/coincontrol.h"
 #include "init.h"
 #include "policy/fees.h"
 #include "policy/policy.h"
 #include "validation.h" // For mempool
+#include "wallet/coincontrol.h"
 #include "wallet/wallet.h"
 
 #include <QApplication>
 #include <QCheckBox>
+#include <QCompleter>
 #include <QCursor>
 #include <QDialogButtonBox>
 #include <QFlags>
 #include <QIcon>
+#include <QLineEdit>
 #include <QSettings>
+#include <QSortFilterProxyModel>
 #include <QString>
+#include <QStringListModel>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
-#include <QStringListModel>
-#include <QSortFilterProxyModel>
-#include <QCompleter>
-#include <QLineEdit>
 
 QList<CAmount> AssetControlDialog::payAmounts;
 CCoinControl* AssetControlDialog::assetControl = new CCoinControl();
 bool AssetControlDialog::fSubtractFeeFromAmount = false;
 
-bool CAssetControlWidgetItem::operator<(const QTreeWidgetItem &other) const {
+bool CAssetControlWidgetItem::operator<(const QTreeWidgetItem& other) const
+{
     int column = treeWidget()->sortColumn();
     if (column == AssetControlDialog::COLUMN_AMOUNT || column == AssetControlDialog::COLUMN_DATE || column == AssetControlDialog::COLUMN_CONFIRMATIONS)
         return data(column, Qt::UserRole).toLongLong() < other.data(column, Qt::UserRole).toLongLong();
     return QTreeWidgetItem::operator<(other);
 }
 
-AssetControlDialog::AssetControlDialog(const PlatformStyle *_platformStyle, QWidget *parent) :
+AssetControlDialog::AssetControlDialog(const PlatformStyle* _platformStyle, QWidget* parent) :
     QDialog(parent),
     ui(new Ui::AssetControlDialog),
     model(0),
@@ -56,12 +57,12 @@ AssetControlDialog::AssetControlDialog(const PlatformStyle *_platformStyle, QWid
     ui->setupUi(this);
 
     // context menu actions
-    QAction *copyAddressAction = new QAction(tr("Copy address"), this);
-    QAction *copyLabelAction = new QAction(tr("Copy label"), this);
-    QAction *copyAmountAction = new QAction(tr("Copy amount"), this);
-             copyTransactionHashAction = new QAction(tr("Copy transaction ID"), this);  // we need to enable/disable this
-             lockAction = new QAction(tr("Lock unspent"), this);                        // we need to enable/disable this
-             unlockAction = new QAction(tr("Unlock unspent"), this);                    // we need to enable/disable this
+    QAction* copyAddressAction = new QAction(tr("Copy address"), this);
+    QAction* copyLabelAction = new QAction(tr("Copy label"), this);
+    QAction* copyAmountAction = new QAction(tr("Copy amount"), this);
+    copyTransactionHashAction = new QAction(tr("Copy transaction ID"), this); // we need to enable/disable this
+    lockAction = new QAction(tr("Lock unspent"), this);                       // we need to enable/disable this
+    unlockAction = new QAction(tr("Unlock unspent"), this);                   // we need to enable/disable this
 
     // context menu
     contextMenu = new QMenu(this);
@@ -83,13 +84,13 @@ AssetControlDialog::AssetControlDialog(const PlatformStyle *_platformStyle, QWid
     connect(unlockAction, SIGNAL(triggered()), this, SLOT(unlockCoin()));
 
     // clipboard actions
-    QAction *clipboardQuantityAction = new QAction(tr("Copy quantity"), this);
-    QAction *clipboardAmountAction = new QAction(tr("Copy amount"), this);
-    QAction *clipboardFeeAction = new QAction(tr("Copy fee"), this);
-    QAction *clipboardAfterFeeAction = new QAction(tr("Copy after fee"), this);
-    QAction *clipboardBytesAction = new QAction(tr("Copy bytes"), this);
-    QAction *clipboardLowOutputAction = new QAction(tr("Copy dust"), this);
-    QAction *clipboardChangeAction = new QAction(tr("Copy change"), this);
+    QAction* clipboardQuantityAction = new QAction(tr("Copy quantity"), this);
+    QAction* clipboardAmountAction = new QAction(tr("Copy amount"), this);
+    QAction* clipboardFeeAction = new QAction(tr("Copy fee"), this);
+    QAction* clipboardAfterFeeAction = new QAction(tr("Copy after fee"), this);
+    QAction* clipboardBytesAction = new QAction(tr("Copy bytes"), this);
+    QAction* clipboardLowOutputAction = new QAction(tr("Copy dust"), this);
+    QAction* clipboardChangeAction = new QAction(tr("Copy change"), this);
 
     connect(clipboardQuantityAction, SIGNAL(triggered()), this, SLOT(clipboardQuantity()));
     connect(clipboardAmountAction, SIGNAL(triggered()), this, SLOT(clipboardAmount()));
@@ -123,7 +124,7 @@ AssetControlDialog::AssetControlDialog(const PlatformStyle *_platformStyle, QWid
     connect(ui->treeWidget->header(), SIGNAL(sectionClicked(int)), this, SLOT(headerSectionClicked(int)));
 
     // ok button
-    connect(ui->buttonBox, SIGNAL(clicked( QAbstractButton*)), this, SLOT(buttonBoxClicked(QAbstractButton*)));
+    connect(ui->buttonBox, SIGNAL(clicked(QAbstractButton*)), this, SLOT(buttonBoxClicked(QAbstractButton*)));
 
     // (un)select all
     connect(ui->pushButtonSelectAll, SIGNAL(clicked()), this, SLOT(buttonSelectAllClicked()));
@@ -138,8 +139,8 @@ AssetControlDialog::AssetControlDialog(const PlatformStyle *_platformStyle, QWid
     ui->treeWidget->setColumnWidth(COLUMN_ADDRESS, 320);
     ui->treeWidget->setColumnWidth(COLUMN_DATE, 130);
     ui->treeWidget->setColumnWidth(COLUMN_CONFIRMATIONS, 110);
-    ui->treeWidget->setColumnHidden(COLUMN_TXHASH, true);         // store transaction hash in this column, but don't show it
-    ui->treeWidget->setColumnHidden(COLUMN_VOUT_INDEX, true);     // store vout index in this column, but don't show it
+    ui->treeWidget->setColumnHidden(COLUMN_TXHASH, true);     // store transaction hash in this column, but don't show it
+    ui->treeWidget->setColumnHidden(COLUMN_VOUT_INDEX, true); // store vout index in this column, but don't show it
 
     // default view is sorted by amount desc
     sortView(COLUMN_AMOUNT, Qt::DescendingOrder);
@@ -166,7 +167,7 @@ AssetControlDialog::AssetControlDialog(const PlatformStyle *_platformStyle, QWid
     ui->assetList->setEditable(true);
     ui->assetList->lineEdit()->setPlaceholderText("Select an asset");
 
-    completer = new QCompleter(proxy,this);
+    completer = new QCompleter(proxy, this);
     completer->setCompletionMode(QCompleter::PopupCompletion);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     ui->assetList->setCompleter(completer);
@@ -182,12 +183,11 @@ AssetControlDialog::~AssetControlDialog()
     delete ui;
 }
 
-void AssetControlDialog::setModel(WalletModel *_model)
+void AssetControlDialog::setModel(WalletModel* _model)
 {
     this->model = _model;
 
-    if(_model && _model->getOptionsModel() && _model->getAddressTableModel())
-    {
+    if (_model && _model->getOptionsModel() && _model->getAddressTableModel()) {
         updateView();
         updateAssetList(true);
         updateLabelLocked();
@@ -209,18 +209,16 @@ void AssetControlDialog::buttonBoxClicked(QAbstractButton* button)
 void AssetControlDialog::buttonSelectAllClicked()
 {
     Qt::CheckState state = Qt::Checked;
-    for (int i = 0; i < ui->treeWidget->topLevelItemCount(); i++)
-    {
-        if (ui->treeWidget->topLevelItem(i)->checkState(COLUMN_CHECKBOX) != Qt::Unchecked)
-        {
+    for (int i = 0; i < ui->treeWidget->topLevelItemCount(); i++) {
+        if (ui->treeWidget->topLevelItem(i)->checkState(COLUMN_CHECKBOX) != Qt::Unchecked) {
             state = Qt::Unchecked;
             break;
         }
     }
     ui->treeWidget->setEnabled(false);
     for (int i = 0; i < ui->treeWidget->topLevelItemCount(); i++)
-            if (ui->treeWidget->topLevelItem(i)->checkState(COLUMN_CHECKBOX) != state)
-                ui->treeWidget->topLevelItem(i)->setCheckState(COLUMN_CHECKBOX, state);
+        if (ui->treeWidget->topLevelItem(i)->checkState(COLUMN_CHECKBOX) != state)
+            ui->treeWidget->topLevelItem(i)->setCheckState(COLUMN_CHECKBOX, state);
     ui->treeWidget->setEnabled(true);
     if (state == Qt::Unchecked)
         assetControl->UnSelectAll(); // just to be sure
@@ -228,29 +226,24 @@ void AssetControlDialog::buttonSelectAllClicked()
 }
 
 // context menu
-void AssetControlDialog::showMenu(const QPoint &point)
+void AssetControlDialog::showMenu(const QPoint& point)
 {
-    QTreeWidgetItem *item = ui->treeWidget->itemAt(point);
-    if(item)
-    {
+    QTreeWidgetItem* item = ui->treeWidget->itemAt(point);
+    if (item) {
         contextMenuItem = item;
 
         // disable some items (like Copy Transaction ID, lock, unlock) for tree roots in context menu
         if (item->text(COLUMN_TXHASH).length() == 64) // transaction hash is 64 characters (this means its a child node, so its not a parent node in tree mode)
         {
             copyTransactionHashAction->setEnabled(true);
-            if (model->isLockedCoin(uint256S(item->text(COLUMN_TXHASH).toStdString()), item->text(COLUMN_VOUT_INDEX).toUInt()))
-            {
+            if (model->isLockedCoin(uint256S(item->text(COLUMN_TXHASH).toStdString()), item->text(COLUMN_VOUT_INDEX).toUInt())) {
                 lockAction->setEnabled(false);
                 unlockAction->setEnabled(true);
-            }
-            else
-            {
+            } else {
                 lockAction->setEnabled(true);
                 unlockAction->setEnabled(false);
             }
-        }
-        else // this means click on parent node in tree mode -> disable all
+        } else // this means click on parent node in tree mode -> disable all
         {
             copyTransactionHashAction->setEnabled(false);
             lockAction->setEnabled(false);
@@ -372,13 +365,10 @@ void AssetControlDialog::headerSectionClicked(int logicalIndex)
     if (logicalIndex == COLUMN_CHECKBOX) // click on most left column -> do nothing
     {
         ui->treeWidget->header()->setSortIndicator(sortColumn, sortOrder);
-    }
-    else
-    {
+    } else {
         if (sortColumn == logicalIndex)
             sortOrder = ((sortOrder == Qt::AscendingOrder) ? Qt::DescendingOrder : Qt::AscendingOrder);
-        else
-        {
+        else {
             sortColumn = logicalIndex;
             sortOrder = ((sortColumn == COLUMN_LABEL || sortColumn == COLUMN_ADDRESS) ? Qt::AscendingOrder : Qt::DescendingOrder); // if label or address then default => asc, else default => desc
         }
@@ -419,12 +409,10 @@ void AssetControlDialog::viewItemChanged(QTreeWidgetItem* item, int column)
         if (ui->treeWidget->isEnabled()) // do not update on every click for (un)select all
             AssetControlDialog::updateLabels(model, this);
     }
-
     // TODO: Remove this temporary qt5 fix after Qt5.3 and Qt5.4 are no longer used.
     //       Fixed in Qt5.5 and above: https://bugreports.qt.io/browse/QTBUG-43473
 #if QT_VERSION >= 0x050000
-    else if (column == COLUMN_CHECKBOX && item->childCount() > 0)
-    {
+    else if (column == COLUMN_CHECKBOX && item->childCount() > 0) {
         if (item->checkState(COLUMN_CHECKBOX) == Qt::PartiallyChecked && item->child(0)->checkState(COLUMN_CHECKBOX) == Qt::PartiallyChecked)
             item->setCheckState(COLUMN_CHECKBOX, Qt::Checked);
     }
@@ -436,15 +424,14 @@ void AssetControlDialog::updateLabelLocked()
 {
     std::vector<COutPoint> vOutpts;
     model->listLockedCoins(vOutpts);
-    if (vOutpts.size() > 0)
-    {
-       ui->labelLocked->setText(tr("(%1 locked)").arg(vOutpts.size()));
-       ui->labelLocked->setVisible(true);
-    }
-    else ui->labelLocked->setVisible(false);
+    if (vOutpts.size() > 0) {
+        ui->labelLocked->setText(tr("(%1 locked)").arg(vOutpts.size()));
+        ui->labelLocked->setVisible(true);
+    } else
+        ui->labelLocked->setVisible(false);
 }
 
-void AssetControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
+void AssetControlDialog::updateLabels(WalletModel* model, QDialog* dialog)
 {
     if (!model)
         return;
@@ -453,12 +440,10 @@ void AssetControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     CAmount nPayAmount = 0;
     bool fDust = false;
     CMutableTransaction txDummy;
-    for (const CAmount &amount : AssetControlDialog::payAmounts)
-    {
+    for (const CAmount& amount : AssetControlDialog::payAmounts) {
         nPayAmount += amount;
 
-        if (amount > 0)
-        {
+        if (amount > 0) {
             CTxOut txout(amount, (CScript)std::vector<unsigned char>(24, 0));
             txDummy.vout.push_back(txout);
             fDust |= IsDust(txout, ::dustRelayFee);
@@ -466,18 +451,18 @@ void AssetControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     }
 
     std::string strAssetName = "";
-    CAmount nAssetAmount        = 0;
-    CAmount nAmount             = 0;
-    CAmount nPayFee             = 0;
-    CAmount nAfterFee           = 0;
-    CAmount nChange             = 0;
-    unsigned int nBytes         = 0;
-    unsigned int nBytesInputs   = 0;
-    unsigned int nQuantity      = 0;
-    bool fWitness               = false;
+    CAmount nAssetAmount = 0;
+    CAmount nAmount = 0;
+    CAmount nPayFee = 0;
+    CAmount nAfterFee = 0;
+    CAmount nChange = 0;
+    unsigned int nBytes = 0;
+    unsigned int nBytesInputs = 0;
+    unsigned int nQuantity = 0;
+    bool fWitness = false;
 
     std::vector<COutPoint> vCoinControl;
-    std::vector<COutput>   vOutputs;
+    std::vector<COutput> vOutputs;
     assetControl->ListSelectedAssets(vCoinControl);
     model->getOutputs(vCoinControl, vOutputs);
 
@@ -486,8 +471,7 @@ void AssetControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
         // when selected are spent elsewhere, like rpc or another computer
         uint256 txhash = out.tx->GetHash();
         COutPoint outpt(txhash, out.i);
-        if (model->isSpent(outpt))
-        {
+        if (model->isSpent(outpt)) {
             assetControl->UnSelectAsset(outpt);
             continue;
         }
@@ -502,31 +486,26 @@ void AssetControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
 
         // Bytes
         CTxDestination address;
-        if(ExtractDestination(out.tx->tx->vout[out.i].scriptPubKey, address))
-        {
+        if (ExtractDestination(out.tx->tx->vout[out.i].scriptPubKey, address)) {
             CPubKey pubkey;
-            CKeyID *keyid = boost::get<CKeyID>(&address);
-            if (keyid && model->getPubKey(*keyid, pubkey))
-            {
+            CKeyID* keyid = boost::get<CKeyID>(&address);
+            if (keyid && model->getPubKey(*keyid, pubkey)) {
                 nBytesInputs += (pubkey.IsCompressed() ? 148 : 180);
-            }
-            else
+            } else
                 nBytesInputs += 148; // in all error cases, simply assume 148 here
-        }
-        else nBytesInputs += 148;
+        } else
+            nBytesInputs += 148;
     }
 
     // calculation
-    if (nQuantity > 0)
-    {
+    if (nQuantity > 0) {
         // Bytes
         nBytes = nBytesInputs + ((AssetControlDialog::payAmounts.size() > 0 ? AssetControlDialog::payAmounts.size() + 1 : 2) * 34) + 10; // always assume +1 output for change here
-        if (fWitness)
-        {
+        if (fWitness) {
             // there is some fudging in these numbers related to the actual virtual transaction size calculation that will keep this estimate from being exact.
             // usually, the result will be an overestimate within a couple of satoshis so that the confirmation dialog ends up displaying a slightly smaller fee.
             // also, the witness stack size value is a variable sized integer. usually, the number of stack items will be well under the single byte var int limit.
-            nBytes += 2; // account for the serialized marker and flag bytes
+            nBytes += 2;         // account for the serialized marker and flag bytes
             nBytes += nQuantity; // account for the witness byte that holds the number of stack items for each input.
         }
 
@@ -538,8 +517,7 @@ void AssetControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
         // Fee
         nPayFee = CWallet::GetMinimumFee(nBytes, *assetControl, ::mempool, ::feeEstimator, nullptr /* FeeCalculation */);
 
-        if (nPayAmount > 0)
-        {
+        if (nPayAmount > 0) {
             nChange = nAssetAmount - nPayAmount;
 
             if (nChange == 0 && !AssetControlDialog::fSubtractFeeFromAmount)
@@ -551,34 +529,33 @@ void AssetControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     }
 
     // actually update labels
-    int nDisplayUnit = BitcoinUnits::YERB;
+    int nDisplayUnit = BitcoinUnits::MMM;
     if (model && model->getOptionsModel())
         nDisplayUnit = model->getOptionsModel()->getDisplayUnit();
 
-    QLabel *l1 = dialog->findChild<QLabel *>("labelAssetControlQuantity");
-    QLabel *l2 = dialog->findChild<QLabel *>("labelAssetControlAmount");
-    QLabel *l3 = dialog->findChild<QLabel *>("labelAssetControlFee");
-    QLabel *l4 = dialog->findChild<QLabel *>("labelAssetControlAfterFee");
-    QLabel *l5 = dialog->findChild<QLabel *>("labelAssetControlBytes");
-    QLabel *l7 = dialog->findChild<QLabel *>("labelAssetControlLowOutput");
-    QLabel *l8 = dialog->findChild<QLabel *>("labelAssetControlChange");
+    QLabel* l1 = dialog->findChild<QLabel*>("labelAssetControlQuantity");
+    QLabel* l2 = dialog->findChild<QLabel*>("labelAssetControlAmount");
+    QLabel* l3 = dialog->findChild<QLabel*>("labelAssetControlFee");
+    QLabel* l4 = dialog->findChild<QLabel*>("labelAssetControlAfterFee");
+    QLabel* l5 = dialog->findChild<QLabel*>("labelAssetControlBytes");
+    QLabel* l7 = dialog->findChild<QLabel*>("labelAssetControlLowOutput");
+    QLabel* l8 = dialog->findChild<QLabel*>("labelAssetControlChange");
 
     // enable/disable "dust" and "change"
-    dialog->findChild<QLabel *>("labelAssetControlLowOutputText")->setEnabled(nPayAmount > 0);
-    dialog->findChild<QLabel *>("labelAssetControlLowOutput")    ->setEnabled(nPayAmount > 0);
-    dialog->findChild<QLabel *>("labelAssetControlChangeText")   ->setEnabled(nPayAmount > 0);
-    dialog->findChild<QLabel *>("labelAssetControlChange")       ->setEnabled(nPayAmount > 0);
+    dialog->findChild<QLabel*>("labelAssetControlLowOutputText")->setEnabled(nPayAmount > 0);
+    dialog->findChild<QLabel*>("labelAssetControlLowOutput")->setEnabled(nPayAmount > 0);
+    dialog->findChild<QLabel*>("labelAssetControlChangeText")->setEnabled(nPayAmount > 0);
+    dialog->findChild<QLabel*>("labelAssetControlChange")->setEnabled(nPayAmount > 0);
 
     // stats
-    l1->setText(QString::number(nQuantity));                                 // Quantity
-    l2->setText(BitcoinUnits::formatWithCustomName(QString::fromStdString(strAssetName), nAssetAmount));        // Amount
-    l3->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, nPayFee));        // Fee
-    l4->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, nAfterFee));      // After Fee
-    l5->setText(((nBytes > 0) ? ASYMP_UTF8 : "") + QString::number(nBytes));        // Bytes
-    l7->setText(fDust ? tr("yes") : tr("no"));                               // Dust
-    l8->setText(BitcoinUnits::formatWithCustomName(QString::fromStdString(strAssetName), nChange));        // Change
-    if (nPayFee > 0)
-    {
+    l1->setText(QString::number(nQuantity));                                                             // Quantity
+    l2->setText(BitcoinUnits::formatWithCustomName(QString::fromStdString(strAssetName), nAssetAmount)); // Amount
+    l3->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, nPayFee));                                    // Fee
+    l4->setText(BitcoinUnits::formatWithUnit(nDisplayUnit, nAfterFee));                                  // After Fee
+    l5->setText(((nBytes > 0) ? ASYMP_UTF8 : "") + QString::number(nBytes));                             // Bytes
+    l7->setText(fDust ? tr("yes") : tr("no"));                                                           // Dust
+    l8->setText(BitcoinUnits::formatWithCustomName(QString::fromStdString(strAssetName), nChange));      // Change
+    if (nPayFee > 0) {
         l3->setText(ASYMP_UTF8 + l3->text());
         l4->setText(ASYMP_UTF8 + l4->text());
     }
@@ -598,14 +575,14 @@ void AssetControlDialog::updateLabels(WalletModel *model, QDialog* dialog)
     l4->setToolTip(toolTip4);
     l7->setToolTip(toolTipDust);
     l8->setToolTip(toolTip4);
-    dialog->findChild<QLabel *>("labelAssetControlFeeText")      ->setToolTip(l3->toolTip());
-    dialog->findChild<QLabel *>("labelAssetControlAfterFeeText") ->setToolTip(l4->toolTip());
-    dialog->findChild<QLabel *>("labelAssetControlBytesText")    ->setToolTip(l5->toolTip());
-    dialog->findChild<QLabel *>("labelAssetControlLowOutputText")->setToolTip(l7->toolTip());
-    dialog->findChild<QLabel *>("labelAssetControlChangeText")   ->setToolTip(l8->toolTip());
+    dialog->findChild<QLabel*>("labelAssetControlFeeText")->setToolTip(l3->toolTip());
+    dialog->findChild<QLabel*>("labelAssetControlAfterFeeText")->setToolTip(l4->toolTip());
+    dialog->findChild<QLabel*>("labelAssetControlBytesText")->setToolTip(l5->toolTip());
+    dialog->findChild<QLabel*>("labelAssetControlLowOutputText")->setToolTip(l7->toolTip());
+    dialog->findChild<QLabel*>("labelAssetControlChangeText")->setToolTip(l8->toolTip());
 
     // Insufficient funds
-    QLabel *label = dialog->findChild<QLabel *>("labelAssetControlInsuffFunds");
+    QLabel* label = dialog->findChild<QLabel*>("labelAssetControlInsuffFunds");
     if (label)
         label->setVisible(nChange < 0);
 }
@@ -625,7 +602,7 @@ void AssetControlDialog::updateView()
 
     int nDisplayUnit = model->getOptionsModel()->getDisplayUnit();
 
-    std::map<QString, std::map<QString, std::vector<COutput> > > mapCoins;
+    std::map<QString, std::map<QString, std::vector<COutput>>> mapCoins;
     model->listAssets(mapCoins);
 
     QString assetToDisplay = ui->assetList->currentText();
@@ -638,8 +615,8 @@ void AssetControlDialog::updateView()
     // So we only loop through coins for that specific asset
     auto mapAssetCoins = mapCoins.at(assetToDisplay);
 
-    for (const std::pair<QString, std::vector<COutput>> &coins : mapAssetCoins) {
-        CAssetControlWidgetItem *itemWalletAddress = new CAssetControlWidgetItem();
+    for (const std::pair<QString, std::vector<COutput>>& coins : mapAssetCoins) {
+        CAssetControlWidgetItem* itemWalletAddress = new CAssetControlWidgetItem();
         itemWalletAddress->setCheckState(COLUMN_CHECKBOX, Qt::Unchecked);
         QString sWalletAddress = coins.first;
         QString sWalletLabel = model->getAddressTableModel()->labelForAddress(sWalletAddress);
@@ -665,7 +642,7 @@ void AssetControlDialog::updateView()
 
         CAmount nSum = 0;
         int nChildren = 0;
-        for (const COutput &out : coins.second) {
+        for (const COutput& out : coins.second) {
             std::string strAssetName;
             CAmount nAmount;
             if (!GetAssetInfoFromScript(out.tx->tx->vout[out.i].scriptPubKey, strAssetName, nAmount))
@@ -677,9 +654,11 @@ void AssetControlDialog::updateView()
             nSum += nAmount;
             nChildren++;
 
-            CAssetControlWidgetItem *itemOutput;
-            if (treeMode) itemOutput = new CAssetControlWidgetItem(itemWalletAddress);
-            else itemOutput = new CAssetControlWidgetItem(ui->treeWidget);
+            CAssetControlWidgetItem* itemOutput;
+            if (treeMode)
+                itemOutput = new CAssetControlWidgetItem(itemWalletAddress);
+            else
+                itemOutput = new CAssetControlWidgetItem(ui->treeWidget);
             itemOutput->setFlags(flgCheckbox);
             itemOutput->setCheckState(COLUMN_CHECKBOX, Qt::Unchecked);
 
@@ -689,7 +668,7 @@ void AssetControlDialog::updateView()
             if (ExtractDestination(out.tx->tx->vout[out.i].scriptPubKey, outputAddress)) {
                 sAddress = QString::fromStdString(EncodeDestination(outputAddress));
 
-                // if listMode or change => show yerbas address. In tree mode, address is not shown again for direct wallet address outputs
+                // if listMode or change => show memeium address. In tree mode, address is not shown again for direct wallet address outputs
                 if (!treeMode || (!(sAddress == sWalletAddress))) {
                     itemOutput->setText(COLUMN_ADDRESS, sAddress);
                     // asset name
@@ -702,7 +681,7 @@ void AssetControlDialog::updateView()
             {
                 // tooltip from where the change comes from
                 itemOutput->setToolTip(COLUMN_LABEL,
-                                       tr("change from %1 (%2)").arg(sWalletLabel).arg(sWalletAddress));
+                    tr("change from %1 (%2)").arg(sWalletLabel).arg(sWalletAddress));
                 itemOutput->setText(COLUMN_LABEL, tr("(change)"));
             } else if (!treeMode) {
                 QString sLabel = model->getAddressTableModel()->labelForAddress(sAddress);
@@ -714,15 +693,15 @@ void AssetControlDialog::updateView()
             // amount
             itemOutput->setText(COLUMN_AMOUNT, BitcoinUnits::format(nDisplayUnit, nAmount));
             itemOutput->setData(COLUMN_AMOUNT, Qt::UserRole,
-                                QVariant((qlonglong) nAmount)); // padding so that sorting works correctly
+                QVariant((qlonglong)nAmount)); // padding so that sorting works correctly
 
             // date
             itemOutput->setText(COLUMN_DATE, GUIUtil::dateTimeStr(out.tx->GetTxTime()));
-            itemOutput->setData(COLUMN_DATE, Qt::UserRole, QVariant((qlonglong) out.tx->GetTxTime()));
+            itemOutput->setData(COLUMN_DATE, Qt::UserRole, QVariant((qlonglong)out.tx->GetTxTime()));
 
             // confirmations
             itemOutput->setText(COLUMN_CONFIRMATIONS, QString::number(out.nDepth));
-            itemOutput->setData(COLUMN_CONFIRMATIONS, Qt::UserRole, QVariant((qlonglong) out.nDepth));
+            itemOutput->setData(COLUMN_CONFIRMATIONS, Qt::UserRole, QVariant((qlonglong)out.nDepth));
 
             // transaction hash
             uint256 txhash = out.tx->GetHash();
@@ -748,13 +727,12 @@ void AssetControlDialog::updateView()
         if (treeMode) {
             itemWalletAddress->setText(COLUMN_CHECKBOX, "(" + QString::number(nChildren) + ")");
             itemWalletAddress->setText(COLUMN_AMOUNT, BitcoinUnits::format(nDisplayUnit, nSum));
-            itemWalletAddress->setData(COLUMN_AMOUNT, Qt::UserRole, QVariant((qlonglong) nSum));
+            itemWalletAddress->setData(COLUMN_AMOUNT, Qt::UserRole, QVariant((qlonglong)nSum));
         }
     }
 
     // expand all partially selected
-    if (treeMode)
-    {
+    if (treeMode) {
         for (int i = 0; i < ui->treeWidget->topLevelItemCount(); i++)
             if (ui->treeWidget->topLevelItem(i)->checkState(COLUMN_CHECKBOX) == Qt::PartiallyChecked)
                 ui->treeWidget->topLevelItem(i)->setExpanded(true);
@@ -798,7 +776,7 @@ void AssetControlDialog::updateAssetList(bool fSetOnStart)
     stringModel->setStringList(list);
 
     int index = ui->assetList->findText(QString::fromStdString(assetControl->strAssetSelected));
-    if (index != -1 ) { // -1 for not found
+    if (index != -1) { // -1 for not found
         fOnStartUp = fSetOnStart;
         ui->assetList->setCurrentIndex(index);
     }

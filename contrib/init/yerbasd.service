@@ -1,15 +1,15 @@
 [Unit]
-Description=Yerbas's distributed currency daemon
+Description=Memeium's distributed currency daemon
 After=network.target
 
 [Service]
-User=yerbascore
-Group=yerbascore
+User=memeiumcore
+Group=memeiumcore
 
 Type=forking
-PIDFile=/var/lib/yerbasd/yerbasd.pid
-ExecStart=/usr/bin/yerbasd -daemon -pid=/var/lib/yerbasd/yerbasd.pid \
--conf=/etc/yerbascore/yerbas.conf -datadir=/var/lib/yerbasd -disablewallet
+PIDFile=/var/lib/memeiumd/memeiumd.pid
+ExecStart=/usr/bin/memeiumd -daemon -pid=/var/lib/memeiumd/memeiumd.pid \
+-conf=/etc/memeiumcore/memeium.conf -datadir=/var/lib/memeiumd -disablewallet
 
 Restart=always
 PrivateTmp=true

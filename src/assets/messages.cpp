@@ -1,15 +1,15 @@
-// Copyright (c) 2018-2021 The Yerbas Core developers
+// Copyright (c) 2018-2021 The Memeium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <validation.h>
-#include <chainparams.h>
-#include <wallet/wallet.h>
-#include <script/ismine.h>
-#include <base58.h>
 #include "messages.h"
 #include "myassetsdb.h"
+#include <base58.h>
+#include <chainparams.h>
 #include <primitives/block.h>
+#include <script/ismine.h>
+#include <validation.h>
+#include <wallet/wallet.h>
 
 
 std::set<COutPoint> setDirtyMessagesRemove;
@@ -39,17 +39,25 @@ MessageStatus MessageStatusFromInt(int8_t nStatus)
 std::string MessageStatusToString(MessageStatus status)
 {
     switch (status) {
-        case MessageStatus::READ: return "READ";
-        case MessageStatus::UNREAD: return "UNREAD";
-        case MessageStatus::ORPHAN: return "ORPHAN";
-        case MessageStatus::EXPIRED: return "EXPIRED";
-        case MessageStatus::SPAM: return "SPAM";
-        case MessageStatus::HIDDEN: return "HIDDEN";
-        default: return "ERROR";
+    case MessageStatus::READ:
+        return "READ";
+    case MessageStatus::UNREAD:
+        return "UNREAD";
+    case MessageStatus::ORPHAN:
+        return "ORPHAN";
+    case MessageStatus::EXPIRED:
+        return "EXPIRED";
+    case MessageStatus::SPAM:
+        return "SPAM";
+    case MessageStatus::HIDDEN:
+        return "HIDDEN";
+    default:
+        return "ERROR";
     }
 }
 
-CMessage::CMessage() {
+CMessage::CMessage()
+{
     SetNull();
 }
 
@@ -64,7 +72,7 @@ CMessage::CMessage(const COutPoint& out, const std::string& strName, const std::
     status = MessageStatus::UNREAD;
 }
 
-bool IsChannelSubscribed(const std::string &name)
+bool IsChannelSubscribed(const std::string& name)
 {
     if (!pMessageSubscribedChannelsCache || !pmessagechanneldb)
         return false;
@@ -127,7 +135,7 @@ bool GetMessage(const COutPoint& out, CMessage& message)
     return false;
 }
 
-void AddChannel(const std::string &name)
+void AddChannel(const std::string& name)
 {
     // Add channel to dirty cache to add
     setDirtyChannelsAdd.insert(name);
@@ -137,7 +145,7 @@ void AddChannel(const std::string &name)
     setSubscribedChannelsAskedForFalse.erase(name);
 }
 
-void RemoveChannel(const std::string &name)
+void RemoveChannel(const std::string& name)
 {
     // Add channel to dirty cache to remove
     setDirtyChannelsRemove.insert(name);
@@ -161,7 +169,7 @@ void RemoveMessage(const CMessage& message)
     RemoveMessage(message.out);
 }
 
-void RemoveMessage(const COutPoint &out)
+void RemoveMessage(const COutPoint& out)
 {
     // Add message out to dirty set Cache to remove
     setDirtyMessagesRemove.insert(out);
@@ -171,7 +179,7 @@ void RemoveMessage(const COutPoint &out)
     mapDirtyMessagesOrphaned.erase(out);
 }
 
-void OrphanMessage(const COutPoint &out)
+void OrphanMessage(const COutPoint& out)
 {
     CMessage message;
     if (GetMessage(out, message))
@@ -208,7 +216,6 @@ bool ScanForMessageChannels(std::string& strError)
         }
 
         for (const auto& tx : block.vtx) {
-
             auto ptx = tx.get();
             if (!ptx) {
                 strError = "Failed to get transaction pointer";
@@ -259,14 +266,14 @@ bool ScanForMessageChannels(std::string& strError)
 
     LogPrintf("%s : Finished Scanning For Message Channels. Subscribed Messages Channels Found: %u\n", __func__, setDirtyChannelsAdd.size());
     for (auto item : setDirtyChannelsAdd) {
-        LogPrintf("%s, ",item);
+        LogPrintf("%s, ", item);
     }
     LogPrintf("\n");
     return true;
 }
 #endif
 
-bool IsAddressSeen(const std::string &address)
+bool IsAddressSeen(const std::string& address)
 {
     if (!pmessagechanneldb || !pMessagesSeenAddressCache)
         return false;
@@ -292,7 +299,7 @@ bool IsAddressSeen(const std::string &address)
     return false;
 }
 
-void AddAddressSeen(const std::string &address)
+void AddAddressSeen(const std::string& address)
 {
     setDirtySeenAddressAdd.insert(address);
     setSubscribedChannelsAskedForFalse.erase(address);
@@ -314,8 +321,8 @@ size_t GetMessageDirtyCacheSize()
 
     size_t size = 0;
     // Messages Caches
-    size += 32 * setDirtyMessagesRemove.size(); // COutPoint;
-    size += (32 + 123) * mapDirtyMessagesAdd.size(); // COutPoint -> CMessage
+    size += 32 * setDirtyMessagesRemove.size();           // COutPoint;
+    size += (32 + 123) * mapDirtyMessagesAdd.size();      // COutPoint -> CMessage
     size += (32 + 123) * mapDirtyMessagesOrphaned.size(); // COutPoint -> CMessage
 
 

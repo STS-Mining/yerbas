@@ -11,8 +11,7 @@
 
 #include <boost/optional.hpp>
 
-enum class CoinType
-{
+enum class CoinType {
     ALL_COINS,
     ONLY_DENOMINATED,
     ONLY_NONDENOMINATED,
@@ -46,10 +45,10 @@ public:
     //! Controls which types of coins are allowed to be used (default: ALL_COINS)
     CoinType nCoinType;
 
-    /** YERB START */
+    /** MMM START */
     //! Name of the asset that is selected, used when sending assets with coincontrol
     std::string strAssetSelected;
-    /** YERB END */
+    /** MMM END */
 
     CCoinControl()
     {
@@ -132,7 +131,7 @@ public:
         vOutpoints.assign(setAssetsSelected.begin(), setAssetsSelected.end());
     }
 
-    // Yerbas-specific helpers
+    // Memeium-specific helpers
 
     void UsePrivateSend(bool fUsePrivateSend)
     {

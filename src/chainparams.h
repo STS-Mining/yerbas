@@ -11,14 +11,15 @@
 #include "primitives/block.h"
 #include "protocol.h"
 
+#include <chain.h>
 #include <memory>
 #include <vector>
-#include <chain.h>
 
 struct CDNSSeedData {
     std::string host;
     bool supportsServiceBitsFiltering;
-    CDNSSeedData(const std::string &strHost, bool supportsServiceBitsFilteringIn) : host(strHost), supportsServiceBitsFiltering(supportsServiceBitsFilteringIn) {}
+    CDNSSeedData(const std::string& strHost, bool supportsServiceBitsFilteringIn) :
+        host(strHost), supportsServiceBitsFiltering(supportsServiceBitsFilteringIn) {}
 };
 
 struct SeedSpec6 {
@@ -40,7 +41,7 @@ struct ChainTxData {
 
 /**
  * CChainParams defines various tweakable parameters of a given instance of the
- * Yerbas system. There are three: the main network on which people trade goods
+ * Memeium system. There are three: the main network on which people trade goods
  * and services, the public test network which gets reset from time to time and
  * a regression test mode which is intended for private networks only. It has
  * minimal difficulty to ensure that blocks can be found instantly.
@@ -95,17 +96,17 @@ public:
     int PoolMinParticipants() const { return nPoolMinParticipants; }
     int PoolMaxParticipants() const { return nPoolMaxParticipants; }
     int FulfilledRequestExpireTime() const { return nFulfilledRequestExpireTime; }
-    bool IsAssetsActive(CBlockIndex *index) const {
+    bool IsAssetsActive(CBlockIndex* index) const
+    {
         int height = index == nullptr ? 0 : index->nHeight;
         return height >= GetConsensus().nAssetsForkBlock;
     };
     const std::string& GlobalBurnAddress() const { return strGlobalBurnAddress; }
     //  Indicates whether or not the provided address is a burn address
-    bool IsBurnAddress(const std::string & p_address) const
+    bool IsBurnAddress(const std::string& p_address) const
     {
         if (
-            p_address == strGlobalBurnAddress
-        ) {
+            p_address == strGlobalBurnAddress) {
             return true;
         }
 
@@ -115,6 +116,7 @@ public:
     const std::vector<std::string>& SporkAddresses() const { return vSporkAddresses; }
     int MinSporkKeys() const { return nMinSporkKeys; }
     bool BIP9CheckSmartnodesUpgraded() const { return fBIP9CheckSmartnodesUpgraded; }
+
 protected:
     CChainParams() {}
 
@@ -159,7 +161,7 @@ std::unique_ptr<CChainParams> CreateChainParams(const std::string& chain);
  * Return the currently selected parameters. This won't change after app
  * startup, except for unit tests.
  */
-const CChainParams &Params();
+const CChainParams& Params();
 
 /**
  * Sets the params returned by Params() to those for the given BIP70 chain name.

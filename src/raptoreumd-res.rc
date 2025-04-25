@@ -16,14 +16,14 @@ BEGIN
     BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
-            VALUE "CompanyName",        "Yerbas"
-            VALUE "FileDescription",    "yerbasd (Yerbas node with a JSON-RPC server)"
+            VALUE "CompanyName",        "Memeium"
+            VALUE "FileDescription",    "memeiumd (Memeium node with a JSON-RPC server)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
-            VALUE "InternalName",       "yerbasd"
+            VALUE "InternalName",       "memeiumd"
             VALUE "LegalCopyright",     COPYRIGHT_STR
             VALUE "LegalTrademarks1",   "Distributed under the MIT software license, see the accompanying file COPYING or http://www.opensource.org/licenses/mit-license.php."
-            VALUE "OriginalFilename",   "yerbasd.exe"
-            VALUE "ProductName",        "yerbasd"
+            VALUE "OriginalFilename",   "memeiumd.exe"
+            VALUE "ProductName",        "memeiumd"
             VALUE "ProductVersion",     VER_PRODUCTVERSION_STR
         END
     END

@@ -1,10 +1,10 @@
 // Copyright (c) 2018-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_QUORUMS_BLOCKPROCESSOR_H
-#define YERBAS_QUORUMS_BLOCKPROCESSOR_H
+#ifndef MEMEIUM_QUORUMS_BLOCKPROCESSOR_H
+#define MEMEIUM_QUORUMS_BLOCKPROCESSOR_H
 
 #include "llmq/quorums_commitment.h"
 #include "llmq/quorums_utils.h"
@@ -36,7 +36,8 @@ private:
     std::unordered_map<std::pair<Consensus::LLMQType, uint256>, bool, StaticSaltedHasher> hasMinedCommitmentCache;
 
 public:
-    CQuorumBlockProcessor(CEvoDB& _evoDb) : evoDb(_evoDb) {}
+    CQuorumBlockProcessor(CEvoDB& _evoDb) :
+        evoDb(_evoDb) {}
 
     void UpgradeDB();
 
@@ -69,4 +70,4 @@ extern CQuorumBlockProcessor* quorumBlockProcessor;
 
 } // namespace llmq
 
-#endif//YERBAS_QUORUMS_BLOCKPROCESSOR_H
+#endif // MEMEIUM_QUORUMS_BLOCKPROCESSOR_H

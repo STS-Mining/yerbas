@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -44,7 +44,7 @@ enum PoolMessage : int32_t {
     ERR_MN_LIST,
     ERR_MODE,
     ERR_NON_STANDARD_PUBKEY, // not used
-    ERR_NOT_A_MN, // not used
+    ERR_NOT_A_MN,            // not used
     ERR_QUEUE_FULL,
     ERR_RECENT,
     ERR_SESSION,
@@ -57,7 +57,9 @@ enum PoolMessage : int32_t {
     MSG_POOL_MIN = ERR_ALREADY_HAVE,
     MSG_POOL_MAX = ERR_SIZE_MISMATCH
 };
-template<> struct is_serializable_enum<PoolMessage> : std::true_type {};
+template <>
+struct is_serializable_enum<PoolMessage> : std::true_type {
+};
 
 // pool states
 enum PoolState : int32_t {
@@ -70,14 +72,18 @@ enum PoolState : int32_t {
     POOL_STATE_MIN = POOL_STATE_IDLE,
     POOL_STATE_MAX = POOL_STATE_SUCCESS
 };
-template<> struct is_serializable_enum<PoolState> : std::true_type {};
+template <>
+struct is_serializable_enum<PoolState> : std::true_type {
+};
 
 // status update message constants
 enum PoolStatusUpdate : int32_t {
     STATUS_REJECTED,
     STATUS_ACCEPTED
 };
-template<> struct is_serializable_enum<PoolStatusUpdate> : std::true_type {};
+template <>
+struct is_serializable_enum<PoolStatusUpdate> : std::true_type {
+};
 
 class CPrivateSendStatusUpdate
 {
@@ -149,11 +155,11 @@ public:
 
     CPrivateSendAccept() :
         nDenom(0),
-        txCollateral(CMutableTransaction()){};
+        txCollateral(CMutableTransaction()) {};
 
     CPrivateSendAccept(int nDenom, const CMutableTransaction& txCollateral) :
         nDenom(nDenom),
-        txCollateral(txCollateral){};
+        txCollateral(txCollateral) {};
 
     ADD_SERIALIZE_METHODS;
 
@@ -189,10 +195,10 @@ public:
     }
 
     CPrivateSendEntry(const std::vector<CTxDSIn>& vecTxDSIn, const std::vector<CTxOut>& vecTxOut, const CTransaction& txCollateral) :
-            vecTxDSIn(vecTxDSIn),
-            vecTxOut(vecTxOut),
-            txCollateral(MakeTransactionRef(txCollateral)),
-            addr(CService())
+        vecTxDSIn(vecTxDSIn),
+        vecTxOut(vecTxOut),
+        txCollateral(MakeTransactionRef(txCollateral)),
+        addr(CService())
     {
     }
 
@@ -219,7 +225,7 @@ public:
     int nDenom;
     COutPoint smartnodeOutpoint;
     int64_t nTime;
-    bool fReady; //ready for submit
+    bool fReady; // ready for submit
     std::vector<unsigned char> vchSig;
     // memory only
     bool fTried;
@@ -437,7 +443,7 @@ public:
     static std::vector<CAmount> GetStandardDenominations() { return vecStandardDenominations; }
     static CAmount GetSmallestDenomination() { return vecStandardDenominations.back(); }
 
-    /// Get the denominations for a specific amount of yerbas.
+    /// Get the denominations for a specific amount of memeium.
     static int GetDenominationsByAmounts(const std::vector<CAmount>& vecAmount);
 
     static bool IsDenominatedAmount(CAmount nInputAmount);
@@ -472,7 +478,6 @@ public:
     static void TransactionAddedToMempool(const CTransactionRef& tx);
     static void BlockConnected(const std::shared_ptr<const CBlock>& pblock, const CBlockIndex* pindex, const std::vector<CTransactionRef>& vtxConflicted);
     static void BlockDisconnected(const std::shared_ptr<const CBlock>& pblock, const CBlockIndex* pindexDisconnected);
-
 };
 
 #endif

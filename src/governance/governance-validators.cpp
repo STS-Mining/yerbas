@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -294,7 +294,7 @@ bool CProposalValidator::CheckURL(const std::string& strURLIn)
     std::string::size_type nPos = strRest.find(':');
 
     if (nPos != std::string::npos) {
-        //std::string strSchema = strRest.substr(0,nPos);
+        // std::string strSchema = strRest.substr(0,nPos);
 
         if (nPos < strRest.size()) {
             strRest = strRest.substr(nPos + 1);

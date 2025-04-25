@@ -1,10 +1,10 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_QUORUMS_UTILS_H
-#define YERBAS_QUORUMS_UTILS_H
+#ifndef MEMEIUM_QUORUMS_UTILS_H
+#define MEMEIUM_QUORUMS_UTILS_H
 
 #include "consensus/params.h"
 #include "net.h"
@@ -26,7 +26,7 @@ public:
     static uint256 BuildSignHash(Consensus::LLMQType llmqType, const uint256& quorumHash, const uint256& id, const uint256& msgHash);
 
     // works for sig shares and recovered sigs
-    template<typename T>
+    template <typename T>
     static uint256 BuildSignHash(const T& s)
     {
         return BuildSignHash((Consensus::LLMQType)s.llmqType, s.quorumHash, s.id, s.msgHash);
@@ -37,7 +37,7 @@ public:
 
     static bool IsQuorumActive(Consensus::LLMQType llmqType, const uint256& quorumHash);
 
-    template<typename NodesContainer, typename Continue, typename Callback>
+    template <typename NodesContainer, typename Continue, typename Callback>
     static void IterateNodesRandom(NodesContainer& nodeStates, Continue&& cont, Callback&& callback, FastRandomContext& rnd)
     {
         std::vector<typename NodesContainer::iterator> rndNodes;
@@ -70,4 +70,4 @@ public:
 
 } // namespace llmq
 
-#endif//YERBAS_QUORUMS_UTILS_H
+#endif // MEMEIUM_QUORUMS_UTILS_H

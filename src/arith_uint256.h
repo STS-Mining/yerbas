@@ -4,8 +4,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_ARITH_UINT256_H
-#define YERBAS_ARITH_UINT256_H
+#ifndef MEMEIUM_ARITH_UINT256_H
+#define MEMEIUM_ARITH_UINT256_H
 #include "crypto/common.h"
 #include <assert.h>
 #include <cstring>
@@ -17,23 +17,25 @@
 class uint256;
 class uint512;
 
-class uint_error : public std::runtime_error {
+class uint_error : public std::runtime_error
+{
 public:
-    explicit uint_error(const std::string& str) : std::runtime_error(str) {}
+    explicit uint_error(const std::string& str) :
+        std::runtime_error(str) {}
 };
 
 /** Template base class for unsigned big integers. */
-template<unsigned int BITS>
+template <unsigned int BITS>
 class base_uint
 {
 protected:
-    enum { WIDTH=BITS/32 };
+    enum { WIDTH = BITS / 32 };
     uint32_t pn[WIDTH];
-public:
 
+public:
     base_uint()
     {
-        static_assert(BITS/32 > 0 && BITS%32 == 0, "Template parameter BITS must be a positive multiple of 32.");
+        static_assert(BITS / 32 > 0 && BITS % 32 == 0, "Template parameter BITS must be a positive multiple of 32.");
 
         for (int i = 0; i < WIDTH; i++)
             pn[i] = 0;
@@ -41,7 +43,7 @@ public:
 
     base_uint(const base_uint& b)
     {
-        static_assert(BITS/32 > 0 && BITS%32 == 0, "Template parameter BITS must be a positive multiple of 32.");
+        static_assert(BITS / 32 > 0 && BITS % 32 == 0, "Template parameter BITS must be a positive multiple of 32.");
 
         for (int i = 0; i < WIDTH; i++)
             pn[i] = b.pn[i];
@@ -56,7 +58,7 @@ public:
 
     base_uint(uint64_t b)
     {
-        static_assert(BITS/32 > 0 && BITS%32 == 0, "Template parameter BITS must be a positive multiple of 32.");
+        static_assert(BITS / 32 > 0 && BITS % 32 == 0, "Template parameter BITS must be a positive multiple of 32.");
 
         pn[0] = (unsigned int)b;
         pn[1] = (unsigned int)(b >> 32);
@@ -143,8 +145,7 @@ public:
     base_uint& operator+=(const base_uint& b)
     {
         uint64_t carry = 0;
-        for (int i = 0; i < WIDTH; i++)
-        {
+        for (int i = 0; i < WIDTH; i++) {
             uint64_t n = carry + pn[i] + b.pn[i];
             pn[i] = n & 0xffffffff;
             carry = n >> 32;
@@ -212,12 +213,13 @@ public:
         return ret;
     }
 
-    void SetHex(const char* psz) {
-    	base_uint<BITS> b;
-		for(int x=0; x<b.WIDTH; ++x) {
-			memcpy((char*)&b.pn[x], psz + x*4, 4);
-		}
-		*this = b;
+    void SetHex(const char* psz)
+    {
+        base_uint<BITS> b;
+        for (int x = 0; x < b.WIDTH; ++x) {
+            memcpy((char*)&b.pn[x], psz + x * 4, 4);
+        }
+        *this = b;
     }
 
     int CompareTo(const base_uint& b) const;
@@ -267,12 +269,16 @@ public:
 };
 
 /** 256-bit unsigned big integer. */
-class arith_uint256 : public base_uint<256> {
+class arith_uint256 : public base_uint<256>
+{
 public:
     arith_uint256() {}
-    arith_uint256(const base_uint<256>& b) : base_uint<256>(b) {}
-    arith_uint256(uint64_t b) : base_uint<256>(b) {}
-    explicit arith_uint256(const std::string& str) : base_uint<256>(str) {}
+    arith_uint256(const base_uint<256>& b) :
+        base_uint<256>(b) {}
+    arith_uint256(uint64_t b) :
+        base_uint<256>(b) {}
+    explicit arith_uint256(const std::string& str) :
+        base_uint<256>(str) {}
 
     /**
      * The "compact" format is a representation of a whole
@@ -289,45 +295,50 @@ public:
      * Thus 0x1234560000 is compact (0x05123456)
      * and  0xc0de000000 is compact (0x0600c0de)
      *
-     * Yerbas only uses this "compact" format for encoding difficulty
+     * Memeium only uses this "compact" format for encoding difficulty
      * targets, which are unsigned 256bit quantities.  Thus, all the
      * complexities of the sign bit and using base 256 are probably an
      * implementation accident.
      */
-    arith_uint256& SetCompact(uint32_t nCompact, bool *pfNegative = nullptr, bool *pfOverflow = nullptr);
+    arith_uint256& SetCompact(uint32_t nCompact, bool* pfNegative = nullptr, bool* pfOverflow = nullptr);
     uint32_t GetCompact(bool fNegative = false) const;
 
-    friend uint256 ArithToUint256(const arith_uint256 &);
-    friend arith_uint256 UintToArith256(const uint256 &);
-    //std::string GetHex() const;
+    friend uint256 ArithToUint256(const arith_uint256&);
+    friend arith_uint256 UintToArith256(const uint256&);
+    // std::string GetHex() const;
 };
 
-uint256 ArithToUint256(const arith_uint256 &);
-arith_uint256 UintToArith256(const uint256 &);
+uint256 ArithToUint256(const arith_uint256&);
+arith_uint256 UintToArith256(const uint256&);
 
-class arith_uint512 : public base_uint<512> {
+class arith_uint512 : public base_uint<512>
+{
 public:
-	arith_uint512() {}
-	arith_uint512(const base_uint<512>& b) : base_uint<512>(b) {}
-	arith_uint512(const arith_uint256& b) {
-		 for (int i = 0; i < b.GET_WIDTH(); i++)
-			pn[i] = b.GET_PN(i);
-	}
-	arith_uint512(uint64_t b) : base_uint<512>(b) {}
-	explicit arith_uint512(const std::string& str) : base_uint<512>(str) {}
+    arith_uint512() {}
+    arith_uint512(const base_uint<512>& b) :
+        base_uint<512>(b) {}
+    arith_uint512(const arith_uint256& b)
+    {
+        for (int i = 0; i < b.GET_WIDTH(); i++)
+            pn[i] = b.GET_PN(i);
+    }
+    arith_uint512(uint64_t b) :
+        base_uint<512>(b) {}
+    explicit arith_uint512(const std::string& str) :
+        base_uint<512>(str) {}
 
-	arith_uint256 trim256() const {
-		arith_uint256 result;
-		memcpy((void*)&result, (void*)pn, 32);
-		return result;
-	}
-	friend uint512 ArithToUint512(const arith_uint512 &);
-	friend arith_uint512 UintToArith512(const uint512 &);
-	//std::string GetHex() const;
-
+    arith_uint256 trim256() const
+    {
+        arith_uint256 result;
+        memcpy((void*)&result, (void*)pn, 32);
+        return result;
+    }
+    friend uint512 ArithToUint512(const arith_uint512&);
+    friend arith_uint512 UintToArith512(const uint512&);
+    // std::string GetHex() const;
 };
 
-uint512 ArithToUint512(const arith_uint512 &);
-arith_uint512 UintToArith512(const uint512 &);
+uint512 ArithToUint512(const arith_uint512&);
+arith_uint512 UintToArith512(const uint512&);
 
-#endif // YERBAS_ARITH_UINT256_H
+#endif // MEMEIUM_ARITH_UINT256_H

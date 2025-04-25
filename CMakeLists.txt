@@ -8,7 +8,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 set(PROJECT_NAME
-    yerbas)
+    memeium)
 
 project(${PROJECT_NAME}
   LANGUAGES CXX C)

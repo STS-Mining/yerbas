@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -27,7 +27,7 @@ public:
 class CKeyHolderStorage
 {
 private:
-    std::vector<std::unique_ptr<CKeyHolder> > storage;
+    std::vector<std::unique_ptr<CKeyHolder>> storage;
     mutable CCriticalSection cs_storage;
 
 public:
@@ -35,4 +35,4 @@ public:
     void KeepAll();
     void ReturnAll();
 };
-#endif //PRIVATESENDUTIL_H
+#endif // PRIVATESENDUTIL_H

@@ -1,10 +1,10 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_QUORUMS_COMMITMENT_H
-#define YERBAS_QUORUMS_COMMITMENT_H
+#ifndef MEMEIUM_QUORUMS_COMMITMENT_H
+#define MEMEIUM_QUORUMS_COMMITMENT_H
 
 #include "consensus/params.h"
 
@@ -35,7 +35,7 @@ public:
     CBLSPublicKey quorumPublicKey;
     uint256 quorumVvecHash;
 
-    CBLSSignature quorumSig; // recovered threshold sig of blockHash+validMembers+pubKeyHash+vvecHash
+    CBLSSignature quorumSig;  // recovered threshold sig of blockHash+validMembers+pubKeyHash+vvecHash
     CBLSSignature membersSig; // aggregated member sig of blockHash+validMembers+pubKeyHash+vvecHash
 
 public:
@@ -58,7 +58,7 @@ public:
 public:
     ADD_SERIALIZE_METHODS
 
-    template<typename Stream, typename Operation>
+    template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(nVersion);
@@ -113,7 +113,7 @@ public:
 public:
     ADD_SERIALIZE_METHODS
 
-    template<typename Stream, typename Operation>
+    template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(nVersion);
@@ -137,4 +137,4 @@ bool CheckLLMQCommitment(const CTransaction& tx, const CBlockIndex* pindexPrev, 
 
 } // namespace llmq
 
-#endif //YERBAS_QUORUMS_COMMITMENT_H
+#endif // MEMEIUM_QUORUMS_COMMITMENT_H

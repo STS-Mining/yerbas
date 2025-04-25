@@ -1,14 +1,14 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "chainparams.h"
 #include "dsnotificationinterface.h"
+#include "chainparams.h"
 #include "governance/governance.h"
+#include "privatesend/privatesend.h"
 #include "smartnode/smartnode-payments.h"
 #include "smartnode/smartnode-sync.h"
-#include "privatesend/privatesend.h"
 #ifdef ENABLE_WALLET
 #include "privatesend/privatesend-client.h"
 #endif // ENABLE_WALLET
@@ -19,8 +19,8 @@
 
 #include "llmq/quorums.h"
 #include "llmq/quorums_chainlocks.h"
-#include "llmq/quorums_instantsend.h"
 #include "llmq/quorums_dkgsessionmgr.h"
+#include "llmq/quorums_instantsend.h"
 
 void CDSNotificationInterface::InitializeCurrentBlockTip()
 {
@@ -28,18 +28,18 @@ void CDSNotificationInterface::InitializeCurrentBlockTip()
     UpdatedBlockTip(chainActive.Tip(), nullptr, IsInitialBlockDownload());
 }
 
-void CDSNotificationInterface::AcceptedBlockHeader(const CBlockIndex *pindexNew)
+void CDSNotificationInterface::AcceptedBlockHeader(const CBlockIndex* pindexNew)
 {
     llmq::chainLocksHandler->AcceptedBlockHeader(pindexNew);
     smartnodeSync.AcceptedBlockHeader(pindexNew);
 }
 
-void CDSNotificationInterface::NotifyHeaderTip(const CBlockIndex *pindexNew, bool fInitialDownload)
+void CDSNotificationInterface::NotifyHeaderTip(const CBlockIndex* pindexNew, bool fInitialDownload)
 {
     smartnodeSync.NotifyHeaderTip(pindexNew, fInitialDownload, connman);
 }
 
-void CDSNotificationInterface::UpdatedBlockTip(const CBlockIndex *pindexNew, const CBlockIndex *pindexFork, bool fInitialDownload)
+void CDSNotificationInterface::UpdatedBlockTip(const CBlockIndex* pindexNew, const CBlockIndex* pindexFork, bool fInitialDownload)
 {
     if (pindexNew == pindexFork) // blocks were disconnected without any new ones
         return;

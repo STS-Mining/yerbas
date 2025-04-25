@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,7 +14,7 @@
 
 class CConnman;
 
-static const int SMARTNODE_MAX_MIXING_TXES             = 5;
+static const int SMARTNODE_MAX_MIXING_TXES = 5;
 
 // Holds extra (non-deterministic) information about smartnodes
 // This is mostly local information, e.g. about mixing and governance
@@ -27,7 +27,7 @@ private:
 
     uint256 proTxHash;
 
-    //the dsq count from the last dsq broadcast of this node
+    // the dsq count from the last dsq broadcast of this node
     int64_t nLastDsq = 0;
     int nMixingTxCount = 0;
 
@@ -36,7 +36,8 @@ private:
 
 public:
     CSmartnodeMetaInfo() {}
-    CSmartnodeMetaInfo(const uint256& _proTxHash) : proTxHash(_proTxHash) {}
+    CSmartnodeMetaInfo(const uint256& _proTxHash) :
+        proTxHash(_proTxHash) {}
     CSmartnodeMetaInfo(const CSmartnodeMetaInfo& ref) :
         proTxHash(ref.proTxHash),
         nLastDsq(ref.nLastDsq),
@@ -57,9 +58,21 @@ public:
     }
 
 public:
-    const uint256& GetProTxHash() const { LOCK(cs); return proTxHash; }
-    int64_t GetLastDsq() const { LOCK(cs); return nLastDsq; }
-    int GetMixingTxCount() const { LOCK(cs); return nMixingTxCount; }
+    const uint256& GetProTxHash() const
+    {
+        LOCK(cs);
+        return proTxHash;
+    }
+    int64_t GetLastDsq() const
+    {
+        LOCK(cs);
+        return nLastDsq;
+    }
+    int GetMixingTxCount() const
+    {
+        LOCK(cs);
+        return nMixingTxCount;
+    }
 
     bool IsValidForMixingTxes() const { return GetMixingTxCount() <= SMARTNODE_MAX_MIXING_TXES; }
 
@@ -92,14 +105,13 @@ public:
         LOCK(cs);
 
         std::string strVersion;
-        if(ser_action.ForRead()) {
+        if (ser_action.ForRead()) {
             Clear();
             READWRITE(strVersion);
             if (strVersion != SERIALIZATION_VERSION_STRING) {
                 return;
             }
-        }
-        else {
+        } else {
             strVersion = SERIALIZATION_VERSION_STRING;
             READWRITE(strVersion);
         }
@@ -124,7 +136,11 @@ public:
 public:
     CSmartnodeMetaInfoPtr GetMetaInfo(const uint256& proTxHash, bool fCreate = true);
 
-    int64_t GetDsqCount() { LOCK(cs); return nDsqCount; }
+    int64_t GetDsqCount()
+    {
+        LOCK(cs);
+        return nDsqCount;
+    }
 
     void AllowMixing(const uint256& proTxHash);
     void DisallowMixing(const uint256& proTxHash);
@@ -142,4 +158,4 @@ public:
 
 extern CSmartnodeMetaMan mmetaman;
 
-#endif//SMARTNODE_META_H
+#endif // SMARTNODE_META_H

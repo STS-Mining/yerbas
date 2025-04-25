@@ -13,7 +13,7 @@
 - (NSString *)__bundleIdentifier
 {
     if (self == [NSBundle mainBundle]) {
-        return @"org.yerbas.Yerbas-Qt";
+        return @"org.memeium.Memeium-Qt";
     } else {
         return [self __bundleIdentifier];
     }

@@ -7,7 +7,7 @@
 #include "chainparams.h"
 #include "random.h"
 
-#include "test/test_yerbas.h"
+#include "test/test_memeium.h"
 
 #include <boost/test/unit_test.hpp>
 

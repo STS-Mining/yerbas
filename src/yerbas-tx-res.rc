@@ -16,14 +16,14 @@ BEGIN
     BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
-            VALUE "CompanyName",        "Yerbas"
-            VALUE "FileDescription",    "yerbas-tx (CLI Yerbas transaction editor utility)"
+            VALUE "CompanyName",        "Memeium"
+            VALUE "FileDescription",    "memeium-tx (CLI Memeium transaction editor utility)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
-            VALUE "InternalName",       "yerbas-tx"
+            VALUE "InternalName",       "memeium-tx"
             VALUE "LegalCopyright",     COPYRIGHT_STR
             VALUE "LegalTrademarks1",   "Distributed under the MIT software license, see the accompanying file COPYING or http://www.opensource.org/licenses/mit-license.php."
-            VALUE "OriginalFilename",   "yerbas-tx.exe"
-            VALUE "ProductName",        "yerbas-tx"
+            VALUE "OriginalFilename",   "memeium-tx.exe"
+            VALUE "ProductName",        "memeium-tx"
             VALUE "ProductVersion",     VER_PRODUCTVERSION_STR
         END
     END

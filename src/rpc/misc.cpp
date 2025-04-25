@@ -1,7 +1,7 @@
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -9,8 +9,8 @@
 #include "chain.h"
 #include "clientversion.h"
 #include "core_io.h"
-#include "init.h"
 #include "httpserver.h"
+#include "init.h"
 #include "net.h"
 #include "netbase.h"
 #include "rpc/blockchain.h"
@@ -64,28 +64,29 @@ UniValue getinfo(const JSONRPCRequest& request)
             "  \"version\": xxxxx,           (numeric) the server version\n"
             "  \"protocolversion\": xxxxx,   (numeric) the protocol version\n"
             "  \"walletversion\": xxxxx,     (numeric) the wallet version\n"
-            "  \"balance\": xxxxxxx,         (numeric) the total yerbas balance of the wallet\n"
-            "  \"privatesend_balance\": xxxxxx, (numeric) the PrivateSend balance in " + CURRENCY_UNIT + "\n"
-            "  \"blocks\": xxxxxx,           (numeric) the current number of blocks processed in the server\n"
-            "  \"timeoffset\": xxxxx,        (numeric) the time offset\n"
-            "  \"connections\": xxxxx,       (numeric) the number of connections\n"
-            "  \"proxy\": \"host:port\",       (string, optional) the proxy used by the server\n"
-            "  \"difficulty\": xxxxxx,       (numeric) the current difficulty\n"
-            "  \"testnet\": true|false,      (boolean) if the server is using testnet or not\n"
-            "  \"keypoololdest\": xxxxxx,    (numeric) the timestamp (seconds since Unix epoch) of the oldest pre-generated key in the key pool\n"
-            "  \"keypoolsize\": xxxx,        (numeric) how many new keys are pre-generated\n"
-            "  \"unlocked_until\": ttt,      (numeric) the timestamp in seconds since epoch (midnight Jan 1 1970 GMT) that the wallet is unlocked for transfers, or 0 if the wallet is locked\n"
-            "  \"paytxfee\": x.xxxx,         (numeric) the transaction fee set in " + CURRENCY_UNIT + "/kB\n"
-            "  \"relayfee\": x.xxxx,         (numeric) minimum relay fee for transactions in " + CURRENCY_UNIT + "/kB\n"
-            "  \"errors\": \"...\"             (string) any error messages\n"
-            "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getinfo", "")
-            + HelpExampleRpc("getinfo", "")
-        );
+            "  \"balance\": xxxxxxx,         (numeric) the total memeium balance of the wallet\n"
+            "  \"privatesend_balance\": xxxxxx, (numeric) the PrivateSend balance in " +
+            CURRENCY_UNIT + "\n"
+                            "  \"blocks\": xxxxxx,           (numeric) the current number of blocks processed in the server\n"
+                            "  \"timeoffset\": xxxxx,        (numeric) the time offset\n"
+                            "  \"connections\": xxxxx,       (numeric) the number of connections\n"
+                            "  \"proxy\": \"host:port\",       (string, optional) the proxy used by the server\n"
+                            "  \"difficulty\": xxxxxx,       (numeric) the current difficulty\n"
+                            "  \"testnet\": true|false,      (boolean) if the server is using testnet or not\n"
+                            "  \"keypoololdest\": xxxxxx,    (numeric) the timestamp (seconds since Unix epoch) of the oldest pre-generated key in the key pool\n"
+                            "  \"keypoolsize\": xxxx,        (numeric) how many new keys are pre-generated\n"
+                            "  \"unlocked_until\": ttt,      (numeric) the timestamp in seconds since epoch (midnight Jan 1 1970 GMT) that the wallet is unlocked for transfers, or 0 if the wallet is locked\n"
+                            "  \"paytxfee\": x.xxxx,         (numeric) the transaction fee set in " +
+            CURRENCY_UNIT + "/kB\n"
+                            "  \"relayfee\": x.xxxx,         (numeric) minimum relay fee for transactions in " +
+            CURRENCY_UNIT + "/kB\n"
+                            "  \"errors\": \"...\"             (string) any error messages\n"
+                            "}\n"
+                            "\nExamples:\n" +
+            HelpExampleCli("getinfo", "") + HelpExampleRpc("getinfo", ""));
 
 #ifdef ENABLE_WALLET
-    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
 
     LOCK2(cs_main, pwallet ? &pwallet->cs_wallet : nullptr);
 #else
@@ -97,35 +98,35 @@ UniValue getinfo(const JSONRPCRequest& request)
 
     UniValue obj(UniValue::VOBJ);
     obj.push_back(Pair("deprecation-warning", "WARNING: getinfo is deprecated and will be fully removed in a future version."
-        " Projects should transition to using getblockchaininfo, getnetworkinfo, and getwalletinfo."));
+                                              " Projects should transition to using getblockchaininfo, getnetworkinfo, and getwalletinfo."));
     obj.push_back(Pair("version", CLIENT_VERSION));
     obj.push_back(Pair("protocolversion", PROTOCOL_VERSION));
 #ifdef ENABLE_WALLET
     if (pwallet) {
         obj.push_back(Pair("walletversion", pwallet->GetVersion()));
-        obj.push_back(Pair("balance",       ValueFromAmount(pwallet->GetBalance())));
-        obj.push_back(Pair("privatesend_balance",       ValueFromAmount(pwallet->GetAnonymizedBalance())));
+        obj.push_back(Pair("balance", ValueFromAmount(pwallet->GetBalance())));
+        obj.push_back(Pair("privatesend_balance", ValueFromAmount(pwallet->GetAnonymizedBalance())));
     }
 #endif
-    obj.push_back(Pair("blocks",        (int)chainActive.Height()));
-    obj.push_back(Pair("timeoffset",    GetTimeOffset()));
-    if(g_connman)
-        obj.push_back(Pair("connections",   (int)g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL)));
-    obj.push_back(Pair("proxy",         (proxy.IsValid() ? proxy.proxy.ToStringIPPort() : std::string())));
-    obj.push_back(Pair("difficulty",    (double)GetDifficulty()));
-    obj.push_back(Pair("testnet",       Params().NetworkIDString() == CBaseChainParams::TESTNET));
+    obj.push_back(Pair("blocks", (int)chainActive.Height()));
+    obj.push_back(Pair("timeoffset", GetTimeOffset()));
+    if (g_connman)
+        obj.push_back(Pair("connections", (int)g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL)));
+    obj.push_back(Pair("proxy", (proxy.IsValid() ? proxy.proxy.ToStringIPPort() : std::string())));
+    obj.push_back(Pair("difficulty", (double)GetDifficulty()));
+    obj.push_back(Pair("testnet", Params().NetworkIDString() == CBaseChainParams::TESTNET));
 #ifdef ENABLE_WALLET
     if (pwallet) {
         obj.push_back(Pair("keypoololdest", pwallet->GetOldestKeyPoolTime()));
-        obj.push_back(Pair("keypoolsize",   (int)pwallet->GetKeyPoolSize()));
+        obj.push_back(Pair("keypoolsize", (int)pwallet->GetKeyPoolSize()));
     }
     if (pwallet && pwallet->IsCrypted()) {
         obj.push_back(Pair("unlocked_until", pwallet->nRelockTime));
     }
-    obj.push_back(Pair("paytxfee",      ValueFromAmount(payTxFee.GetFeePerK())));
+    obj.push_back(Pair("paytxfee", ValueFromAmount(payTxFee.GetFeePerK())));
 #endif
-    obj.push_back(Pair("relayfee",      ValueFromAmount(::minRelayTxFee.GetFeePerK())));
-    obj.push_back(Pair("errors",        GetWarnings("statusbar")));
+    obj.push_back(Pair("relayfee", ValueFromAmount(::minRelayTxFee.GetFeePerK())));
+    obj.push_back(Pair("errors", GetWarnings("statusbar")));
     return obj;
 }
 
@@ -135,21 +136,20 @@ UniValue debug(const JSONRPCRequest& request)
         throw std::runtime_error(
             "debug \"category\"\n"
             "Change debug category on the fly. Specify single category or use '+' to specify many.\n"
-            "The valid debug categories are: " + ListLogCategories() + ".\n"
-            "libevent logging is configured on startup and cannot be modified by this RPC during runtime.\n"
-            "There are also a few meta-categories:\n"
-            " - \"all\", \"1\" and \"\" activate all categories at once;\n"
-            " - \"yerbas\" activates all Yerbas-specific categories at once;\n"
-            " - \"none\" (or \"0\") deactivates all categories at once.\n"
-            "Note: If specified category doesn't match any of the above, no error is thrown.\n"
-            "\nArguments:\n"
-            "1. \"category\"          (string, required) The name of the debug category to turn on.\n"
-            "\nResult:\n"
-            "  result               (string) \"Debug mode: \" followed by the specified category.\n"
-            "\nExamples:\n"
-            + HelpExampleCli("debug", "yerbas")
-            + HelpExampleRpc("debug", "yerbas+net")
-        );
+            "The valid debug categories are: " +
+            ListLogCategories() + ".\n"
+                                  "libevent logging is configured on startup and cannot be modified by this RPC during runtime.\n"
+                                  "There are also a few meta-categories:\n"
+                                  " - \"all\", \"1\" and \"\" activate all categories at once;\n"
+                                  " - \"memeium\" activates all Memeium-specific categories at once;\n"
+                                  " - \"none\" (or \"0\") deactivates all categories at once.\n"
+                                  "Note: If specified category doesn't match any of the above, no error is thrown.\n"
+                                  "\nArguments:\n"
+                                  "1. \"category\"          (string, required) The name of the debug category to turn on.\n"
+                                  "\nResult:\n"
+                                  "  result               (string) \"Debug mode: \" followed by the specified category.\n"
+                                  "\nExamples:\n" +
+            HelpExampleCli("debug", "memeium") + HelpExampleRpc("debug", "memeium+net"));
 
     std::string strMode = request.params[0].get_str();
     logCategories = BCLog::NONE;
@@ -174,12 +174,11 @@ UniValue mnsync(const JSONRPCRequest& request)
     if (request.fHelp || request.params.size() != 1)
         throw std::runtime_error(
             "mnsync [status|next|reset]\n"
-            "Returns the sync status, updates to the next step or resets it entirely.\n"
-        );
+            "Returns the sync status, updates to the next step or resets it entirely.\n");
 
     std::string strMode = request.params[0].get_str();
 
-    if(strMode == "status") {
+    if (strMode == "status") {
         UniValue objStatus(UniValue::VOBJ);
         objStatus.push_back(Pair("AssetID", smartnodeSync.GetAssetID()));
         objStatus.push_back(Pair("AssetName", smartnodeSync.GetAssetName()));
@@ -191,14 +190,12 @@ UniValue mnsync(const JSONRPCRequest& request)
         return objStatus;
     }
 
-    if(strMode == "next")
-    {
+    if (strMode == "next") {
         smartnodeSync.SwitchToNextAsset(*g_connman);
         return "sync updated to " + smartnodeSync.GetAssetName();
     }
 
-    if(strMode == "reset")
-    {
+    if (strMode == "reset") {
         smartnodeSync.Reset();
         smartnodeSync.SwitchToNextAsset(*g_connman);
         return "success";
@@ -210,13 +207,15 @@ UniValue mnsync(const JSONRPCRequest& request)
 class DescribeAddressVisitor : public boost::static_visitor<UniValue>
 {
 public:
-    CWallet * const pwallet;
+    CWallet* const pwallet;
 
-    DescribeAddressVisitor(CWallet *_pwallet) : pwallet(_pwallet) {}
+    DescribeAddressVisitor(CWallet* _pwallet) :
+        pwallet(_pwallet) {}
 
-    UniValue operator()(const CNoDestination &dest) const { return UniValue(UniValue::VOBJ); }
+    UniValue operator()(const CNoDestination& dest) const { return UniValue(UniValue::VOBJ); }
 
-    UniValue operator()(const CKeyID &keyID) const {
+    UniValue operator()(const CKeyID& keyID) const
+    {
         UniValue obj(UniValue::VOBJ);
         CPubKey vchPubKey;
         obj.push_back(Pair("isscript", false));
@@ -227,7 +226,8 @@ public:
         return obj;
     }
 
-    UniValue operator()(const CScriptID &scriptID) const {
+    UniValue operator()(const CScriptID& scriptID) const
+    {
         UniValue obj(UniValue::VOBJ);
         CScript subscript;
         obj.push_back(Pair("isscript", true));
@@ -257,14 +257,14 @@ UniValue spork(const JSONRPCRequest& request)
 {
     if (request.params.size() == 1) {
         // basic mode, show info
-        std:: string strCommand = request.params[0].get_str();
+        std::string strCommand = request.params[0].get_str();
         if (strCommand == "show") {
             UniValue ret(UniValue::VOBJ);
             for (const auto& sporkDef : sporkDefs) {
                 ret.push_back(Pair(sporkDef.name, sporkManager.GetSporkValue(sporkDef.sporkId)));
             }
             return ret;
-        } else if(strCommand == "active"){
+        } else if (strCommand == "active") {
             UniValue ret(UniValue::VOBJ);
             for (const auto& sporkDef : sporkDefs) {
                 ret.push_back(Pair(sporkDef.name, sporkManager.IsSporkActive(sporkDef.sporkId)));
@@ -291,13 +291,12 @@ UniValue spork(const JSONRPCRequest& request)
             "  \"SPORK_NAME\" : true|false,     (boolean) 'true' for time-based sporks if spork is active and 'false' otherwise\n"
             "  ...\n"
             "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("spork", "show")
-            + HelpExampleRpc("spork", "\"show\""));
+            "\nExamples:\n" +
+            HelpExampleCli("spork", "show") + HelpExampleRpc("spork", "\"show\""));
     } else {
         // advanced mode, update spork values
         SporkId nSporkID = sporkManager.GetSporkIDByName(request.params[0].get_str());
-        if(nSporkID == SPORK_INVALID)
+        if (nSporkID == SPORK_INVALID)
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid spork name");
 
         if (!g_connman)
@@ -306,8 +305,8 @@ UniValue spork(const JSONRPCRequest& request)
         // SPORK VALUE
         int64_t nValue = request.params[1].get_int64();
 
-        //broadcast new spork
-        if(sporkManager.UpdateSpork(nSporkID, nValue, *g_connman)){
+        // broadcast new spork
+        if (sporkManager.UpdateSpork(nSporkID, nValue, *g_connman)) {
             return "success";
         } else {
             throw std::runtime_error(
@@ -318,12 +317,10 @@ UniValue spork(const JSONRPCRequest& request)
                 "2. value               (number, required) The new desired value of the spork\n"
                 "\nResult:\n"
                 "  result               (string) \"success\" if spork value was updated or this help otherwise\n"
-                "\nExamples:\n"
-                + HelpExampleCli("spork", "SPORK_2_INSTANTSEND_ENABLED 4070908800")
-                + HelpExampleRpc("spork", "\"SPORK_2_INSTANTSEND_ENABLED\", 4070908800"));
+                "\nExamples:\n" +
+                HelpExampleCli("spork", "SPORK_2_INSTANTSEND_ENABLED 4070908800") + HelpExampleRpc("spork", "\"SPORK_2_INSTANTSEND_ENABLED\", 4070908800"));
         }
     }
-
 }
 
 UniValue validateaddress(const JSONRPCRequest& request)
@@ -331,13 +328,13 @@ UniValue validateaddress(const JSONRPCRequest& request)
     if (request.fHelp || request.params.size() != 1)
         throw std::runtime_error(
             "validateaddress \"address\"\n"
-            "\nReturn information about the given yerbas address.\n"
+            "\nReturn information about the given memeium address.\n"
             "\nArguments:\n"
-            "1. \"address\"     (string, required) The yerbas address to validate\n"
+            "1. \"address\"     (string, required) The memeium address to validate\n"
             "\nResult:\n"
             "{\n"
             "  \"isvalid\" : true|false,       (boolean) If the address is valid or not. If not, this is the only property returned.\n"
-            "  \"address\" : \"address\", (string) The yerbas address validated\n"
+            "  \"address\" : \"address\", (string) The memeium address validated\n"
             "  \"scriptPubKey\" : \"hex\",       (string) The hex encoded scriptPubKey generated by the address\n"
             "  \"ismine\" : true|false,        (boolean) If the address is yours or not\n"
             "  \"iswatchonly\" : true|false,   (boolean) If the address is watchonly\n"
@@ -357,13 +354,11 @@ UniValue validateaddress(const JSONRPCRequest& request)
             "  \"hdkeypath\" : \"keypath\"       (string, optional) The HD keypath if the key is HD and available\n"
             "  \"hdchainid\" : \"<hash>\"        (string, optional) The ID of the HD chain\n"
             "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("validateaddress", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"")
-            + HelpExampleRpc("validateaddress", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"")
-        );
+            "\nExamples:\n" +
+            HelpExampleCli("validateaddress", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"") + HelpExampleRpc("validateaddress", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\""));
 
 #ifdef ENABLE_WALLET
-    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
 
     LOCK2(cs_main, pwallet ? &pwallet->cs_wallet : nullptr);
 #else
@@ -375,8 +370,7 @@ UniValue validateaddress(const JSONRPCRequest& request)
 
     UniValue ret(UniValue::VOBJ);
     ret.push_back(Pair("isvalid", isValid));
-    if (isValid)
-    {
+    if (isValid) {
         CTxDestination dest = address.Get();
         std::string currentAddress = address.ToString();
         ret.push_back(Pair("address", currentAddress));
@@ -421,7 +415,7 @@ class CWallet;
 /**
  * Used by addmultisigaddress / createmultisig:
  */
-CScript _createmultisig_redeemScript(CWallet * const pwallet, const UniValue& params)
+CScript _createmultisig_redeemScript(CWallet* const pwallet, const UniValue& params)
 {
     int nRequired = params[0].get_int();
     const UniValue& keys = params[1].get_array();
@@ -432,52 +426,49 @@ CScript _createmultisig_redeemScript(CWallet * const pwallet, const UniValue& pa
     if ((int)keys.size() < nRequired)
         throw std::runtime_error(
             strprintf("not enough keys supplied "
-                      "(got %u keys, but need at least %d to redeem)", keys.size(), nRequired));
+                      "(got %u keys, but need at least %d to redeem)",
+                keys.size(), nRequired));
     if (keys.size() > 16)
         throw std::runtime_error("Number of addresses involved in the multisignature address creation > 16\nReduce the number");
     std::vector<CPubKey> pubkeys;
     pubkeys.resize(keys.size());
-    for (unsigned int i = 0; i < keys.size(); i++)
-    {
+    for (unsigned int i = 0; i < keys.size(); i++) {
         const std::string& ks = keys[i].get_str();
 #ifdef ENABLE_WALLET
-        // Case 1: Yerbas address and we have full public key:
+        // Case 1: Memeium address and we have full public key:
         CBitcoinAddress address(ks);
         if (pwallet && address.IsValid()) {
             CKeyID keyID;
             if (!address.GetKeyID(keyID))
                 throw std::runtime_error(
-                    strprintf("%s does not refer to a key",ks));
+                    strprintf("%s does not refer to a key", ks));
             CPubKey vchPubKey;
             if (!pwallet->GetPubKey(keyID, vchPubKey)) {
                 throw std::runtime_error(
-                    strprintf("no full public key for address %s",ks));
+                    strprintf("no full public key for address %s", ks));
             }
             if (!vchPubKey.IsFullyValid())
-                throw std::runtime_error(" Invalid public key: "+ks);
+                throw std::runtime_error(" Invalid public key: " + ks);
             pubkeys[i] = vchPubKey;
         }
 
         // Case 2: hex public key
         else
 #endif
-        if (IsHex(ks))
-        {
+            if (IsHex(ks)) {
             CPubKey vchPubKey(ParseHex(ks));
             if (!vchPubKey.IsFullyValid())
-                throw std::runtime_error(" Invalid public key: "+ks);
+                throw std::runtime_error(" Invalid public key: " + ks);
             pubkeys[i] = vchPubKey;
-        }
-        else
-        {
-            throw std::runtime_error(" Invalid public key: "+ks);
+        } else {
+            throw std::runtime_error(" Invalid public key: " + ks);
         }
     }
     CScript result = GetScriptForMultisig(nRequired, pubkeys);
 
     if (result.size() > MAX_SCRIPT_ELEMENT_SIZE)
         throw std::runtime_error(
-                strprintf("redeemScript exceeds size limit: %d > %d", result.size(), MAX_SCRIPT_ELEMENT_SIZE));
+            strprintf("redeemScript exceeds size limit: %d > %d", result.size(), MAX_SCRIPT_ELEMENT_SIZE));
 
     return result;
 }
@@ -485,37 +476,34 @@ CScript _createmultisig_redeemScript(CWallet * const pwallet, const UniValue& pa
 UniValue createmultisig(const JSONRPCRequest& request)
 {
 #ifdef ENABLE_WALLET
-    CWallet * const pwallet = GetWalletForJSONRPCRequest(request);
+    CWallet* const pwallet = GetWalletForJSONRPCRequest(request);
 #else
-    CWallet * const pwallet = nullptr;
+    CWallet* const pwallet = nullptr;
 #endif
 
-    if (request.fHelp || request.params.size() < 2 || request.params.size() > 2)
-    {
+    if (request.fHelp || request.params.size() < 2 || request.params.size() > 2) {
         std::string msg = "createmultisig nrequired [\"key\",...]\n"
-            "\nCreates a multi-signature address with n signature of m keys required.\n"
-            "It returns a json object with the address and redeemScript.\n"
+                          "\nCreates a multi-signature address with n signature of m keys required.\n"
+                          "It returns a json object with the address and redeemScript.\n"
 
-            "\nArguments:\n"
-            "1. nrequired      (numeric, required) The number of required signatures out of the n keys or addresses.\n"
-            "2. \"keys\"       (string, required) A json array of keys which are yerbas addresses or hex-encoded public keys\n"
-            "     [\n"
-            "       \"key\"    (string) yerbas address or hex-encoded public key\n"
-            "       ,...\n"
-            "     ]\n"
+                          "\nArguments:\n"
+                          "1. nrequired      (numeric, required) The number of required signatures out of the n keys or addresses.\n"
+                          "2. \"keys\"       (string, required) A json array of keys which are memeium addresses or hex-encoded public keys\n"
+                          "     [\n"
+                          "       \"key\"    (string) memeium address or hex-encoded public key\n"
+                          "       ,...\n"
+                          "     ]\n"
 
-            "\nResult:\n"
-            "{\n"
-            "  \"address\":\"multisigaddress\",  (string) The value of the new multisig address.\n"
-            "  \"redeemScript\":\"script\"       (string) The string value of the hex-encoded redemption script.\n"
-            "}\n"
+                          "\nResult:\n"
+                          "{\n"
+                          "  \"address\":\"multisigaddress\",  (string) The value of the new multisig address.\n"
+                          "  \"redeemScript\":\"script\"       (string) The string value of the hex-encoded redemption script.\n"
+                          "}\n"
 
-            "\nExamples:\n"
-            "\nCreate a multisig address from 2 addresses\n"
-            + HelpExampleCli("createmultisig", "2 \"[\\\"Xt4qk9uKvQYAonVGSZNXqxeDmtjaEWgfrs\\\",\\\"XoSoWQkpgLpppPoyyzbUFh1fq2RBvW6UK1\\\"]\"") +
-            "\nAs a json rpc call\n"
-            + HelpExampleRpc("createmultisig", "2, \"[\\\"Xt4qk9uKvQYAonVGSZNXqxeDmtjaEWgfrs\\\",\\\"XoSoWQkpgLpppPoyyzbUFh1fq2RBvW6UK1\\\"]\"")
-        ;
+                          "\nExamples:\n"
+                          "\nCreate a multisig address from 2 addresses\n" +
+                          HelpExampleCli("createmultisig", "2 \"[\\\"Xt4qk9uKvQYAonVGSZNXqxeDmtjaEWgfrs\\\",\\\"XoSoWQkpgLpppPoyyzbUFh1fq2RBvW6UK1\\\"]\"") +
+                          "\nAs a json rpc call\n" + HelpExampleRpc("createmultisig", "2, \"[\\\"Xt4qk9uKvQYAonVGSZNXqxeDmtjaEWgfrs\\\",\\\"XoSoWQkpgLpppPoyyzbUFh1fq2RBvW6UK1\\\"]\"");
         throw std::runtime_error(msg);
     }
 
@@ -538,27 +526,23 @@ UniValue verifymessage(const JSONRPCRequest& request)
             "verifymessage \"address\" \"signature\" \"message\"\n"
             "\nVerify a signed message\n"
             "\nArguments:\n"
-            "1. \"address\"         (string, required) The yerbas address to use for the signature.\n"
+            "1. \"address\"         (string, required) The memeium address to use for the signature.\n"
             "2. \"signature\"       (string, required) The signature provided by the signer in base 64 encoding (see signmessage).\n"
             "3. \"message\"         (string, required) The message that was signed.\n"
             "\nResult:\n"
             "true|false   (boolean) If the signature is verified or not.\n"
             "\nExamples:\n"
-            "\nUnlock the wallet for 30 seconds\n"
-            + HelpExampleCli("walletpassphrase", "\"mypassphrase\" 30") +
-            "\nCreate the signature\n"
-            + HelpExampleCli("signmessage", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwG\" \"my message\"") +
-            "\nVerify the signature\n"
-            + HelpExampleCli("verifymessage", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwG\" \"signature\" \"my message\"") +
-            "\nAs json rpc\n"
-            + HelpExampleRpc("verifymessage", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwG\", \"signature\", \"my message\"")
-        );
+            "\nUnlock the wallet for 30 seconds\n" +
+            HelpExampleCli("walletpassphrase", "\"mypassphrase\" 30") +
+            "\nCreate the signature\n" + HelpExampleCli("signmessage", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwG\" \"my message\"") +
+            "\nVerify the signature\n" + HelpExampleCli("verifymessage", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwG\" \"signature\" \"my message\"") +
+            "\nAs json rpc\n" + HelpExampleRpc("verifymessage", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwG\", \"signature\", \"my message\""));
 
     LOCK(cs_main);
 
-    std::string strAddress  = request.params[0].get_str();
-    std::string strSign     = request.params[1].get_str();
-    std::string strMessage  = request.params[2].get_str();
+    std::string strAddress = request.params[0].get_str();
+    std::string strSign = request.params[1].get_str();
+    std::string strMessage = request.params[2].get_str();
 
     CBitcoinAddress addr(strAddress);
     if (!addr.IsValid())
@@ -597,13 +581,10 @@ UniValue signmessagewithprivkey(const JSONRPCRequest& request)
             "\nResult:\n"
             "\"signature\"          (string) The signature of the message encoded in base 64\n"
             "\nExamples:\n"
-            "\nCreate the signature\n"
-            + HelpExampleCli("signmessagewithprivkey", "\"privkey\" \"my message\"") +
-            "\nVerify the signature\n"
-            + HelpExampleCli("verifymessage", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwG\" \"signature\" \"my message\"") +
-            "\nAs json rpc\n"
-            + HelpExampleRpc("signmessagewithprivkey", "\"privkey\", \"my message\"")
-        );
+            "\nCreate the signature\n" +
+            HelpExampleCli("signmessagewithprivkey", "\"privkey\" \"my message\"") +
+            "\nVerify the signature\n" + HelpExampleCli("verifymessage", "\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwG\" \"signature\" \"my message\"") +
+            "\nAs json rpc\n" + HelpExampleRpc("signmessagewithprivkey", "\"privkey\", \"my message\""));
 
     std::string strPrivkey = request.params[0].get_str();
     std::string strMessage = request.params[1].get_str();
@@ -635,8 +616,7 @@ UniValue setmocktime(const JSONRPCRequest& request)
             "\nSet the local time to given timestamp (-regtest only)\n"
             "\nArguments:\n"
             "1. timestamp  (integer, required) Unix seconds-since-epoch timestamp\n"
-            "   Pass 0 to go back to using the system time."
-        );
+            "   Pass 0 to go back to using the system time.");
 
     if (!Params().MineBlocksOnDemand())
         throw std::runtime_error("setmocktime for regression testing (-regtest mode) only");
@@ -654,7 +634,7 @@ UniValue setmocktime(const JSONRPCRequest& request)
     return NullUniValue;
 }
 
-bool getAddressFromIndex(const int &type, const uint160 &hash, std::string &address)
+bool getAddressFromIndex(const int& type, const uint160& hash, std::string& address)
 {
     if (type == 2) {
         address = CBitcoinAddress(CScriptID(hash)).ToString();
@@ -666,7 +646,7 @@ bool getAddressFromIndex(const int &type, const uint160 &hash, std::string &addr
     return true;
 }
 
-bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint160, int> > &addresses)
+bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint160, int>>& addresses)
 {
     if (params[0].isStr()) {
         CBitcoinAddress address(params[0].get_str());
@@ -677,7 +657,6 @@ bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint16
         }
         addresses.push_back(std::make_pair(hashBytes, type));
     } else if (params[0].isObject()) {
-
         UniValue addressValues = find_value(params[0].get_obj(), "addresses");
         if (!addressValues.isArray()) {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Addresses is expected to be an array");
@@ -686,7 +665,6 @@ bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint16
         std::vector<UniValue> values = addressValues.getValues();
 
         for (std::vector<UniValue>::iterator it = values.begin(); it != values.end(); ++it) {
-
             CBitcoinAddress address(it->get_str());
             uint160 hashBytes;
             int type = 0;
@@ -703,12 +681,14 @@ bool getAddressesFromParams(const UniValue& params, std::vector<std::pair<uint16
 }
 
 bool heightSort(std::pair<CAddressUnspentKey, CAddressUnspentValue> a,
-                std::pair<CAddressUnspentKey, CAddressUnspentValue> b) {
+    std::pair<CAddressUnspentKey, CAddressUnspentValue> b)
+{
     return a.second.blockHeight < b.second.blockHeight;
 }
 
 bool timestampSort(std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> a,
-                   std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> b) {
+    std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> b)
+{
     return a.second.time < b.second.time;
 }
 
@@ -738,18 +718,16 @@ UniValue getaddressmempool(const JSONRPCRequest& request)
             "    \"prevout\"  (string) The previous transaction output index (if spending)\n"
             "  }\n"
             "]\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getaddressmempool", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'")
-            + HelpExampleRpc("getaddressmempool", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}")
-        );
+            "\nExamples:\n" +
+            HelpExampleCli("getaddressmempool", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'") + HelpExampleRpc("getaddressmempool", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}"));
 
-    std::vector<std::pair<uint160, int> > addresses;
+    std::vector<std::pair<uint160, int>> addresses;
 
     if (!getAddressesFromParams(request.params, addresses)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
     }
 
-    std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> > indexes;
+    std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta>> indexes;
 
     if (!mempool.getAddressIndex(addresses, indexes)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
@@ -759,9 +737,8 @@ UniValue getaddressmempool(const JSONRPCRequest& request)
 
     UniValue result(UniValue::VARR);
 
-    for (std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta> >::iterator it = indexes.begin();
-         it != indexes.end(); it++) {
-
+    for (std::vector<std::pair<CMempoolAddressDeltaKey, CMempoolAddressDelta>>::iterator it = indexes.begin();
+        it != indexes.end(); it++) {
         std::string address;
         if (!getAddressFromIndex(it->first.type, it->first.addressBytes, address)) {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Unknown address type");
@@ -808,20 +785,18 @@ UniValue getaddressutxos(const JSONRPCRequest& request)
             "    \"height\"  (number) The block height\n"
             "  }\n"
             "]\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'")
-            + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}")
-        );
+            "\nExamples:\n" +
+            HelpExampleCli("getaddressutxos", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'") + HelpExampleRpc("getaddressutxos", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}"));
 
-    std::vector<std::pair<uint160, int> > addresses;
+    std::vector<std::pair<uint160, int>> addresses;
 
     if (!getAddressesFromParams(request.params, addresses)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
     }
 
-    std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
+    std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue>> unspentOutputs;
 
-    for (std::vector<std::pair<uint160, int> >::iterator it = addresses.begin(); it != addresses.end(); it++) {
+    for (std::vector<std::pair<uint160, int>>::iterator it = addresses.begin(); it != addresses.end(); it++) {
         if (!GetAddressUnspent((*it).first, (*it).second, unspentOutputs)) {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
         }
@@ -831,7 +806,7 @@ UniValue getaddressutxos(const JSONRPCRequest& request)
 
     UniValue result(UniValue::VARR);
 
-    for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator it=unspentOutputs.begin(); it!=unspentOutputs.end(); it++) {
+    for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue>>::const_iterator it = unspentOutputs.begin(); it != unspentOutputs.end(); it++) {
         UniValue output(UniValue::VOBJ);
         std::string address;
         if (!getAddressFromIndex(it->first.type, it->first.hashBytes, address)) {
@@ -877,10 +852,8 @@ UniValue getaddressdeltas(const JSONRPCRequest& request)
             "    \"address\"  (string) The base58check encoded address\n"
             "  }\n"
             "]\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getaddressdeltas", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'")
-            + HelpExampleRpc("getaddressdeltas", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}")
-        );
+            "\nExamples:\n" +
+            HelpExampleCli("getaddressdeltas", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'") + HelpExampleRpc("getaddressdeltas", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}"));
 
 
     UniValue startValue = find_value(request.params[0].get_obj(), "start");
@@ -897,15 +870,15 @@ UniValue getaddressdeltas(const JSONRPCRequest& request)
         }
     }
 
-    std::vector<std::pair<uint160, int> > addresses;
+    std::vector<std::pair<uint160, int>> addresses;
 
     if (!getAddressesFromParams(request.params, addresses)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
     }
 
-    std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
+    std::vector<std::pair<CAddressIndexKey, CAmount>> addressIndex;
 
-    for (std::vector<std::pair<uint160, int> >::iterator it = addresses.begin(); it != addresses.end(); it++) {
+    for (std::vector<std::pair<uint160, int>>::iterator it = addresses.begin(); it != addresses.end(); it++) {
         if (start > 0 && end > 0) {
             if (!GetAddressIndex((*it).first, (*it).second, addressIndex, start, end)) {
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
@@ -919,7 +892,7 @@ UniValue getaddressdeltas(const JSONRPCRequest& request)
 
     UniValue result(UniValue::VARR);
 
-    for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=addressIndex.begin(); it!=addressIndex.end(); it++) {
+    for (std::vector<std::pair<CAddressIndexKey, CAmount>>::const_iterator it = addressIndex.begin(); it != addressIndex.end(); it++) {
         std::string address;
         if (!getAddressFromIndex(it->first.type, it->first.hashBytes, address)) {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Unknown address type");
@@ -957,20 +930,18 @@ UniValue getaddressbalance(const JSONRPCRequest& request)
             "  \"balance\"  (string) The current balance in duffs\n"
             "  \"received\"  (string) The total number of duffs received (including change)\n"
             "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getaddressbalance", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'")
-            + HelpExampleRpc("getaddressbalance", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}")
-        );
+            "\nExamples:\n" +
+            HelpExampleCli("getaddressbalance", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'") + HelpExampleRpc("getaddressbalance", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}"));
 
-    std::vector<std::pair<uint160, int> > addresses;
+    std::vector<std::pair<uint160, int>> addresses;
 
     if (!getAddressesFromParams(request.params, addresses)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
     }
 
-    std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
+    std::vector<std::pair<CAddressIndexKey, CAmount>> addressIndex;
 
-    for (std::vector<std::pair<uint160, int> >::iterator it = addresses.begin(); it != addresses.end(); it++) {
+    for (std::vector<std::pair<uint160, int>>::iterator it = addresses.begin(); it != addresses.end(); it++) {
         if (!GetAddressIndex((*it).first, (*it).second, addressIndex)) {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
         }
@@ -979,7 +950,7 @@ UniValue getaddressbalance(const JSONRPCRequest& request)
     CAmount balance = 0;
     CAmount received = 0;
 
-    for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=addressIndex.begin(); it!=addressIndex.end(); it++) {
+    for (std::vector<std::pair<CAddressIndexKey, CAmount>>::const_iterator it = addressIndex.begin(); it != addressIndex.end(); it++) {
         if (it->second > 0) {
             received += it->second;
         }
@@ -991,7 +962,6 @@ UniValue getaddressbalance(const JSONRPCRequest& request)
     result.push_back(Pair("received", received));
 
     return result;
-
 }
 
 UniValue getaddresstxids(const JSONRPCRequest& request)
@@ -1015,12 +985,10 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
             "  \"transactionid\"  (string) The transaction id\n"
             "  ,...\n"
             "]\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'")
-            + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}")
-        );
+            "\nExamples:\n" +
+            HelpExampleCli("getaddresstxids", "'{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}'") + HelpExampleRpc("getaddresstxids", "{\"addresses\": [\"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwg\"]}"));
 
-    std::vector<std::pair<uint160, int> > addresses;
+    std::vector<std::pair<uint160, int>> addresses;
 
     if (!getAddressesFromParams(request.params, addresses)) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid address");
@@ -1037,9 +1005,9 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
         }
     }
 
-    std::vector<std::pair<CAddressIndexKey, CAmount> > addressIndex;
+    std::vector<std::pair<CAddressIndexKey, CAmount>> addressIndex;
 
-    for (std::vector<std::pair<uint160, int> >::iterator it = addresses.begin(); it != addresses.end(); it++) {
+    for (std::vector<std::pair<uint160, int>>::iterator it = addresses.begin(); it != addresses.end(); it++) {
         if (start > 0 && end > 0) {
             if (!GetAddressIndex((*it).first, (*it).second, addressIndex, start, end)) {
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No information available for address");
@@ -1051,10 +1019,10 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
         }
     }
 
-    std::set<std::pair<int, std::string> > txids;
+    std::set<std::pair<int, std::string>> txids;
     UniValue result(UniValue::VARR);
 
-    for (std::vector<std::pair<CAddressIndexKey, CAmount> >::const_iterator it=addressIndex.begin(); it!=addressIndex.end(); it++) {
+    for (std::vector<std::pair<CAddressIndexKey, CAmount>>::const_iterator it = addressIndex.begin(); it != addressIndex.end(); it++) {
         int height = it->first.blockHeight;
         std::string txid = it->first.txhash.GetHex();
 
@@ -1068,13 +1036,12 @@ UniValue getaddresstxids(const JSONRPCRequest& request)
     }
 
     if (addresses.size() > 1) {
-        for (std::set<std::pair<int, std::string> >::const_iterator it=txids.begin(); it!=txids.end(); it++) {
+        for (std::set<std::pair<int, std::string>>::const_iterator it = txids.begin(); it != txids.end(); it++) {
             result.push_back(it->second);
         }
     }
 
     return result;
-
 }
 
 UniValue getspentinfo(const JSONRPCRequest& request)
@@ -1094,10 +1061,8 @@ UniValue getspentinfo(const JSONRPCRequest& request)
             "  \"index\"  (number) The spending input index\n"
             "  ,...\n"
             "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getspentinfo", "'{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}'")
-            + HelpExampleRpc("getspentinfo", "{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}")
-        );
+            "\nExamples:\n" +
+            HelpExampleCli("getspentinfo", "'{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}'") + HelpExampleRpc("getspentinfo", "{\"txid\": \"0437cd7f8525ceed2324359c2d0ba26006d92d856a9c20fa0241106ee5a597c9\", \"index\": 0}"));
 
     UniValue txidValue = find_value(request.params[0].get_obj(), "txid");
     UniValue indexValue = find_value(request.params[0].get_obj(), "index");
@@ -1140,9 +1105,9 @@ static UniValue RPCLockedMemoryInfo()
 #ifdef HAVE_MALLOC_INFO
 static std::string RPCMallocInfo()
 {
-    char *ptr = nullptr;
+    char* ptr = nullptr;
     size_t size = 0;
-    FILE *f = open_memstream(&ptr, &size);
+    FILE* f = open_memstream(&ptr, &size);
     if (f) {
         malloc_info(0, f);
         fclose(f);
@@ -1182,10 +1147,8 @@ UniValue getmemoryinfo(const JSONRPCRequest& request)
             "}\n"
             "\nResult (mode \"mallocinfo\"):\n"
             "\"<malloc version=\"1\">...\"\n"
-            "\nExamples:\n"
-            + HelpExampleCli("getmemoryinfo", "")
-            + HelpExampleRpc("getmemoryinfo", "")
-        );
+            "\nExamples:\n" +
+            HelpExampleCli("getmemoryinfo", "") + HelpExampleRpc("getmemoryinfo", ""));
 
     std::string mode = (request.params.size() < 1 || request.params[0].isNull()) ? "stats" : request.params[0].get_str();
     if (mode == "stats") {
@@ -1203,7 +1166,8 @@ UniValue getmemoryinfo(const JSONRPCRequest& request)
     }
 }
 
-uint64_t getCategoryMask(UniValue cats) {
+uint64_t getCategoryMask(UniValue cats)
+{
     cats = cats.get_array();
     uint64_t mask = 0;
     for (unsigned int i = 0; i < cats.size(); ++i) {
@@ -1225,20 +1189,19 @@ UniValue logging(const JSONRPCRequest& request)
             "Gets and sets the logging configuration.\n"
             "When called without an argument, returns the list of categories that are currently being debug logged.\n"
             "When called with arguments, adds or removes categories from debug logging.\n"
-            "The valid logging categories are: " + ListLogCategories() + ".\n"
-            "libevent logging is configured on startup and cannot be modified by this RPC during runtime.\n"
-            "There are also a few meta-categories:\n"
-            " - \"all\", \"1\" and \"\" activate all categories at once;\n"
-            " - \"yerbas\" activates all Yerbas-specific categories at once.\n"
-            "To deactivate all categories at once you can specify \"all\" in <exclude>.\n"
-            "\nArguments:\n"
-            "1. \"include\" (array of strings) add debug logging for these categories.\n"
-            "2. \"exclude\" (array of strings) remove debug logging for these categories.\n"
-            "\nResult: <categories>  (string): a list of the logging categories that are active.\n"
-            "\nExamples:\n"
-            + HelpExampleCli("logging", "\"[\\\"all\\\"]\" \"[\\\"http\\\"]\"")
-            + HelpExampleRpc("logging", "[\"all\"], \"[libevent]\"")
-        );
+            "The valid logging categories are: " +
+            ListLogCategories() + ".\n"
+                                  "libevent logging is configured on startup and cannot be modified by this RPC during runtime.\n"
+                                  "There are also a few meta-categories:\n"
+                                  " - \"all\", \"1\" and \"\" activate all categories at once;\n"
+                                  " - \"memeium\" activates all Memeium-specific categories at once.\n"
+                                  "To deactivate all categories at once you can specify \"all\" in <exclude>.\n"
+                                  "\nArguments:\n"
+                                  "1. \"include\" (array of strings) add debug logging for these categories.\n"
+                                  "2. \"exclude\" (array of strings) remove debug logging for these categories.\n"
+                                  "\nResult: <categories>  (string): a list of the logging categories that are active.\n"
+                                  "\nExamples:\n" +
+            HelpExampleCli("logging", "\"[\\\"all\\\"]\" \"[\\\"http\\\"]\"") + HelpExampleRpc("logging", "[\"all\"], \"[libevent]\""));
     }
 
     uint64_t originalLogCategories = logCategories;
@@ -1260,7 +1223,7 @@ UniValue logging(const JSONRPCRequest& request)
         if (!UpdateHTTPServerLogging(logCategories & BCLog::LIBEVENT)) {
             logCategories &= ~BCLog::LIBEVENT;
             if (changedLogCategories == BCLog::LIBEVENT) {
-            throw JSONRPCError(RPC_INVALID_PARAMETER, "libevent logging cannot be updated when using libevent before v2.1.1.");
+                throw JSONRPCError(RPC_INVALID_PARAMETER, "libevent logging cannot be updated when using libevent before v2.1.1.");
             }
         }
     }
@@ -1281,43 +1244,43 @@ UniValue echo(const JSONRPCRequest& request)
             "echo|echojson \"message\" ...\n"
             "\nSimply echo back the input arguments. This command is for testing.\n"
             "\nThe difference between echo and echojson is that echojson has argument conversion enabled in the client-side table in"
-            "bitcoin-cli and the GUI. There is no server-side difference."
-        );
+            "bitcoin-cli and the GUI. There is no server-side difference.");
 
     return request.params;
 }
 
 static const CRPCCommand commands[] =
-{ //  category              name                      actor (function)         okSafeMode
-  //  --------------------- ------------------------  -----------------------  ----------
-    { "control",            "debug",                  &debug,                  true,  {} },
-    { "control",            "getinfo",                &getinfo,                true,  {} }, /* uses wallet if enabled */
-    { "control",            "getmemoryinfo",          &getmemoryinfo,          true,  {"mode"} },
-    { "util",               "validateaddress",        &validateaddress,        true,  {"address"} }, /* uses wallet if enabled */
-    { "util",               "createmultisig",         &createmultisig,         true,  {"nrequired","keys"} },
-    { "util",               "verifymessage",          &verifymessage,          true,  {"address","signature","message"} },
-    { "util",               "signmessagewithprivkey", &signmessagewithprivkey, true,  {"privkey","message"} },
-    { "blockchain",         "getspentinfo",           &getspentinfo,           false, {"json"} },
+    {
+        //  category              name                      actor (function)         okSafeMode
+        //  --------------------- ------------------------  -----------------------  ----------
+        {"control", "debug", &debug, true, {}},
+        {"control", "getinfo", &getinfo, true, {}}, /* uses wallet if enabled */
+        {"control", "getmemoryinfo", &getmemoryinfo, true, {"mode"}},
+        {"util", "validateaddress", &validateaddress, true, {"address"}}, /* uses wallet if enabled */
+        {"util", "createmultisig", &createmultisig, true, {"nrequired", "keys"}},
+        {"util", "verifymessage", &verifymessage, true, {"address", "signature", "message"}},
+        {"util", "signmessagewithprivkey", &signmessagewithprivkey, true, {"privkey", "message"}},
+        {"blockchain", "getspentinfo", &getspentinfo, false, {"json"}},
 
-    /* Address index */
-    { "addressindex",       "getaddressmempool",      &getaddressmempool,      true,  {"addresses"}  },
-    { "addressindex",       "getaddressutxos",        &getaddressutxos,        false, {"addresses"} },
-    { "addressindex",       "getaddressdeltas",       &getaddressdeltas,       false, {"addresses"} },
-    { "addressindex",       "getaddresstxids",        &getaddresstxids,        false, {"addresses"} },
-    { "addressindex",       "getaddressbalance",      &getaddressbalance,      false, {"addresses"} },
+        /* Address index */
+        {"addressindex", "getaddressmempool", &getaddressmempool, true, {"addresses"}},
+        {"addressindex", "getaddressutxos", &getaddressutxos, false, {"addresses"}},
+        {"addressindex", "getaddressdeltas", &getaddressdeltas, false, {"addresses"}},
+        {"addressindex", "getaddresstxids", &getaddresstxids, false, {"addresses"}},
+        {"addressindex", "getaddressbalance", &getaddressbalance, false, {"addresses"}},
 
-    /* Yerbas features */
-    { "yerbas",               "mnsync",                 &mnsync,                 true,  {} },
-    { "yerbas",               "spork",                  &spork,                  true,  {"value"} },
+        /* Memeium features */
+        {"memeium", "mnsync", &mnsync, true, {}},
+        {"memeium", "spork", &spork, true, {"value"}},
 
-    /* Not shown in help */
-    { "hidden",             "setmocktime",            &setmocktime,            true,  {"timestamp"}},
-    { "hidden",             "echo",                   &echo,                   true,  {"arg0","arg1","arg2","arg3","arg4","arg5","arg6","arg7","arg8","arg9"}},
-    { "hidden",             "echojson",               &echo,                   true,  {"arg0","arg1","arg2","arg3","arg4","arg5","arg6","arg7","arg8","arg9"}},
-    { "hidden",             "logging",                &logging,                true,  {"include", "exclude"}},
+        /* Not shown in help */
+        {"hidden", "setmocktime", &setmocktime, true, {"timestamp"}},
+        {"hidden", "echo", &echo, true, {"arg0", "arg1", "arg2", "arg3", "arg4", "arg5", "arg6", "arg7", "arg8", "arg9"}},
+        {"hidden", "echojson", &echo, true, {"arg0", "arg1", "arg2", "arg3", "arg4", "arg5", "arg6", "arg7", "arg8", "arg9"}},
+        {"hidden", "logging", &logging, true, {"include", "exclude"}},
 };
 
-void RegisterMiscRPCCommands(CRPCTable &t)
+void RegisterMiscRPCCommands(CRPCTable& t)
 {
     for (unsigned int vcidx = 0; vcidx < ARRAYLEN(commands); vcidx++)
         t.appendCommand(commands[vcidx].name, &commands[vcidx]);

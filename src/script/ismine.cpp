@@ -8,10 +8,10 @@
 #include "key.h"
 #include "keystore.h"
 #include "script/script.h"
-#include "script/standard.h"
 #include "script/sign.h"
-#include <validation.h>
+#include "script/standard.h"
 #include <chainparams.h>
+#include <validation.h>
 
 
 typedef std::vector<unsigned char> valtype;
@@ -19,8 +19,7 @@ typedef std::vector<unsigned char> valtype;
 unsigned int HaveKeys(const std::vector<valtype>& pubkeys, const CKeyStore& keystore)
 {
     unsigned int nResult = 0;
-    for (const valtype& pubkey : pubkeys)
-    {
+    for (const valtype& pubkey : pubkeys) {
         CKeyID keyID = CPubKey(pubkey).GetID();
         if (keystore.HaveKey(keyID))
             ++nResult;
@@ -28,13 +27,13 @@ unsigned int HaveKeys(const std::vector<valtype>& pubkeys, const CKeyStore& keys
     return nResult;
 }
 
-isminetype IsMine(const CKeyStore &keystore, const CTxDestination& dest)
+isminetype IsMine(const CKeyStore& keystore, const CTxDestination& dest)
 {
     CScript script = GetScriptForDestination(dest);
     return IsMine(keystore, script);
 }
 
-isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
+isminetype IsMine(const CKeyStore& keystore, const CScript& scriptPubKey)
 {
     std::vector<valtype> vSolutions;
     txnouttype whichType;
@@ -45,13 +44,12 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
     }
 
     CKeyID keyID;
-    switch (whichType)
-    {
+    switch (whichType) {
     case TX_NONSTANDARD:
     case TX_NULL_DATA:
         break;
     case TX_RESTRICTED_ASSET_DATA:
-            break;
+        break;
     case TX_PUBKEY:
         keyID = CPubKey(vSolutions[0]).GetID();
         if (keystore.HaveKey(keyID))
@@ -62,8 +60,7 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
         if (keystore.HaveKey(keyID))
             return ISMINE_SPENDABLE;
         break;
-    case TX_SCRIPTHASH:
-    {
+    case TX_SCRIPTHASH: {
         CScriptID scriptID = CScriptID(uint160(vSolutions[0]));
         CScript subscript;
         if (keystore.GetCScript(scriptID, subscript)) {
@@ -73,19 +70,18 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
         }
         break;
     }
-    case TX_MULTISIG:
-    {
+    case TX_MULTISIG: {
         // Only consider transactions "mine" if we own ALL the
         // keys involved. Multi-signature transactions that are
         // partially owned (somebody else has a key that can spend
         // them) enable spend-out-from-under-you attacks, especially
         // in shared-wallet situations.
-        std::vector<valtype> keys(vSolutions.begin()+1, vSolutions.begin()+vSolutions.size()-1);
+        std::vector<valtype> keys(vSolutions.begin() + 1, vSolutions.begin() + vSolutions.size() - 1);
         if (HaveKeys(keys, keystore) == keys.size())
             return ISMINE_SPENDABLE;
         break;
     }
-     /** YERB START */
+        /** MMM START */
     case TX_NEW_ASSET: {
         if (!AreAssetsDeployed())
             return ISMINE_NO;
@@ -93,7 +89,6 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
         if (keystore.HaveKey(keyID))
             return ISMINE_SPENDABLE;
         break;
-
     }
 
     case TX_TRANSFER_ASSET: {
@@ -113,7 +108,7 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
             return ISMINE_SPENDABLE;
         break;
     }
-    /** YERB END*/
+        /** MMM END*/
     }
 
     if (keystore.HaveWatchOnly(scriptPubKey)) {

@@ -1,10 +1,10 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "deterministicmns.h"
 #include "providertx.h"
+#include "deterministicmns.h"
 #include "specialtx.h"
 
 #include "base58.h"
@@ -14,10 +14,10 @@
 #include "hash.h"
 #include "messagesigner.h"
 #include "script/standard.h"
+#include "spork.h"
 #include "streams.h"
 #include "univalue.h"
 #include "validation.h"
-#include "spork.h"
 
 template <typename ProTx>
 static bool CheckService(const uint256& proTxHash, const ProTx& proTx, CValidationState& state)
@@ -38,7 +38,7 @@ static bool CheckService(const uint256& proTxHash, const ProTx& proTx, CValidati
         return state.DoS(10, false, REJECT_INVALID, "bad-protx-ipaddr-port");
     }
 
-    if (AreAssetsDeployed() && sporkManager.GetSporkValue(SPORK_22_ENABLE_IPV6) >= chainActive.Tip()->nHeight){ //enable ipv6 after assets deployment
+    if (AreAssetsDeployed() && sporkManager.GetSporkValue(SPORK_22_ENABLE_IPV6) >= chainActive.Tip()->nHeight) { // enable ipv6 after assets deployment
         if (!proTx.addr.IsIPv4() && !proTx.addr.IsIPv6()) {
             return state.DoS(10, false, REJECT_INVALID, "bad-protx-ipaddr");
         }
@@ -93,8 +93,7 @@ static bool CheckInputsHash(const CTransaction& tx, const ProTx& proTx, CValidat
 
 bool CheckAssetTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CValidationState& state)
 {
-
-    if(!Params().IsAssetsActive(chainActive.Tip())) {
+    if (!Params().IsAssetsActive(chainActive.Tip())) {
         return state.DoS(100, false, REJECT_INVALID, "assets-not-enabled");
     }
 
@@ -106,12 +105,12 @@ bool CheckAssetTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CValida
     if (!GetTxPayload(tx, assettx)) {
         return state.DoS(100, false, REJECT_INVALID, "bad-assets-payload");
     }
-    
+
     if (!CheckInputsHash(tx, assettx, state)) {
         std::cout << "bad-assets-inputsHash" << std::endl;
         return false;
     }
-    
+
     return true;
 }
 
@@ -167,9 +166,8 @@ bool CheckProRegTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CValid
     CKeyID keyForPayloadSig;
     COutPoint collateralOutpoint;
     Coin coin;
-	SmartnodeCollaterals collaterals = Params().GetConsensus().nCollaterals;
+    SmartnodeCollaterals collaterals = Params().GetConsensus().nCollaterals;
     if (!ptx.collateralOutpoint.hash.IsNull()) {
-
         if (!GetUTXOCoin(ptx.collateralOutpoint, coin) || !collaterals.isValidCollateral(coin.out.nValue)) {
             return state.DoS(10, false, REJECT_INVALID, "bad-protx-collateral");
         }

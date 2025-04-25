@@ -1,16 +1,16 @@
 // Copyright (c) 2019-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_QUORUMS_CHAINLOCKS_H
-#define YERBAS_QUORUMS_CHAINLOCKS_H
+#ifndef MEMEIUM_QUORUMS_CHAINLOCKS_H
+#define MEMEIUM_QUORUMS_CHAINLOCKS_H
 
 #include "llmq/quorums.h"
 #include "llmq/quorums_signing.h"
 
-#include "net.h"
 #include "chainparams.h"
+#include "net.h"
 
 #include <atomic>
 #include <unordered_set>
@@ -31,7 +31,7 @@ public:
 public:
     ADD_SERIALIZE_METHODS
 
-    template<typename Stream, typename Operation>
+    template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(nHeight);
@@ -123,4 +123,4 @@ extern CChainLocksHandler* chainLocksHandler;
 
 } // namespace llmq
 
-#endif //YERBAS_QUORUMS_CHAINLOCKS_H
+#endif // MEMEIUM_QUORUMS_CHAINLOCKS_H

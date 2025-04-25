@@ -7,7 +7,7 @@ set -e
 set -x
 
 BUILD_PATH="/tmp/rabuild"
-PACKAGE_NAME="yerbas"
+PACKAGE_NAME="memeium"
 SRC_PATH=`pwd`
 SRC_DEB=$SRC_PATH/contrib/debian
 SRC_DOC=$SRC_PATH/doc
@@ -18,7 +18,7 @@ if [ ! -d $BUILD_PATH ]; then
     mkdir $BUILD_PATH
 fi
 
-PACKAGE_VERSION=$($SRC_PATH/src/yerbasd --version | grep version | cut -d' ' -f4 | tr -d v)
+PACKAGE_VERSION=$($SRC_PATH/src/memeiumd --version | grep version | cut -d' ' -f4 | tr -d v)
 DEBVERSION=$(echo $PACKAGE_VERSION | sed 's/-beta/~beta/' | sed 's/-rc/~rc/' | sed 's/-/+/')
 BUILD_DIR="$BUILD_PATH/$PACKAGE_NAME-$PACKAGE_VERSION-amd64"
 
@@ -39,32 +39,32 @@ chmod 0755 -R $BUILD_DIR/*
 #cp $SRC_DEB/preinst $BUILD_DIR/DEBIAN
 #cp $SRC_DEB/prerm $BUILD_DIR/DEBIAN
 # Copy binaries
-cp $SRC_PATH/src/yerbasd $DEB_BIN
-cp $SRC_PATH/src/yerbas-cli $DEB_BIN
-cp $SRC_PATH/util/fetch-params.sh $DEB_BIN/yerbas-fetch-params
+cp $SRC_PATH/src/memeiumd $DEB_BIN
+cp $SRC_PATH/src/memeium-cli $DEB_BIN
+cp $SRC_PATH/util/fetch-params.sh $DEB_BIN/memeium-fetch-params
 # Copy docs
 cp $SRC_PATH/doc/release-notes/release-notes-1.0.0.md $DEB_DOC/changelog
 cp $SRC_DEB/changelog $DEB_DOC/changelog.Debian
 cp $SRC_DEB/copyright $DEB_DOC
 cp -r $SRC_DEB/examples $DEB_DOC
 # Copy manpages
-cp $SRC_DOC/man/yerbasd.1 $DEB_MAN
-cp $SRC_DOC/man/yerbas-cli.1 $DEB_MAN
-cp $SRC_DOC/man/yerbas-fetch-params.1 $DEB_MAN
+cp $SRC_DOC/man/memeiumd.1 $DEB_MAN
+cp $SRC_DOC/man/memeium-cli.1 $DEB_MAN
+cp $SRC_DOC/man/memeium-fetch-params.1 $DEB_MAN
 # Copy bash completion files
-cp $SRC_PATH/contrib/yerbasd.bash-completion $DEB_CMP/yerbasd
-cp $SRC_PATH/contrib/yerbas-cli.bash-completion $DEB_CMP/yerbas-cli
+cp $SRC_PATH/contrib/memeiumd.bash-completion $DEB_CMP/memeiumd
+cp $SRC_PATH/contrib/memeium-cli.bash-completion $DEB_CMP/memeium-cli
 # Gzip files
 gzip --best -n $DEB_DOC/changelog
 gzip --best -n $DEB_DOC/changelog.Debian
-gzip --best -n $DEB_MAN/yerbasd.1
-gzip --best -n $DEB_MAN/yerbas-cli.1
-gzip --best -n $DEB_MAN/yerbas-fetch-params.1
+gzip --best -n $DEB_MAN/memeiumd.1
+gzip --best -n $DEB_MAN/memeium-cli.1
+gzip --best -n $DEB_MAN/memeium-fetch-params.1
 
 cd $SRC_PATH/contrib
 
 # Create the control file
-dpkg-shlibdeps $DEB_BIN/yerbasd $DEB_BIN/yerbas-cli
+dpkg-shlibdeps $DEB_BIN/memeiumd $DEB_BIN/memeium-cli
 dpkg-gencontrol -P$BUILD_DIR -v$DEBVERSION
 
 # Create the Debian package

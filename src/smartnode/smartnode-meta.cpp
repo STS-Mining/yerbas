@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -69,7 +69,7 @@ bool CSmartnodeMetaMan::AddGovernanceVote(const uint256& proTxHash, const uint25
 void CSmartnodeMetaMan::RemoveGovernanceObject(const uint256& nGovernanceObjectHash)
 {
     LOCK(cs);
-    for(auto& p : metaInfos) {
+    for (auto& p : metaInfos) {
         p.second->RemoveGovernanceObject(nGovernanceObjectHash);
     }
 }
@@ -91,14 +91,12 @@ void CSmartnodeMetaMan::Clear()
 
 void CSmartnodeMetaMan::CheckAndRemove()
 {
-
 }
 
 std::string CSmartnodeMetaMan::ToString() const
 {
     std::ostringstream info;
 
-    info << "Smartnodes: meta infos object count: " << (int)metaInfos.size() <<
-         ", nDsqCount: " << (int)nDsqCount;
+    info << "Smartnodes: meta infos object count: " << (int)metaInfos.size() << ", nDsqCount: " << (int)nDsqCount;
     return info.str();
 }

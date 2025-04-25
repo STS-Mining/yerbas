@@ -1,18 +1,18 @@
 // Copyright (c) 2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "quorums.h"
 #include "quorums_chainlocks.h"
+#include "quorums.h"
 #include "quorums_instantsend.h"
 #include "quorums_signing.h"
 #include "quorums_utils.h"
 
 #include "chain.h"
-#include "smartnode/smartnode-sync.h"
 #include "net_processing.h"
 #include "scheduler.h"
+#include "smartnode/smartnode-sync.h"
 #include "spork.h"
 #include "txmempool.h"
 #include "validation.h"
@@ -51,7 +51,8 @@ void CChainLocksHandler::Start()
         EnforceBestChainLock();
         // regularly retry signing the current chaintip as it might have failed before due to missing ixlocks
         TrySignChainTip();
-    }, 5000);
+    },
+        5000);
 }
 
 void CChainLocksHandler::Stop()
@@ -137,7 +138,7 @@ void CChainLocksHandler::ProcessNewChainLock(NodeId from, const llmq::CChainLock
             // This should not happen. If it happens, it means that a malicious entity controls a large part of the MN
             // network. In this case, we don't allow him to reorg older chainlocks.
             LogPrintf("CChainLocksHandler::%s -- new CLSIG (%s) tries to reorg previous CLSIG (%s), peer=%d\n",
-                      __func__, clsig.ToString(), bestChainLock.ToString(), from);
+                __func__, clsig.ToString(), bestChainLock.ToString(), from);
             return;
         }
 
@@ -157,7 +158,7 @@ void CChainLocksHandler::ProcessNewChainLock(NodeId from, const llmq::CChainLock
         if (blockIt->second->nHeight != clsig.nHeight) {
             // Should not happen, same as the conflict check from above.
             LogPrintf("CChainLocksHandler::%s -- height of CLSIG (%s) does not match the specified block's height (%d)\n",
-                    __func__, clsig.ToString(), blockIt->second->nHeight);
+                __func__, clsig.ToString(), blockIt->second->nHeight);
             return;
         }
 
@@ -169,10 +170,11 @@ void CChainLocksHandler::ProcessNewChainLock(NodeId from, const llmq::CChainLock
     scheduler->scheduleFromNow([&]() {
         CheckActiveState();
         EnforceBestChainLock();
-    }, 0);
+    },
+        0);
 
     LogPrint(BCLog::CHAINLOCKS, "CChainLocksHandler::%s -- processed new CLSIG (%s), peer=%d\n",
-              __func__, clsig.ToString(), from);
+        __func__, clsig.ToString(), from);
 }
 
 void CChainLocksHandler::AcceptedBlockHeader(const CBlockIndex* pindexNew)
@@ -185,7 +187,7 @@ void CChainLocksHandler::AcceptedBlockHeader(const CBlockIndex* pindexNew)
         if (bestChainLock.nHeight != pindexNew->nHeight) {
             // Should not happen, same as the conflict check from ProcessNewChainLock.
             LogPrintf("CChainLocksHandler::%s -- height of CLSIG (%s) does not match the specified block's height (%d)\n",
-                      __func__, bestChainLock.ToString(), pindexNew->nHeight);
+                __func__, bestChainLock.ToString(), pindexNew->nHeight);
             return;
         }
 
@@ -213,7 +215,8 @@ void CChainLocksHandler::UpdatedBlockTip(const CBlockIndex* pindexNew)
         TrySignChainTip();
         LOCK(cs);
         tryLockChainTipScheduled = false;
-    }, 0);
+    },
+        0);
 }
 
 void CChainLocksHandler::CheckActiveState()
@@ -331,7 +334,7 @@ void CChainLocksHandler::TrySignChainTip()
 
                 if (txAge < WAIT_FOR_ISLOCK_TIMEOUT && !quorumInstantSendManager->IsLocked(txid)) {
                     LogPrint(BCLog::CHAINLOCKS, "CChainLocksHandler::%s -- not signing block %s due to TX %s not being ixlocked and not old enough. age=%d\n", __func__,
-                              pindexWalk->GetBlockHash().ToString(), txid.ToString(), txAge);
+                        pindexWalk->GetBlockHash().ToString(), txid.ToString(), txAge);
                     return;
                 }
             }
@@ -397,7 +400,6 @@ void CChainLocksHandler::BlockConnected(const std::shared_ptr<const CBlock>& pbl
         txids.emplace(tx->GetHash());
         txFirstSeenTime.emplace(tx->GetHash(), curTime);
     }
-
 }
 
 void CChainLocksHandler::BlockDisconnected(const std::shared_ptr<const CBlock>& pblock, const CBlockIndex* pindexDisconnected)
@@ -424,7 +426,7 @@ CChainLocksHandler::BlockTxs::mapped_type CChainLocksHandler::GetBlockTxs(const 
         // This should only happen when freshly started.
         // If running for some time, SyncTransaction should have been called before which fills blockTxs.
         LogPrint(BCLog::CHAINLOCKS, "CChainLocksHandler::%s -- blockTxs for %s not found. Trying ReadBlockFromDisk\n", __func__,
-                 blockHash.ToString());
+            blockHash.ToString());
 
         uint32_t blockTime;
         {
@@ -520,7 +522,7 @@ void CChainLocksHandler::EnforceBestChainLock()
                     continue;
                 }
                 LogPrintf("CChainLocksHandler::%s -- CLSIG (%s) invalidates block %s\n",
-                          __func__, clsig.ToString(), jt->second->GetBlockHash().ToString());
+                    __func__, clsig.ToString(), jt->second->GetBlockHash().ToString());
                 DoInvalidateBlock(jt->second, false);
             }
 
@@ -688,7 +690,7 @@ void CChainLocksHandler::Cleanup()
     LOCK2(cs_main, mempool.cs);
     LOCK(cs);
 
-    for (auto it = seenChainLocks.begin(); it != seenChainLocks.end(); ) {
+    for (auto it = seenChainLocks.begin(); it != seenChainLocks.end();) {
         if (GetTimeMillis() - it->second >= CLEANUP_SEEN_TIMEOUT) {
             it = seenChainLocks.erase(it);
         } else {
@@ -696,7 +698,7 @@ void CChainLocksHandler::Cleanup()
         }
     }
 
-    for (auto it = blockTxs.begin(); it != blockTxs.end(); ) {
+    for (auto it = blockTxs.begin(); it != blockTxs.end();) {
         auto pindex = mapBlockIndex.at(it->first);
         if (InternalHasChainLock(pindex->nHeight, pindex->GetBlockHash())) {
             for (auto& txid : *it->second) {
@@ -709,7 +711,7 @@ void CChainLocksHandler::Cleanup()
             ++it;
         }
     }
-    for (auto it = txFirstSeenTime.begin(); it != txFirstSeenTime.end(); ) {
+    for (auto it = txFirstSeenTime.begin(); it != txFirstSeenTime.end();) {
         CTransactionRef tx;
         uint256 hashBlock;
         if (!GetTransaction(it->first, tx, Params().GetConsensus(), hashBlock)) {

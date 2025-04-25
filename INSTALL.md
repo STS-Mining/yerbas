@@ -1,5 +1,5 @@
-Building Yerbas
+Building Memeium
 =============
 
 See doc/build-*.md for instructions on building the various
-elements of the Yerbas Core reference implementation of Yerbas.
+elements of the Memeium Core reference implementation of Memeium.

@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #ifndef GOVERNANCE_CLASSES_H
@@ -21,11 +21,11 @@ typedef std::shared_ptr<CSuperblock> CSuperblock_sptr;
 extern CGovernanceTriggerManager triggerman;
 
 /**
-*   Trigger Mananger
-*
-*   - Track governance objects which are triggers
-*   - After triggers are activated and executed, they can be removed
-*/
+ *   Trigger Mananger
+ *
+ *   - Track governance objects which are triggers
+ *   - After triggers are activated and executed, they can be removed
+ */
 
 class CGovernanceTriggerManager
 {
@@ -48,10 +48,10 @@ public:
 };
 
 /**
-*   Superblock Manager
-*
-*   Class for querying superblock information
-*/
+ *   Superblock Manager
+ *
+ *   Class for querying superblock information
+ */
 
 class CSuperblockManager
 {
@@ -69,9 +69,9 @@ public:
 };
 
 /**
-*   Governance Object Payment
-*
-*/
+ *   Governance Object Payment
+ *
+ */
 
 class CGovernancePayment
 {
@@ -113,21 +113,21 @@ public:
 
 
 /**
-*   Trigger : Superblock
-*
-*   - Create payments on the network
-*
-*   object structure:
-*   {
-*       "governance_object_id" : last_id,
-*       "type" : govtypes.trigger,
-*       "subtype" : "superblock",
-*       "superblock_name" : superblock_name,
-*       "start_epoch" : start_epoch,
-*       "payment_addresses" : "addr1|addr2|addr3",
-*       "payment_amounts"   : "amount1|amount2|amount3"
-*   }
-*/
+ *   Trigger : Superblock
+ *
+ *   - Create payments on the network
+ *
+ *   object structure:
+ *   {
+ *       "governance_object_id" : last_id,
+ *       "type" : govtypes.trigger,
+ *       "subtype" : "superblock",
+ *       "superblock_name" : superblock_name,
+ *       "start_epoch" : start_epoch,
+ *       "payment_addresses" : "addr1|addr2|addr3",
+ *       "payment_amounts"   : "amount1|amount2|amount3"
+ *   }
+ */
 
 class CSuperblock : public CGovernanceObject
 {

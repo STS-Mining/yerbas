@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,11 +8,11 @@
 #include "consensus/validation.h"
 #include "core_io.h"
 #include "init.h"
-#include "smartnode/smartnode-payments.h"
-#include "smartnode/smartnode-sync.h"
-#include "smartnode/smartnode-meta.h"
 #include "netmessagemaker.h"
 #include "script/sign.h"
+#include "smartnode/smartnode-meta.h"
+#include "smartnode/smartnode-payments.h"
+#include "smartnode/smartnode-sync.h"
 #include "txmempool.h"
 #include "util.h"
 #include "utilmoneystr.h"
@@ -439,7 +439,7 @@ void CPrivateSendClientManager::CheckTimeout()
 // Execute a mixing denomination via a Smartnode.
 // This is only ran from clients
 //
-bool CPrivateSendClientSession::SendDenominate(const std::vector<std::pair<CTxDSIn, CTxOut> >& vecPSInOutPairsIn, CConnman& connman)
+bool CPrivateSendClientSession::SendDenominate(const std::vector<std::pair<CTxDSIn, CTxOut>>& vecPSInOutPairsIn, CConnman& connman)
 {
     if (fSmartnodeMode) {
         LogPrint(BCLog::PRIVATESEND, "CPrivateSendClientSession::SendDenominate -- PrivateSend from a Smartnode is not supported currently.\n");
@@ -619,7 +619,7 @@ bool CPrivateSendClientSession::SignFinalTransaction(const CTransaction& finalTr
             const CKeyStore& keystore = *vpwallets[0];
 
             LogPrint(BCLog::PRIVATESEND, "CPrivateSendClientSession::%s -- Signing my input %i\n", __func__, nMyInputIndex);
-            // TODO we're using amount=0 here but we should use the correct amount. This works because Yerbas ignores the amount while signing/verifying (only used in Bitcoin/Segwit)
+            // TODO we're using amount=0 here but we should use the correct amount. This works because Memeium ignores the amount while signing/verifying (only used in Bitcoin/Segwit)
             if (!SignSignature(keystore, prevPubKey, finalMutableTransaction, nMyInputIndex, 0, int(SIGHASH_ALL | SIGHASH_ANYONECANPAY))) { // changes scriptSig
                 LogPrint(BCLog::PRIVATESEND, "CPrivateSendClientSession::%s -- Unable to sign my own transaction!\n", __func__);
                 // not sure what to do here, it will timeout...?
@@ -627,7 +627,7 @@ bool CPrivateSendClientSession::SignFinalTransaction(const CTransaction& finalTr
 
             sigs.push_back(finalMutableTransaction.vin[nMyInputIndex]);
             LogPrint(BCLog::PRIVATESEND, "CPrivateSendClientSession::%s -- nMyInputIndex: %d, sigs.size(): %d, scriptSig=%s\n",
-                    __func__, nMyInputIndex, (int)sigs.size(), ScriptToAsmStr(finalMutableTransaction.vin[nMyInputIndex].scriptSig));
+                __func__, nMyInputIndex, (int)sigs.size(), ScriptToAsmStr(finalMutableTransaction.vin[nMyInputIndex].scriptSig));
         }
     }
 
@@ -706,7 +706,7 @@ bool CPrivateSendClientManager::CheckAutomaticBackup()
     case 0:
         LogPrint(BCLog::PRIVATESEND, "CPrivateSendClientManager::CheckAutomaticBackup -- Automatic backups disabled, no mixing available.\n");
         strAutoDenomResult = _("Automatic backups disabled") + ", " + _("no mixing available.");
-        fPrivateSendRunning = false;               // stop mixing
+        fPrivateSendRunning = false;                // stop mixing
         vpwallets[0]->nKeysLeftSinceAutoBackup = 0; // no backup, no "keys since last backup"
         return false;
     case -1:
@@ -809,7 +809,7 @@ bool CPrivateSendClientSession::DoAutomaticDenominating(CConnman& connman, bool 
 
         // check if there is anything left to do
         CAmount nBalanceAnonymized = vpwallets[0]->GetAnonymizedBalance();
-        nBalanceNeedsAnonymized = privateSendClient.nPrivateSendAmount*COIN - nBalanceAnonymized;
+        nBalanceNeedsAnonymized = privateSendClient.nPrivateSendAmount * COIN - nBalanceAnonymized;
 
         if (nBalanceNeedsAnonymized < 0) {
             LogPrint(BCLog::PRIVATESEND, "CPrivateSendClientSession::DoAutomaticDenominating -- Nothing to do\n");
@@ -858,15 +858,15 @@ bool CPrivateSendClientSession::DoAutomaticDenominating(CConnman& connman, bool 
         }
 
         LogPrint(BCLog::PRIVATESEND, "CPrivateSendClientSession::DoAutomaticDenominating -- current stats:\n"
-            "    nValueMin: %s\n"
-            "    nBalanceAnonymizable: %s\n"
-            "    nBalanceAnonymized: %s\n"
-            "    nBalanceNeedsAnonymized: %s\n"
-            "    nBalanceAnonimizableNonDenom: %s\n"
-            "    nBalanceDenominatedConf: %s\n"
-            "    nBalanceDenominatedUnconf: %s\n"
-            "    nBalanceDenominated: %s\n"
-            "    nBalanceToDenominate: %s\n",
+                                     "    nValueMin: %s\n"
+                                     "    nBalanceAnonymizable: %s\n"
+                                     "    nBalanceAnonymized: %s\n"
+                                     "    nBalanceNeedsAnonymized: %s\n"
+                                     "    nBalanceAnonimizableNonDenom: %s\n"
+                                     "    nBalanceDenominatedConf: %s\n"
+                                     "    nBalanceDenominatedUnconf: %s\n"
+                                     "    nBalanceDenominated: %s\n"
+                                     "    nBalanceToDenominate: %s\n",
             FormatMoney(nValueMin),
             FormatMoney(nBalanceAnonymizable),
             FormatMoney(nBalanceAnonymized),
@@ -875,8 +875,7 @@ bool CPrivateSendClientSession::DoAutomaticDenominating(CConnman& connman, bool 
             FormatMoney(nBalanceDenominatedConf),
             FormatMoney(nBalanceDenominatedUnconf),
             FormatMoney(nBalanceDenominated),
-            FormatMoney(nBalanceToDenominate)
-            );
+            FormatMoney(nBalanceToDenominate));
 
         if (fDryRun) return true;
 
@@ -887,7 +886,7 @@ bool CPrivateSendClientSession::DoAutomaticDenominating(CConnman& connman, bool 
             CreateDenominated(nBalanceToDenominate, connman);
         }
 
-        //check if we have the collateral sized inputs
+        // check if we have the collateral sized inputs
         if (!vpwallets[0]->HasCollateralInputs()) {
             return !vpwallets[0]->HasCollateralInputs(false) && MakeCollateralAmounts(connman);
         }
@@ -910,7 +909,7 @@ bool CPrivateSendClientSession::DoAutomaticDenominating(CConnman& connman, bool 
             return false;
         }
 
-        //check our collateral and create new if needed
+        // check our collateral and create new if needed
         std::string strReason;
         if (txMyCollateral == CMutableTransaction()) {
             if (!vpwallets[0]->CreateCollateralTransaction(txMyCollateral, strReason)) {
@@ -1005,7 +1004,7 @@ CDeterministicMNCPtr CPrivateSendClientManager::GetRandomNotUsedSmartnode()
     int nCountNotExcluded = nCountEnabled - vecSmartnodesUsed.size();
 
     LogPrint(BCLog::PRIVATESEND, "CPrivateSendClientManager::%s -- %d enabled smartnodes, %d smartnodes to choose from\n", __func__, nCountEnabled, nCountNotExcluded);
-    if(nCountNotExcluded < 1) {
+    if (nCountNotExcluded < 1) {
         return nullptr;
     }
 
@@ -1071,7 +1070,7 @@ bool CPrivateSendClientSession::JoinExistingQueue(CAmount nBalanceNeedsAnonymize
 
         LogPrint(BCLog::PRIVATESEND, "CPrivateSendClientSession::JoinExistingQueue -- found valid queue: %s\n", dsq.ToString());
 
-        std::vector<std::pair<CTxDSIn, CTxOut> > vecPSInOutPairsTmp;
+        std::vector<std::pair<CTxDSIn, CTxOut>> vecPSInOutPairsTmp;
         CAmount nMinAmount = vecStandardDenoms[vecBits.front()];
         CAmount nMaxAmount = nBalanceNeedsAnonymized;
 
@@ -1144,7 +1143,7 @@ bool CPrivateSendClientSession::StartNewQueue(CAmount nBalanceNeedsAnonymized, C
         int64_t nLastDsq = mmetaman.GetMetaInfo(dmn->proTxHash)->GetLastDsq();
         if (nLastDsq != 0 && nLastDsq + nMnCount / 5 > mmetaman.GetDsqCount()) {
             LogPrint(BCLog::PRIVATESEND, "CPrivateSendClientSession::StartNewQueue -- Too early to mix on this smartnode!"
-                      " smartnode=%s  addr=%s  nLastDsq=%d  CountEnabled/5=%d  nDsqCount=%d\n",
+                                         " smartnode=%s  addr=%s  nLastDsq=%d  CountEnabled/5=%d  nDsqCount=%d\n",
                 dmn->proTxHash.ToString(), dmn->pdmnState->addr.ToString(), nLastDsq,
                 nMnCount / 5, mmetaman.GetDsqCount());
             nTries++;
@@ -1220,14 +1219,14 @@ bool CPrivateSendClientSession::SubmitDenominate(CConnman& connman)
     LOCK2(cs_main, vpwallets[0]->cs_wallet);
 
     std::string strError;
-    std::vector<std::pair<CTxDSIn, CTxOut> > vecPSInOutPairs, vecPSInOutPairsTmp;
+    std::vector<std::pair<CTxDSIn, CTxOut>> vecPSInOutPairs, vecPSInOutPairsTmp;
 
     if (!SelectDenominate(strError, vecPSInOutPairs)) {
         LogPrint(BCLog::PRIVATESEND, "CPrivateSendClientSession::SubmitDenominate -- SelectDenominate failed, error: %s\n", strError);
         return false;
     }
 
-    std::vector<std::pair<int, size_t> > vecInputsByRounds;
+    std::vector<std::pair<int, size_t>> vecInputsByRounds;
 
     for (int i = 0; i < privateSendClient.nPrivateSendRounds; i++) {
         if (PrepareDenominate(i, i, strError, vecPSInOutPairs, vecPSInOutPairsTmp, true)) {
@@ -1266,7 +1265,7 @@ bool CPrivateSendClientSession::SubmitDenominate(CConnman& connman)
     return false;
 }
 
-bool CPrivateSendClientSession::SelectDenominate(std::string& strErrorRet, std::vector<std::pair<CTxDSIn, CTxOut> >& vecPSInOutPairsRet)
+bool CPrivateSendClientSession::SelectDenominate(std::string& strErrorRet, std::vector<std::pair<CTxDSIn, CTxOut>>& vecPSInOutPairsRet)
 {
     if (!privateSendClient.fEnablePrivateSend || !privateSendClient.fPrivateSendRunning) return false;
 
@@ -1298,7 +1297,7 @@ bool CPrivateSendClientSession::SelectDenominate(std::string& strErrorRet, std::
     return true;
 }
 
-bool CPrivateSendClientSession::PrepareDenominate(int nMinRounds, int nMaxRounds, std::string& strErrorRet, const std::vector<std::pair<CTxDSIn, CTxOut> >& vecPSInOutPairsIn, std::vector<std::pair<CTxDSIn, CTxOut> >& vecPSInOutPairsRet, bool fDryRun)
+bool CPrivateSendClientSession::PrepareDenominate(int nMinRounds, int nMaxRounds, std::string& strErrorRet, const std::vector<std::pair<CTxDSIn, CTxOut>>& vecPSInOutPairsIn, std::vector<std::pair<CTxDSIn, CTxOut>>& vecPSInOutPairsRet, bool fDryRun)
 {
     AssertLockHeld(cs_main);
     AssertLockHeld(vpwallets[0]->cs_wallet);
@@ -1572,10 +1571,7 @@ bool CPrivateSendClientSession::CreateDenominated(CAmount nBalanceToDenominate, 
 
         auto needMoreOutputs = [&]() {
             bool fRegular = (nValueLeft >= nDenomValue && nBalanceToDenominate >= nDenomValue);
-            bool fFinal = (fAddFinal
-                && nValueLeft >= nDenomValue
-                && nBalanceToDenominate > 0
-                && nBalanceToDenominate < nDenomValue);
+            bool fFinal = (fAddFinal && nValueLeft >= nDenomValue && nBalanceToDenominate > 0 && nBalanceToDenominate < nDenomValue);
             fAddFinal = false; // add final denom only once, only the smalest possible one
             return fRegular || fFinal;
         };
@@ -1586,7 +1582,7 @@ bool CPrivateSendClientSession::CreateDenominated(CAmount nBalanceToDenominate, 
 
             vecSend.push_back((CRecipient){scriptDenom, nDenomValue, false});
 
-            //increment outputs and subtract denomination amount
+            // increment outputs and subtract denomination amount
             nOutputs++;
             nValueLeft -= nDenomValue;
             nBalanceToDenominate -= nDenomValue;
@@ -1693,8 +1689,8 @@ void CPrivateSendClientSession::GetJsonInfo(UniValue& obj) const
     if (mixingSmartnode != nullptr) {
         assert(mixingSmartnode->pdmnState);
         obj.push_back(Pair("protxhash", mixingSmartnode->proTxHash.ToString()));
-        obj.push_back(Pair("outpoint",  mixingSmartnode->collateralOutpoint.ToStringShort()));
-        obj.push_back(Pair("service",   mixingSmartnode->pdmnState->addr.ToString()));
+        obj.push_back(Pair("outpoint", mixingSmartnode->collateralOutpoint.ToStringShort()));
+        obj.push_back(Pair("service", mixingSmartnode->pdmnState->addr.ToString()));
     }
     CAmount amount{0};
     if (nSessionDenom) {
@@ -1707,8 +1703,8 @@ void CPrivateSendClientSession::GetJsonInfo(UniValue& obj) const
         // proper format via ValueFromAmount later.
         ParseFixedPoint(CPrivateSend::GetDenominationsToString(nSessionDenom), 8, &amount);
     }
-    obj.push_back(Pair("denomination",  ValueFromAmount(amount)));
-    obj.push_back(Pair("state",         GetStateString()));
+    obj.push_back(Pair("denomination", ValueFromAmount(amount)));
+    obj.push_back(Pair("state", GetStateString()));
     obj.push_back(Pair("entries_count", GetEntriesCount()));
 }
 
@@ -1717,14 +1713,14 @@ void CPrivateSendClientManager::GetJsonInfo(UniValue& obj) const
     LOCK(cs_deqsessions);
     obj.clear();
     obj.setObject();
-    obj.push_back(Pair("enabled",       fEnablePrivateSend));
-    obj.push_back(Pair("running",       fPrivateSendRunning));
-    obj.push_back(Pair("multisession",  fPrivateSendMultiSession));
-    obj.push_back(Pair("max_sessions",  nPrivateSendSessions));
-    obj.push_back(Pair("max_rounds",    nPrivateSendRounds));
-    obj.push_back(Pair("max_amount",    nPrivateSendAmount));
-    obj.push_back(Pair("max_denoms",    nPrivateSendDenoms));
-    obj.push_back(Pair("queue_size",    GetQueueSize()));
+    obj.push_back(Pair("enabled", fEnablePrivateSend));
+    obj.push_back(Pair("running", fPrivateSendRunning));
+    obj.push_back(Pair("multisession", fPrivateSendMultiSession));
+    obj.push_back(Pair("max_sessions", nPrivateSendSessions));
+    obj.push_back(Pair("max_rounds", nPrivateSendRounds));
+    obj.push_back(Pair("max_amount", nPrivateSendAmount));
+    obj.push_back(Pair("max_denoms", nPrivateSendDenoms));
+    obj.push_back(Pair("queue_size", GetQueueSize()));
 
     UniValue arrSessions(UniValue::VARR);
     for (const auto& session : deqSessions) {
@@ -1734,5 +1730,5 @@ void CPrivateSendClientManager::GetJsonInfo(UniValue& obj) const
             arrSessions.push_back(objSession);
         }
     }
-    obj.push_back(Pair("sessions",  arrSessions));
+    obj.push_back(Pair("sessions", arrSessions));
 }

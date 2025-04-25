@@ -10,42 +10,47 @@
 
 #include <assert.h>
 #include <assets/assets.h>
-#include <wallet/wallet.h>
+#include <base58.h>
 #include <chainparams.h>
 #include <validation.h>
-#include <base58.h>
+#include <wallet/wallet.h>
 
-bool CCoinsView::GetCoin(const COutPoint &outpoint, Coin &coin) const { return false; }
+bool CCoinsView::GetCoin(const COutPoint& outpoint, Coin& coin) const { return false; }
 uint256 CCoinsView::GetBestBlock() const { return uint256(); }
 std::vector<uint256> CCoinsView::GetHeadBlocks() const { return std::vector<uint256>(); }
-bool CCoinsView::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) { return false; }
-CCoinsViewCursor *CCoinsView::Cursor() const { return 0; }
+bool CCoinsView::BatchWrite(CCoinsMap& mapCoins, const uint256& hashBlock) { return false; }
+CCoinsViewCursor* CCoinsView::Cursor() const { return 0; }
 
-bool CCoinsView::HaveCoin(const COutPoint &outpoint) const
+bool CCoinsView::HaveCoin(const COutPoint& outpoint) const
 {
     Coin coin;
     return GetCoin(outpoint, coin);
 }
 
-CCoinsViewBacked::CCoinsViewBacked(CCoinsView *viewIn) : base(viewIn) { }
-bool CCoinsViewBacked::GetCoin(const COutPoint &outpoint, Coin &coin) const { return base->GetCoin(outpoint, coin); }
-bool CCoinsViewBacked::HaveCoin(const COutPoint &outpoint) const { return base->HaveCoin(outpoint); }
+CCoinsViewBacked::CCoinsViewBacked(CCoinsView* viewIn) :
+    base(viewIn) {}
+bool CCoinsViewBacked::GetCoin(const COutPoint& outpoint, Coin& coin) const { return base->GetCoin(outpoint, coin); }
+bool CCoinsViewBacked::HaveCoin(const COutPoint& outpoint) const { return base->HaveCoin(outpoint); }
 uint256 CCoinsViewBacked::GetBestBlock() const { return base->GetBestBlock(); }
 std::vector<uint256> CCoinsViewBacked::GetHeadBlocks() const { return base->GetHeadBlocks(); }
-void CCoinsViewBacked::SetBackend(CCoinsView &viewIn) { base = &viewIn; }
-bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) { return base->BatchWrite(mapCoins, hashBlock); }
-CCoinsViewCursor *CCoinsViewBacked::Cursor() const { return base->Cursor(); }
+void CCoinsViewBacked::SetBackend(CCoinsView& viewIn) { base = &viewIn; }
+bool CCoinsViewBacked::BatchWrite(CCoinsMap& mapCoins, const uint256& hashBlock) { return base->BatchWrite(mapCoins, hashBlock); }
+CCoinsViewCursor* CCoinsViewBacked::Cursor() const { return base->Cursor(); }
 size_t CCoinsViewBacked::EstimateSize() const { return base->EstimateSize(); }
 
-SaltedOutpointHasher::SaltedOutpointHasher() : k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}
+SaltedOutpointHasher::SaltedOutpointHasher() :
+    k0(GetRand(std::numeric_limits<uint64_t>::max())), k1(GetRand(std::numeric_limits<uint64_t>::max())) {}
 
-CCoinsViewCache::CCoinsViewCache(CCoinsView *baseIn) : CCoinsViewBacked(baseIn), cachedCoinsUsage(0) {}
+CCoinsViewCache::CCoinsViewCache(CCoinsView* baseIn) :
+    CCoinsViewBacked(baseIn), cachedCoinsUsage(0) {}
 
-size_t CCoinsViewCache::DynamicMemoryUsage() const {
+size_t CCoinsViewCache::DynamicMemoryUsage() const
+{
     return memusage::DynamicUsage(cacheCoins) + cachedCoinsUsage;
 }
 
-CCoinsMap::iterator CCoinsViewCache::FetchCoin(const COutPoint &outpoint) const {
+CCoinsMap::iterator CCoinsViewCache::FetchCoin(const COutPoint& outpoint) const
+{
     CCoinsMap::iterator it = cacheCoins.find(outpoint);
     if (it != cacheCoins.end())
         return it;
@@ -62,7 +67,8 @@ CCoinsMap::iterator CCoinsViewCache::FetchCoin(const COutPoint &outpoint) const 
     return ret;
 }
 
-bool CCoinsViewCache::GetCoin(const COutPoint &outpoint, Coin &coin) const {
+bool CCoinsViewCache::GetCoin(const COutPoint& outpoint, Coin& coin) const
+{
     CCoinsMap::const_iterator it = FetchCoin(outpoint);
     if (it != cacheCoins.end()) {
         coin = it->second.coin;
@@ -71,7 +77,8 @@ bool CCoinsViewCache::GetCoin(const COutPoint &outpoint, Coin &coin) const {
     return false;
 }
 
-void CCoinsViewCache::AddCoin(const COutPoint &outpoint, Coin&& coin, bool possible_overwrite) {
+void CCoinsViewCache::AddCoin(const COutPoint& outpoint, Coin&& coin, bool possible_overwrite)
+{
     assert(!coin.IsSpent());
     if (coin.out.scriptPubKey.IsUnspendable()) return;
     CCoinsMap::iterator it;
@@ -92,12 +99,13 @@ void CCoinsViewCache::AddCoin(const COutPoint &outpoint, Coin&& coin, bool possi
     cachedCoinsUsage += it->second.coin.DynamicMemoryUsage();
 }
 
-void AddCoins(CCoinsViewCache& cache, const CTransaction &tx, int nHeight, uint256 blockHash, bool check, CAssetsCache* assetsCache, std::pair<std::string, CBlockAssetUndo>* undoAssetData) {
+void AddCoins(CCoinsViewCache& cache, const CTransaction& tx, int nHeight, uint256 blockHash, bool check, CAssetsCache* assetsCache, std::pair<std::string, CBlockAssetUndo>* undoAssetData)
+{
     bool fCoinbase = tx.IsCoinBase();
     const uint256& txid = tx.GetHash();
-    /** YERB ASSETS START */
+    /** MMM ASSETS START */
     if (Params().IsAssetsActive(chainActive.Tip())) {
-        if (assetsCache) {  
+        if (assetsCache) {
             if (tx.IsNewAsset()) { // This works are all new root assets, sub asset, and restricted assets
                 CNewAsset asset;
                 std::string strAddress;
@@ -136,15 +144,15 @@ void AddCoins(CCoinsViewCache& cache, const CTransaction &tx, int nHeight, uint2
                 bool fFoundRestrictedAsset = false;
                 AssetType type;
                 IsAssetNameValid(asset.strName, type);
-                
+
                 // Set the old IPFSHash for the blockundo
                 bool fIPFSChanged = !reissue.strIPFSHash.empty();
                 bool fUnitsChanged = reissue.nUnits != -1;
 
                 // If any of the following items were changed by reissuing, we need to database the old values so it can be undone correctly
                 if (fIPFSChanged || fUnitsChanged) {
-                    undoAssetData->first = reissue.strName; // Asset Name
-                    undoAssetData->second = CBlockAssetUndo {fIPFSChanged, fUnitsChanged, asset.strIPFSHash, asset.units}; // ipfschanged, unitchanged, Old Assets IPFSHash, old units
+                    undoAssetData->first = reissue.strName;                                                               // Asset Name
+                    undoAssetData->second = CBlockAssetUndo{fIPFSChanged, fUnitsChanged, asset.strIPFSHash, asset.units}; // ipfschanged, unitchanged, Old Assets IPFSHash, old units
                 }
             } else if (tx.IsNewUniqueAsset()) {
                 for (int n = 0; n < (int)tx.vout.size(); n++) {
@@ -170,7 +178,7 @@ void AddCoins(CCoinsViewCache& cache, const CTransaction &tx, int nHeight, uint2
                 // Add the new asset to cache
                 if (!assetsCache->AddNewAsset(asset, strAddress, nHeight, blockHash))
                     error("%s : Failed at adding a new asset to our cache. asset: %s", __func__,
-                          asset.strName);
+                        asset.strName);
             } else if (tx.IsNewQualifierAsset()) {
                 CNewAsset asset;
                 std::string strAddress;
@@ -179,8 +187,8 @@ void AddCoins(CCoinsViewCache& cache, const CTransaction &tx, int nHeight, uint2
                 // Add the new asset to cache
                 if (!assetsCache->AddNewAsset(asset, strAddress, nHeight, blockHash))
                     error("%s : Failed at adding a new qualifier asset to our cache. asset: %s", __func__,
-                          asset.strName);
-            }  else if (tx.IsNewRestrictedAsset()) {
+                        asset.strName);
+            } else if (tx.IsNewRestrictedAsset()) {
                 CNewAsset asset;
                 std::string strAddress;
                 RestrictedAssetFromTransaction(tx, asset, strAddress);
@@ -188,43 +196,42 @@ void AddCoins(CCoinsViewCache& cache, const CTransaction &tx, int nHeight, uint2
                 // Add the new asset to cache
                 if (!assetsCache->AddNewAsset(asset, strAddress, nHeight, blockHash))
                     error("%s : Failed at adding a new restricted asset to our cache. asset: %s", __func__,
-                          asset.strName);
+                        asset.strName);
 
                 // Find the restricted verifier string and cache it
                 CNullAssetTxVerifierString verifier;
                 // Search through all outputs until you find a restricted verifier change.
-                for (auto index: tx.vout) {
+                for (auto index : tx.vout) {
                     if (index.scriptPubKey.IsNullAssetVerifierTxDataScript()) {
                         CNullAssetTxVerifierString verifier;
                         if (!AssetNullVerifierDataFromScript(index.scriptPubKey, verifier))
                             error("%s: Failed to get asset null data and add it to the coins CTxOut: %s", __func__,
-                                  index.ToString());
+                                index.ToString());
 
                         // Add the verifier to the cache
                         if (!assetsCache->AddRestrictedVerifier(asset.strName, verifier.verifier_string))
                             error("%s : Failed at adding a restricted verifier to our cache: asset: %s, verifier : %s",
-                                  asset.strName, verifier.verifier_string);
+                                asset.strName, verifier.verifier_string);
 
                         break;
                     }
                 }
-            }    
+            }
         }
     }
-    /** YERB ASSETS END */
+    /** MMM ASSETS END */
 
     for (size_t i = 0; i < tx.vout.size(); ++i) {
         bool overwrite = check ? cache.HaveCoin(COutPoint(txid, i)) : fCoinbase;
         // Always set the possible_overwrite flag to AddCoin for coinbase txn, in order to correctly
         // deal with the pre-BIP30 occurrences of duplicate coinbase transactions.
         cache.AddCoin(COutPoint(txid, i), Coin(tx.vout[i], nHeight, fCoinbase), overwrite);
-    
-        /** YERB ASSETS START */
+
+        /** MMM ASSETS START */
         if (Params().IsAssetsActive(chainActive.Tip())) {
             if (assetsCache) {
                 CAssetOutputEntry assetData;
                 if (GetAssetData(tx.vout[i].scriptPubKey, assetData)) {
-
                     // If this is a transfer asset, and the amount is greater than zero
                     // We want to make sure it is added to the asset addresses database if (fAssetIndex == true)
                     if (assetData.type == TX_TRANSFER_ASSET && assetData.nAmount > 0) {
@@ -235,7 +242,7 @@ void AddCoins(CCoinsViewCache& cache, const CTransaction &tx, int nHeight, uint2
                         // Add the transfer asset data to the asset cache
                         if (!assetsCache->AddTransferAsset(assetTransfer, address, COutPoint(txid, i), tx.vout[i]))
                             LogPrintf("%s : ERROR - Failed to add transfer asset CTxOut: %s\n", __func__,
-                                      tx.vout[i].ToString());
+                                tx.vout[i].ToString());
 
                         /** Subscribe to new message channels if they are sent to a new address, or they are the owner token or message channel */
 #ifdef ENABLE_WALLET
@@ -312,17 +319,18 @@ void AddCoins(CCoinsViewCache& cache, const CTransaction &tx, int nHeight, uint2
                 }
             }
         }
-        /** YERB ASSETS END */
+        /** MMM ASSETS END */
     }
 }
 
-bool CCoinsViewCache::SpendCoin(const COutPoint &outpoint, Coin* moveout, CAssetsCache* assetsCache) {
+bool CCoinsViewCache::SpendCoin(const COutPoint& outpoint, Coin* moveout, CAssetsCache* assetsCache)
+{
     CCoinsMap::iterator it = FetchCoin(outpoint);
     if (it == cacheCoins.end()) return false;
     cachedCoinsUsage -= it->second.coin.DynamicMemoryUsage();
-    /** YERB START */
+    /** MMM START */
     Coin tempCoin = it->second.coin;
-    /** YERB END */
+    /** MMM END */
     if (moveout) {
         *moveout = std::move(it->second.coin);
     }
@@ -332,7 +340,7 @@ bool CCoinsViewCache::SpendCoin(const COutPoint &outpoint, Coin* moveout, CAsset
         it->second.flags |= CCoinsCacheEntry::DIRTY;
         it->second.coin.Clear();
     }
-    /** YERB START */
+    /** MMM START */
     if (AreAssetsDeployed()) {
         if (assetsCache) {
             if (!assetsCache->TrySpendCoin(outpoint, tempCoin.out)) {
@@ -340,13 +348,14 @@ bool CCoinsViewCache::SpendCoin(const COutPoint &outpoint, Coin* moveout, CAsset
             }
         }
     }
-    /** YERB END */
+    /** MMM END */
     return true;
 }
 
 static const Coin coinEmpty;
 
-const Coin& CCoinsViewCache::AccessCoin(const COutPoint &outpoint) const {
+const Coin& CCoinsViewCache::AccessCoin(const COutPoint& outpoint) const
+{
     CCoinsMap::const_iterator it = FetchCoin(outpoint);
     if (it == cacheCoins.end()) {
         return coinEmpty;
@@ -355,27 +364,32 @@ const Coin& CCoinsViewCache::AccessCoin(const COutPoint &outpoint) const {
     }
 }
 
-bool CCoinsViewCache::HaveCoin(const COutPoint &outpoint) const {
+bool CCoinsViewCache::HaveCoin(const COutPoint& outpoint) const
+{
     CCoinsMap::const_iterator it = FetchCoin(outpoint);
     return (it != cacheCoins.end() && !it->second.coin.IsSpent());
 }
 
-bool CCoinsViewCache::HaveCoinInCache(const COutPoint &outpoint) const {
+bool CCoinsViewCache::HaveCoinInCache(const COutPoint& outpoint) const
+{
     CCoinsMap::const_iterator it = cacheCoins.find(outpoint);
     return (it != cacheCoins.end() && !it->second.coin.IsSpent());
 }
 
-uint256 CCoinsViewCache::GetBestBlock() const {
+uint256 CCoinsViewCache::GetBestBlock() const
+{
     if (hashBlock.IsNull())
         hashBlock = base->GetBestBlock();
     return hashBlock;
 }
 
-void CCoinsViewCache::SetBestBlock(const uint256 &hashBlockIn) {
+void CCoinsViewCache::SetBestBlock(const uint256& hashBlockIn)
+{
     hashBlock = hashBlockIn;
 }
 
-bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn) {
+bool CCoinsViewCache::BatchWrite(CCoinsMap& mapCoins, const uint256& hashBlockIn)
+{
     for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end();) {
         if (it->second.flags & CCoinsCacheEntry::DIRTY) { // Ignore non-dirty entries (optimization).
             CCoinsMap::iterator itUs = cacheCoins.find(it->first);
@@ -431,7 +445,8 @@ bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn
     return true;
 }
 
-bool CCoinsViewCache::Flush() {
+bool CCoinsViewCache::Flush()
+{
     bool fOk = base->BatchWrite(cacheCoins, hashBlock);
     cacheCoins.clear();
     cachedCoinsUsage = 0;
@@ -447,7 +462,8 @@ void CCoinsViewCache::Uncache(const COutPoint& hash)
     }
 }
 
-unsigned int CCoinsViewCache::GetCacheSize() const {
+unsigned int CCoinsViewCache::GetCacheSize() const
+{
     return cacheCoins.size();
 }
 
@@ -475,7 +491,7 @@ bool CCoinsViewCache::HaveInputs(const CTransaction& tx) const
     return true;
 }
 
-static const size_t MAX_OUTPUTS_PER_BLOCK = MaxBlockSize(true) /  ::GetSerializeSize(CTxOut(), SER_NETWORK, PROTOCOL_VERSION); // TODO: merge with similar definition in undo.h.
+static const size_t MAX_OUTPUTS_PER_BLOCK = MaxBlockSize(true) / ::GetSerializeSize(CTxOut(), SER_NETWORK, PROTOCOL_VERSION); // TODO: merge with similar definition in undo.h.
 
 const Coin& AccessByTxid(const CCoinsViewCache& view, const uint256& txid)
 {

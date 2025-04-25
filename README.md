@@ -1,32 +1,25 @@
-Welcome to Yerbas 
-===========================
+# Welcome to Memeium
 
- 
-Introduction
-------------
+## Introduction
 
-WARNING! Yerbas is a work in progress...Use at your own risk!
+WARNING! Memeium is a work in progress...Use at your own risk!
 
-Yerbas is a community driven, developmental, grassroots, digital currency that enables instant payments to anyone, anywhere in the world. The Yerbas Coin uses peer-to-peer technology to operate with no central authority: managing transactions and issuing money are carried out collectively by the network. Yerbas is a code fork of Bitcoin/Dash/Ravencoin/Raptoreum and inherits current and optionally future features such as chain locks, oracles etc. The inspiration for the name Yerbas is derived from the Latin(herba) and Español(hierba) words for herb, grass, or weeds.
+Memeium is a community driven, developmental, grassroots, digital currency that enables instant payments to anyone, anywhere in the world. The Memeium Coin uses peer-to-peer technology to operate with no central authority: managing transactions and issuing money are carried out collectively by the network. Memeium is a code fork of Bitcoin/Dash/Ravencoin/Raptoreum and inherits current and optionally future features such as chain locks, oracles etc. The inspiration for the name Memeium is derived from the Latin(herba) and Español(hierba) words for herb, grass, or weeds.
 
+## License
 
-License
--------
-
-Yerbas Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
+Memeium Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
 information or see https://opensource.org/licenses/MIT.
 
-Development Process
--------------------
+## Development Process
 
 The `master` branch is meant to be stable. Development is done in separate branches.
-[Tags](https://github.com/The-Yerbas-Endeavor/yerbas/tags) are created to indicate new official,
-stable release versions of Yerbas Core.
+[Tags](https://github.com/The-Memeium-Endeavor/memeium/tags) are created to indicate new official,
+stable release versions of Memeium Core.
 
 The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Testing
--------
+## Testing
 
 Testing and code review is the bottleneck for development; we get more pull
 requests than we can review and test on short notice. Please be patient and help out by testing

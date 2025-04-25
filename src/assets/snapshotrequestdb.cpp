@@ -1,9 +1,9 @@
-// Copyright (c) 2019 The Yerbas Core developers
+// Copyright (c) 2019 The Memeium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <set>
 #include <boost/thread.hpp>
+#include <set>
 
 #include "snapshotrequestdb.h"
 
@@ -18,8 +18,8 @@ CSnapshotRequestDBEntry::CSnapshotRequestDBEntry()
 }
 
 CSnapshotRequestDBEntry::CSnapshotRequestDBEntry(
-    const std::string & p_assetName, int p_heightForSnapshot
-)
+    const std::string& p_assetName,
+    int p_heightForSnapshot)
 {
     SetNull();
 
@@ -30,13 +30,16 @@ CSnapshotRequestDBEntry::CSnapshotRequestDBEntry(
 }
 
 CSnapshotRequestDB::CSnapshotRequestDB(
-    size_t nCacheSize, bool fMemory, bool fWipe)
-    : CDBWrapper(GetDataDir() / "rewards" / "snapshotrequest", nCacheSize, fMemory, fWipe) {
+    size_t nCacheSize,
+    bool fMemory,
+    bool fWipe) :
+    CDBWrapper(GetDataDir() / "rewards" / "snapshotrequest", nCacheSize, fMemory, fWipe)
+{
 }
 
 bool CSnapshotRequestDB::ScheduleSnapshot(
-    const std::string & p_assetName, int p_heightForSnapshot
-)
+    const std::string& p_assetName,
+    int p_heightForSnapshot)
 {
     LogPrint(BCLog::REWARDS, "%s : Requesting snapshot: assetName='%s', height=%d\n",
         __func__,
@@ -56,9 +59,9 @@ bool CSnapshotRequestDB::ScheduleSnapshot(
 }
 
 bool CSnapshotRequestDB::RetrieveSnapshotRequest(
-    const std::string & p_assetName, int p_heightForSnapshot,
-    CSnapshotRequestDBEntry & p_snapshotRequest
-)
+    const std::string& p_assetName,
+    int p_heightForSnapshot,
+    CSnapshotRequestDBEntry& p_snapshotRequest)
 {
     //  Load up the snapshot entries at this height
     std::string heightAndName = std::to_string(p_heightForSnapshot) + p_assetName;
@@ -76,7 +79,7 @@ bool CSnapshotRequestDB::RetrieveSnapshotRequest(
     return succeeded;
 }
 
-bool CSnapshotRequestDB::ContainsSnapshotRequest(const std::string & p_assetName, int p_heightForSnapshot)
+bool CSnapshotRequestDB::ContainsSnapshotRequest(const std::string& p_assetName, int p_heightForSnapshot)
 {
     std::string heightAndName = std::to_string(p_heightForSnapshot) + p_assetName;
 
@@ -85,8 +88,8 @@ bool CSnapshotRequestDB::ContainsSnapshotRequest(const std::string & p_assetName
 }
 
 bool CSnapshotRequestDB::RemoveSnapshotRequest(
-    const std::string & p_assetName, int p_heightForSnapshot
-)
+    const std::string& p_assetName,
+    int p_heightForSnapshot)
 {
     //  Load up the snapshot entries at this height
     std::string heightAndName = std::to_string(p_heightForSnapshot) + p_assetName;
@@ -107,16 +110,16 @@ bool CSnapshotRequestDB::RemoveSnapshotRequest(
 }
 
 bool CSnapshotRequestDB::RetrieveSnapshotRequestsForHeight(
-    const std::string & p_assetName, int p_blockHeight,
-    std::set<CSnapshotRequestDBEntry> & p_assetsToSnapshot)
+    const std::string& p_assetName,
+    int p_blockHeight,
+    std::set<CSnapshotRequestDBEntry>& p_assetsToSnapshot)
 {
     bool assetNameProvided = p_assetName.length() > 0;
     if (assetNameProvided) {
         LogPrint(BCLog::REWARDS, "%s : Looking for snapshot requests for asset '%s' at height %d!\n",
             __func__,
             p_assetName.c_str(), p_blockHeight);
-    }
-    else {
+    } else {
         LogPrint(BCLog::REWARDS, "%s : Looking for all snapshot requests at height %d!\n",
             __func__,
             p_blockHeight);
@@ -157,8 +160,11 @@ bool CSnapshotRequestDB::RetrieveSnapshotRequestsForHeight(
 }
 
 CDistributeSnapshotRequestDB::CDistributeSnapshotRequestDB(
-        size_t nCacheSize, bool fMemory, bool fWipe)
-        : CDBWrapper(GetDataDir() / "rewards" / "distributerequests", nCacheSize, fMemory, fWipe) {
+    size_t nCacheSize,
+    bool fMemory,
+    bool fWipe) :
+    CDBWrapper(GetDataDir() / "rewards" / "distributerequests", nCacheSize, fMemory, fWipe)
+{
 }
 
 // Schedule a distribution to occur
@@ -169,7 +175,7 @@ bool CDistributeSnapshotRequestDB::AddDistributeSnapshot(const uint256& hash, co
 
 bool CDistributeSnapshotRequestDB::OverrideDistributeSnapshot(const uint256& hash, const CRewardSnapshot& p_rewardSnapshot)
 {
-    return  Write(std::make_pair(DISTRIBUTEREQUEST_FLAG, hash), p_rewardSnapshot);
+    return Write(std::make_pair(DISTRIBUTEREQUEST_FLAG, hash), p_rewardSnapshot);
 }
 
 bool OverrideDistributeSnapshot(const uint256& hash, const CRewardSnapshot& p_rewardSnapshot);
@@ -224,13 +230,13 @@ void CDistributeSnapshotRequestDB::LoadAllDistributeSnapshot(std::map<uint256, C
         pcursor->Next();
     }
 
-    for (auto const & item : mapRewardSnapshots) {
+    for (auto const& item : mapRewardSnapshots) {
         LogPrint(BCLog::REWARDS, "%s : Found snapshot distribution request for Owner: %s,  Distribution: %s, Exception: %s, Height: %d, Status: %d\n",
-                 __func__,
-                 item.second.strOwnershipAsset,
-                 item.second.strDistributionAsset,
-                 item.second.strExceptionAddresses,
-                 item.second.nHeight,
-                 item.second.nStatus);
+            __func__,
+            item.second.strOwnershipAsset,
+            item.second.strDistributionAsset,
+            item.second.strExceptionAddresses,
+            item.second.nHeight,
+            item.second.nStatus);
     }
 }

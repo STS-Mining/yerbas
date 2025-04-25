@@ -1,12 +1,12 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "governance-vote.h"
 #include "governance-object.h"
-#include "smartnode/smartnode-sync.h"
 #include "messagesigner.h"
+#include "smartnode/smartnode-sync.h"
 #include "spork.h"
 #include "util.h"
 
@@ -15,10 +15,10 @@
 std::string CGovernanceVoting::ConvertOutcomeToString(vote_outcome_enum_t nOutcome)
 {
     static const std::map<vote_outcome_enum_t, std::string> mapOutcomeString = {
-        { VOTE_OUTCOME_NONE, "none" },
-        { VOTE_OUTCOME_YES, "yes" },
-        { VOTE_OUTCOME_NO, "no" },
-        { VOTE_OUTCOME_ABSTAIN, "abstain" } };
+        {VOTE_OUTCOME_NONE, "none"},
+        {VOTE_OUTCOME_YES, "yes"},
+        {VOTE_OUTCOME_NO, "no"},
+        {VOTE_OUTCOME_ABSTAIN, "abstain"}};
 
     const auto& it = mapOutcomeString.find(nOutcome);
     if (it == mapOutcomeString.end()) {
@@ -31,10 +31,10 @@ std::string CGovernanceVoting::ConvertOutcomeToString(vote_outcome_enum_t nOutco
 std::string CGovernanceVoting::ConvertSignalToString(vote_signal_enum_t nSignal)
 {
     static const std::map<vote_signal_enum_t, std::string> mapSignalsString = {
-        { VOTE_SIGNAL_FUNDING, "funding" },
-        { VOTE_SIGNAL_VALID, "valid" },
-        { VOTE_SIGNAL_DELETE, "delete" },
-        { VOTE_SIGNAL_ENDORSED, "endorsed" } };
+        {VOTE_SIGNAL_FUNDING, "funding"},
+        {VOTE_SIGNAL_VALID, "valid"},
+        {VOTE_SIGNAL_DELETE, "delete"},
+        {VOTE_SIGNAL_ENDORSED, "endorsed"}};
 
     const auto& it = mapSignalsString.find(nSignal);
     if (it == mapSignalsString.end()) {
@@ -48,10 +48,10 @@ std::string CGovernanceVoting::ConvertSignalToString(vote_signal_enum_t nSignal)
 vote_outcome_enum_t CGovernanceVoting::ConvertVoteOutcome(const std::string& strVoteOutcome)
 {
     static const std::map<std::string, vote_outcome_enum_t> mapStringOutcome = {
-        { "none", VOTE_OUTCOME_NONE },
-        { "yes", VOTE_OUTCOME_YES },
-        { "no", VOTE_OUTCOME_NO },
-        { "abstain", VOTE_OUTCOME_ABSTAIN } };
+        {"none", VOTE_OUTCOME_NONE},
+        {"yes", VOTE_OUTCOME_YES},
+        {"no", VOTE_OUTCOME_NO},
+        {"abstain", VOTE_OUTCOME_ABSTAIN}};
 
     const auto& it = mapStringOutcome.find(strVoteOutcome);
     if (it == mapStringOutcome.end()) {
@@ -59,7 +59,6 @@ vote_outcome_enum_t CGovernanceVoting::ConvertVoteOutcome(const std::string& str
         return VOTE_OUTCOME_NONE;
     }
     return it->second;
-
 }
 
 vote_signal_enum_t CGovernanceVoting::ConvertVoteSignal(const std::string& strVoteSignal)

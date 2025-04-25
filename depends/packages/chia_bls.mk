@@ -1,7 +1,7 @@
 package=chia_bls
 $(package)_version=bls-signatures-20181101
 # It's actually from https://github.com/Chia-Network/bls-signatures, but we have so many patches atm that it's forked
-$(package)_download_path=https://github.com/The-Yerbas-Endeavor/bls-signatures/releases/download/v20181101/
+$(package)_download_path=https://github.com/The-Memeium-Endeavor/bls-signatures/releases/download/v20181101/
 $(package)_file_name=$($(package)_version).tar.gz
 $(package)_sha256_hash=b3776ec5e32c26397480b43fb0d35e153976118e116ec79056d09c11d61ebb39
 $(package)_dependencies=gmp

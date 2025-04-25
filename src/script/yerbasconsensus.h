@@ -9,7 +9,7 @@
 #include <stdint.h>
 
 #if defined(BUILD_BITCOIN_INTERNAL) && defined(HAVE_CONFIG_H)
-#include "config/yerbas-config.h"
+#include "config/memeium-config.h"
   #if defined(_WIN32)
     #if defined(DLL_EXPORT)
       #if defined(HAVE_FUNC_ATTRIBUTE_DLLEXPORT)
@@ -35,38 +35,38 @@ extern "C" {
 
 #define BITCOINCONSENSUS_API_VER 0
 
-typedef enum yerbasconsensus_error_t
+typedef enum memeiumconsensus_error_t
 {
-    yerbasconsensus_ERR_OK = 0,
-    yerbasconsensus_ERR_TX_INDEX,
-    yerbasconsensus_ERR_TX_SIZE_MISMATCH,
-    yerbasconsensus_ERR_TX_DESERIALIZE,
-    yerbasconsensus_ERR_INVALID_FLAGS,
-} yerbasconsensus_error;
+    memeiumconsensus_ERR_OK = 0,
+    memeiumconsensus_ERR_TX_INDEX,
+    memeiumconsensus_ERR_TX_SIZE_MISMATCH,
+    memeiumconsensus_ERR_TX_DESERIALIZE,
+    memeiumconsensus_ERR_INVALID_FLAGS,
+} memeiumconsensus_error;
 
 /** Script verification flags */
 enum
 {
-    yerbasconsensus_SCRIPT_FLAGS_VERIFY_NONE                = 0,
-    yerbasconsensus_SCRIPT_FLAGS_VERIFY_P2SH                = (1U << 0), // evaluate P2SH (BIP16) subscripts
-    yerbasconsensus_SCRIPT_FLAGS_VERIFY_DERSIG              = (1U << 2), // enforce strict DER (BIP66) compliance
-    yerbasconsensus_SCRIPT_FLAGS_VERIFY_NULLDUMMY           = (1U << 4), // enforce NULLDUMMY (BIP147)
-    yerbasconsensus_SCRIPT_FLAGS_VERIFY_CHECKLOCKTIMEVERIFY = (1U << 9), // enable CHECKLOCKTIMEVERIFY (BIP65)
-    yerbasconsensus_SCRIPT_FLAGS_VERIFY_CHECKSEQUENCEVERIFY = (1U << 10), // enable CHECKSEQUENCEVERIFY (BIP112)
-    yerbasconsensus_SCRIPT_FLAGS_VERIFY_ALL                 = yerbasconsensus_SCRIPT_FLAGS_VERIFY_P2SH | yerbasconsensus_SCRIPT_FLAGS_VERIFY_DERSIG |
-                                                            yerbasconsensus_SCRIPT_FLAGS_VERIFY_NULLDUMMY | yerbasconsensus_SCRIPT_FLAGS_VERIFY_CHECKLOCKTIMEVERIFY |
-                                                            yerbasconsensus_SCRIPT_FLAGS_VERIFY_CHECKSEQUENCEVERIFY
+    memeiumconsensus_SCRIPT_FLAGS_VERIFY_NONE                = 0,
+    memeiumconsensus_SCRIPT_FLAGS_VERIFY_P2SH                = (1U << 0), // evaluate P2SH (BIP16) subscripts
+    memeiumconsensus_SCRIPT_FLAGS_VERIFY_DERSIG              = (1U << 2), // enforce strict DER (BIP66) compliance
+    memeiumconsensus_SCRIPT_FLAGS_VERIFY_NULLDUMMY           = (1U << 4), // enforce NULLDUMMY (BIP147)
+    memeiumconsensus_SCRIPT_FLAGS_VERIFY_CHECKLOCKTIMEVERIFY = (1U << 9), // enable CHECKLOCKTIMEVERIFY (BIP65)
+    memeiumconsensus_SCRIPT_FLAGS_VERIFY_CHECKSEQUENCEVERIFY = (1U << 10), // enable CHECKSEQUENCEVERIFY (BIP112)
+    memeiumconsensus_SCRIPT_FLAGS_VERIFY_ALL                 = memeiumconsensus_SCRIPT_FLAGS_VERIFY_P2SH | memeiumconsensus_SCRIPT_FLAGS_VERIFY_DERSIG |
+                                                            memeiumconsensus_SCRIPT_FLAGS_VERIFY_NULLDUMMY | memeiumconsensus_SCRIPT_FLAGS_VERIFY_CHECKLOCKTIMEVERIFY |
+                                                            memeiumconsensus_SCRIPT_FLAGS_VERIFY_CHECKSEQUENCEVERIFY
 };
 
 /// Returns 1 if the input nIn of the serialized transaction pointed to by
 /// txTo correctly spends the scriptPubKey pointed to by scriptPubKey under
 /// the additional constraints specified by flags.
 /// If not nullptr, err will contain an error/success code for the operation
-EXPORT_SYMBOL int yerbasconsensus_verify_script(const unsigned char *scriptPubKey, unsigned int scriptPubKeyLen,
+EXPORT_SYMBOL int memeiumconsensus_verify_script(const unsigned char *scriptPubKey, unsigned int scriptPubKeyLen,
                                     const unsigned char *txTo        , unsigned int txToLen,
-                                    unsigned int nIn, unsigned int flags, yerbasconsensus_error* err);
+                                    unsigned int nIn, unsigned int flags, memeiumconsensus_error* err);
 
-EXPORT_SYMBOL unsigned int yerbasconsensus_version();
+EXPORT_SYMBOL unsigned int memeiumconsensus_version();
 
 #ifdef __cplusplus
 } // extern "C"

@@ -1,23 +1,23 @@
-// Copyright (c) 2017-2020 The Yerbas Core developers
+// Copyright (c) 2017-2020 The Memeium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <utilstrencodings.h>
-#include <hash.h>
-#include <validation.h>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <chainparams.h>
-#include <univalue/include/univalue.h>
-#include <core_io.h>
-#include <net.h>
-#include <base58.h>
-#include <consensus/validation.h>
-#include <wallet/coincontrol.h>
-#include <utilmoneystr.h>
 #include "assets/rewards.h"
 #include "assetsnapshotdb.h"
 #include "wallet/wallet.h"
+#include <base58.h>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <chainparams.h>
+#include <consensus/validation.h>
+#include <core_io.h>
+#include <hash.h>
+#include <net.h>
+#include <univalue/include/univalue.h>
+#include <utilmoneystr.h>
+#include <utilstrencodings.h>
+#include <validation.h>
+#include <wallet/coincontrol.h>
 
 std::map<uint256, CRewardSnapshot> mapRewardSnapshots;
 
@@ -60,14 +60,14 @@ bool GenerateDistributionList(const CRewardSnapshot& p_rewardSnapshot, std::vect
 
     //  Get details on the specified source asset
     CNewAsset distributionAsset;
-    //bool srcIsIndivisible = false;
-    CAmount srcUnitDivisor = COIN;  //  Default to divisor for YERB
+    // bool srcIsIndivisible = false;
+    CAmount srcUnitDivisor = COIN; //  Default to divisor for MMM
     const int8_t COIN_DIGITS_PAST_DECIMAL = 8;
 
     //  This value is in indivisible units of the source asset
     CAmount modifiedPaymentInAssetUnits = p_rewardSnapshot.nDistributionAmount;
 
-    if (p_rewardSnapshot.strDistributionAsset != "YERB" && p_rewardSnapshot.strDistributionAsset != "tYERB") {
+    if (p_rewardSnapshot.strDistributionAsset != "MMM" && p_rewardSnapshot.strDistributionAsset != "tMMM") {
         if (!passets->GetAssetMetaDataIfExists(p_rewardSnapshot.strDistributionAsset, distributionAsset)) {
             LogPrint(BCLog::REWARDS, "%s: Failed to retrieve asset details for '%s'\n", __func__, p_rewardSnapshot.strDistributionAsset.c_str());
             return false;
@@ -75,7 +75,7 @@ bool GenerateDistributionList(const CRewardSnapshot& p_rewardSnapshot, std::vect
 
         //  If the token is indivisible, signal this to later code with a zero divisor
         if (distributionAsset.units == 0) {
-            //srcIsIndivisible = true;
+            // srcIsIndivisible = true;
         }
 
         srcUnitDivisor = static_cast<CAmount>(pow(10, distributionAsset.units));
@@ -84,14 +84,13 @@ bool GenerateDistributionList(const CRewardSnapshot& p_rewardSnapshot, std::vect
         modifiedPaymentInAssetUnits /= srcDivisor;
 
         LogPrint(BCLog::REWARDS, "%s: Distribution asset '%s' has units %d and divisor %d\n", __func__,
-                 p_rewardSnapshot.strDistributionAsset.c_str(), distributionAsset.units, srcUnitDivisor);
-    }
-    else {
-        LogPrint(BCLog::REWARDS, "%s: Distribution is YERB with divisor %d\n", __func__, srcUnitDivisor);
+            p_rewardSnapshot.strDistributionAsset.c_str(), distributionAsset.units, srcUnitDivisor);
+    } else {
+        LogPrint(BCLog::REWARDS, "%s: Distribution is MMM with divisor %d\n", __func__, srcUnitDivisor);
     }
 
     LogPrint(BCLog::REWARDS, "%s: Scaled payment amount in %s is %d\n", __func__,
-             p_rewardSnapshot.strDistributionAsset.c_str(), modifiedPaymentInAssetUnits);
+        p_rewardSnapshot.strDistributionAsset.c_str(), modifiedPaymentInAssetUnits);
 
     //  Get details on the ownership asset
     CNewAsset ownershipAsset;
@@ -105,7 +104,7 @@ bool GenerateDistributionList(const CRewardSnapshot& p_rewardSnapshot, std::vect
     tgtUnitDivisor = static_cast<CAmount>(pow(10, COIN_DIGITS_PAST_DECIMAL - ownershipAsset.units));
 
     LogPrint(BCLog::REWARDS, "%s: Ownership asset '%s' has units %d and divisor %d\n", __func__,
-             p_rewardSnapshot.strOwnershipAsset.c_str(), ownershipAsset.units, tgtUnitDivisor);
+        p_rewardSnapshot.strOwnershipAsset.c_str(), ownershipAsset.units, tgtUnitDivisor);
 
     //  Remove exception addresses & amounts from the list
     std::set<std::string> exceptionAddressSet;
@@ -120,12 +119,10 @@ bool GenerateDistributionList(const CRewardSnapshot& p_rewardSnapshot, std::vect
         return false;
     }
 
-    for (auto const & currPair : snapshotEntry.ownersAndAmounts) {
+    for (auto const& currPair : snapshotEntry.ownersAndAmounts) {
         //  Ignore exception and burn addresses
         if (
-                exceptionAddressSet.find(currPair.first) == exceptionAddressSet.end()
-                && !Params().IsBurnAddress(currPair.first)
-                ) {
+            exceptionAddressSet.find(currPair.first) == exceptionAddressSet.end() && !Params().IsBurnAddress(currPair.first)) {
             //  Address is valid so add it to the payment list
             nonExceptionOwnerships.insert(OwnerAndAmount(currPair.first, currPair.second));
             totalAmtOwned += currPair.second;
@@ -135,19 +132,19 @@ bool GenerateDistributionList(const CRewardSnapshot& p_rewardSnapshot, std::vect
     //  Make sure we have some addresses to pay to
     if (nonExceptionOwnerships.size() == 0) {
         LogPrint(BCLog::REWARDS, "%s: Ownership of '%s' includes only exception/burn addresses.\n", __func__,
-                 p_rewardSnapshot.strOwnershipAsset.c_str());
+            p_rewardSnapshot.strOwnershipAsset.c_str());
         return false;
     }
 
     LogPrint(BCLog::REWARDS, "%s: Total amount owned %d\n", __func__,
-             totalAmtOwned);
+        totalAmtOwned);
 
     LogPrint(BCLog::REWARDS, "%s: Total payout amount %d\n", __func__,
-             modifiedPaymentInAssetUnits);
+        modifiedPaymentInAssetUnits);
 
     CAmount totalSentAsRewards = 0;
     //  Loop through asset owners
-    for (auto & ownership : nonExceptionOwnerships) {
+    for (auto& ownership : nonExceptionOwnerships) {
         // Get percentage of total ownership
         long double percent = (long double)ownership.amount / (long double)totalAmtOwned;
         // Caculate the reward with potentional unit inaccurancies e.g with units 4, 90054100 satoshis = 0.90054100
@@ -160,8 +157,8 @@ bool GenerateDistributionList(const CRewardSnapshot& p_rewardSnapshot, std::vect
         totalSentAsRewards += rewardAmt;
 
         LogPrint(BCLog::REWARDS, "%s: Found ownership address for '%s': '%s' owns %d => reward %d\n", __func__,
-                 p_rewardSnapshot.strOwnershipAsset.c_str(), ownership.address.c_str(),
-                 ownership.amount, rewardAmt);
+            p_rewardSnapshot.strOwnershipAsset.c_str(), ownership.address.c_str(),
+            ownership.amount, rewardAmt);
 
         //  Save it into our list if the reward payment is above zero
         if (rewardAmt > 0)
@@ -178,7 +175,7 @@ bool GenerateDistributionList(const CRewardSnapshot& p_rewardSnapshot, std::vect
 
 #ifdef ENABLE_WALLET
 
-void DistributeRewardSnapshot(CWallet * p_wallet, const CRewardSnapshot& p_rewardSnapshot)
+void DistributeRewardSnapshot(CWallet* p_wallet, const CRewardSnapshot& p_rewardSnapshot)
 {
     if (p_wallet->IsLocked()) {
         LogPrint(BCLog::REWARDS, "Skipping distribution: Wallet is locked!\n");
@@ -244,9 +241,12 @@ void DistributeRewardSnapshot(CWallet * p_wallet, const CRewardSnapshot& p_rewar
 }
 
 bool BuildTransaction(
-        CWallet * const p_walletPtr, const CRewardSnapshot& p_rewardSnapshot,
-        const std::vector<OwnerAndAmount> & p_pendingPayments,const int& start,
-        std::string& change_address, uint256& retTxid)
+    CWallet* const p_walletPtr,
+    const CRewardSnapshot& p_rewardSnapshot,
+    const std::vector<OwnerAndAmount>& p_pendingPayments,
+    const int& start,
+    std::string& change_address,
+    uint256& retTxid)
 {
     int expectedCount = 0;
     int actualCount = 0;
@@ -269,8 +269,8 @@ bool BuildTransaction(
     CAmount totalPaymentAmt = 0;
 
 
-    //  Handle payouts using YERB differently from those using an asset
-    if (p_rewardSnapshot.strDistributionAsset == "YERB" || p_rewardSnapshot.strDistributionAsset == "tYERB" ) {
+    //  Handle payouts using MMM differently from those using an asset
+    if (p_rewardSnapshot.strDistributionAsset == "MMM" || p_rewardSnapshot.strDistributionAsset == "tMMM") {
         // Check amount
         CAmount curBalance = p_walletPtr->GetBalance();
 
@@ -287,7 +287,7 @@ bool BuildTransaction(
         for (int i = start; i < (int)p_pendingPayments.size() && i < stop; i++) {
             expectedCount++;
 
-            // Parse Yerbas address (already validated during ownership snapshot creation)
+            // Parse Memeium address (already validated during ownership snapshot creation)
             CTxDestination dest = DecodeDestination(p_pendingPayments[i].address);
             CScript scriptPubKey = GetScriptForDestination(dest);
             CRecipient recipient = {scriptPubKey, p_pendingPayments[i].amount, false};
@@ -302,7 +302,7 @@ bool BuildTransaction(
             mapRewardSnapshots[rewardSnapshotHash].nStatus = CRewardSnapshot::LOW_FUNDS;
             pDistributeSnapshotDb->OverrideDistributeSnapshot(rewardSnapshotHash, mapRewardSnapshots[rewardSnapshotHash]);
             LogPrint(BCLog::REWARDS, "Insufficient funds: total payment %lld > available balance %lld\n",
-                     totalPaymentAmt, curBalance);
+                totalPaymentAmt, curBalance);
             return false;
         }
 
@@ -315,7 +315,7 @@ bool BuildTransaction(
                 mapRewardSnapshots[rewardSnapshotHash].nStatus = CRewardSnapshot::NOT_ENOUGH_FEE;
                 pDistributeSnapshotDb->OverrideDistributeSnapshot(rewardSnapshotHash, mapRewardSnapshots.at(rewardSnapshotHash));
                 strError = strprintf("Error: This transaction requires a transaction fee of at least %s",
-                                     FormatMoney(nFeeRequired));
+                    FormatMoney(nFeeRequired));
             } else {
                 mapRewardSnapshots[rewardSnapshotHash].nStatus = CRewardSnapshot::FAILED_CREATE_TRANSACTION;
                 pDistributeSnapshotDb->OverrideDistributeSnapshot(rewardSnapshotHash, mapRewardSnapshots.at(rewardSnapshotHash));
@@ -331,10 +331,9 @@ bool BuildTransaction(
             LogPrint(BCLog::REWARDS, "%s\n", state.GetRejectReason());
             return false;
         }
-    }
-    else {
+    } else {
         std::pair<int, std::string> error;
-        std::vector< std::pair<CAssetTransfer, std::string> > vDestinations;
+        std::vector<std::pair<CAssetTransfer, std::string>> vDestinations;
         CAmount nTotalAssetAmount = 0;
 
         // Get the total amount of distribution assets this wallet has
@@ -346,7 +345,7 @@ bool BuildTransaction(
             expectedCount++;
 
             vDestinations.emplace_back(std::make_pair(
-                    CAssetTransfer(p_rewardSnapshot.strDistributionAsset, p_pendingPayments[i].amount, DecodeAssetData(""), 0), p_pendingPayments[i].address));
+                CAssetTransfer(p_rewardSnapshot.strDistributionAsset, p_pendingPayments[i].amount, DecodeAssetData(""), 0), p_pendingPayments[i].address));
 
             nTotalAssetAmount += p_pendingPayments[i].amount;
             actualCount++;
@@ -356,7 +355,7 @@ bool BuildTransaction(
             mapRewardSnapshots[rewardSnapshotHash].nStatus = CRewardSnapshot::LOW_REWARDS;
             pDistributeSnapshotDb->OverrideDistributeSnapshot(rewardSnapshotHash, mapRewardSnapshots[rewardSnapshotHash]);
             LogPrint(BCLog::REWARDS, "Insufficient asset funds: total payment %lld > available balance %lld\n",
-                     nTotalAssetAmount, totalAssetBalance);
+                nTotalAssetAmount, totalAssetBalance);
             return false;
         }
 
@@ -382,14 +381,11 @@ bool BuildTransaction(
     return true;
 }
 
-void CheckRewardDistributions(CWallet * p_wallet)
+void CheckRewardDistributions(CWallet* p_wallet)
 {
     for (auto item : mapRewardSnapshots) {
         DistributeRewardSnapshot(p_wallet, item.second);
     }
 }
 
-#endif //ENABLE_WALLET
-
-
-
+#endif // ENABLE_WALLET

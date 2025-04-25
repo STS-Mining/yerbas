@@ -6,15 +6,15 @@ reset-files.bash
 *.tar.gz
 
 *.exe
-src/yerbas
-src/yerbasd
-src/yerbas-cli
-src/yerbas-tx
-src/test/test_yerbas
-src/test/test_yerbas_fuzzy
-src/qt/test/test_yerbas-qt
+src/memeium
+src/memeiumd
+src/memeium-cli
+src/memeium-tx
+src/test/test_memeium
+src/test/test_memeium_fuzzy
+src/qt/test/test_memeium-qt
 src/qt/res/css/colors/*
-src/bench/bench_yerbas
+src/bench/bench_memeium
 
 # autoreconf
 Makefile.in
@@ -37,8 +37,8 @@ config.log
 config.status
 configure
 libtool
-src/config/yerbas-config.h
-src/config/yerbas-config.h.in
+src/config/memeium-config.h
+src/config/memeium-config.h.in
 src/config/stamp-h1
 share/setup.nsi
 share/qt/Info.plist
@@ -85,14 +85,14 @@ libconftest.dylib*
 # Compilation and Qt preprocessor part
 *.qm
 Makefile
-yerbas-qt
-Yerbas-Qt.app
+memeium-qt
+Memeium-Qt.app
 background.tiff*
 !/depends/Makefile
 
 # Unit-tests
 Makefile.test
-yerbas-qt_test
+memeium-qt_test
 
 # Resources cpp
 qrc_*.cpp
@@ -106,7 +106,7 @@ build
 *.gcno
 *.gcda
 /*.info
-test_yerbas.coverage/
+test_memeium.coverage/
 total.coverage/
 coverage_percent.txt
 
@@ -124,15 +124,15 @@ test/cache/*
 .autotools
 /doc/doxygen/
 
-libyerbasconsensus.pc
+libmemeiumconsensus.pc
 contrib/devtools/split-debug.sh
-src/qt/yerbas-qt.bash
+src/qt/memeium-qt.bash
 qa/pull-tester/tests-config.sh
 
 #development symlinks
-yerbas-cli
-yerbasd
-yerbas-qt
+memeium-cli
+memeiumd
+memeium-qt
 make
 
 /docker/bin
@@ -148,6 +148,6 @@ dist/
 *.conf
 .settings/language.settings.xml
 
-/yerbas.iml
+/memeium.iml
 /testnet3_binary/
 /testnet4/

@@ -22,9 +22,11 @@ class CScript;
 class CScriptID : public uint160
 {
 public:
-    CScriptID() : uint160() {}
+    CScriptID() :
+        uint160() {}
     CScriptID(const CScript& in);
-    CScriptID(const uint160& in) : uint160(in) {}
+    CScriptID(const uint160& in) :
+        uint160(in) {}
 };
 
 static const unsigned int MAX_OP_RETURN_RELAY = 83; //!< bytes (+1 for OP_RETURN, +2 for the pushdata opcodes)
@@ -36,14 +38,13 @@ extern unsigned nMaxDatacarrierBytes;
  * them to be valid. (but old blocks may not comply with) Currently just P2SH,
  * but in the future other flags may be added, such as a soft-fork to enforce
  * strict DER encoding.
- * 
+ *
  * Failing one of these tests may trigger a DoS ban - see CheckInputs() for
  * details.
  */
 static const unsigned int MANDATORY_SCRIPT_VERIFY_FLAGS = SCRIPT_VERIFY_P2SH;
 
-enum txnouttype
-{
+enum txnouttype {
     TX_NONSTANDARD,
     // 'standard' transaction types:
     TX_PUBKEY,
@@ -51,21 +52,22 @@ enum txnouttype
     TX_SCRIPTHASH,
     TX_MULTISIG,
     TX_NULL_DATA,
-    /** YERB ASSETS START */
+    /** MMM ASSETS START */
     TX_NEW_ASSET,
     TX_REISSUE_ASSET,
     TX_TRANSFER_ASSET,
-    TX_RESTRICTED_ASSET_DATA, //!< unspendable OP_YERB_ASSET script that carries data
-    /** YERB ASSETS END */
+    TX_RESTRICTED_ASSET_DATA, //!< unspendable OP_MMM_ASSET script that carries data
+    /** MMM ASSETS END */
 };
 
-class CNoDestination {
+class CNoDestination
+{
 public:
-    friend bool operator==(const CNoDestination &a, const CNoDestination &b) { return true; }
-    friend bool operator<(const CNoDestination &a, const CNoDestination &b) { return true; }
+    friend bool operator==(const CNoDestination& a, const CNoDestination& b) { return true; }
+    friend bool operator<(const CNoDestination& a, const CNoDestination& b) { return true; }
 };
 
-/** 
+/**
  * A txout script template with a specific destination. It is either:
  *  * CNoDestination: no destination set
  *  * CKeyID: TX_PUBKEYHASH destination
@@ -80,7 +82,7 @@ bool IsValidDestination(const CTxDestination& dest);
 /** Get the name of a txnouttype as a C string, or nullptr if unknown. */
 const char* GetTxnOutputType(txnouttype t);
 
-bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::vector<unsigned char> >& vSolutionsRet);
+bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::vector<unsigned char>>& vSolutionsRet);
 bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet);
 bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<CTxDestination>& addressRet, int& nRequiredRet);
 
@@ -90,7 +92,7 @@ CScript GetScriptForRawPubKey(const CPubKey& pubkey);
 CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys);
 
 /** Generate a script that contains an address used for qualifier, and restricted assets data transactions */
-CScript GetScriptForNullAssetDataDestination(const CTxDestination &dest);
+CScript GetScriptForNullAssetDataDestination(const CTxDestination& dest);
 
 
 #endif // BITCOIN_SCRIPT_STANDARD_H

@@ -1,19 +1,19 @@
 // Copyright (c) 2019-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "quorums_chainlocks.h"
 #include "quorums_instantsend.h"
+#include "quorums_chainlocks.h"
 #include "quorums_utils.h"
 
 #include "bls/bls_batchverifier.h"
 #include "chainparams.h"
 #include "coins.h"
-#include "txmempool.h"
-#include "smartnode/smartnode-sync.h"
 #include "net_processing.h"
+#include "smartnode/smartnode-sync.h"
 #include "spork.h"
+#include "txmempool.h"
 #include "validation.h"
 
 #ifdef ENABLE_WALLET
@@ -348,7 +348,7 @@ void CInstantSendManager::Start()
         assert(false);
     }
 
-    workThread = std::thread(&TraceThread<std::function<void()> >, "instantsend", std::function<void()>(std::bind(&CInstantSendManager::WorkThreadMain, this)));
+    workThread = std::thread(&TraceThread<std::function<void()>>, "instantsend", std::function<void()>(std::bind(&CInstantSendManager::WorkThreadMain, this)));
 
     quorumSigningManager->RegisterRecoveredSigsListener(this);
 }
@@ -405,7 +405,7 @@ bool CInstantSendManager::ProcessTx(const CTransaction& tx, bool allowReSigning,
 
     if (!CheckCanLock(tx, true, params)) {
         LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s: CheckCanLock returned false\n", __func__,
-                  tx.GetHash().ToString());
+            tx.GetHash().ToString());
         return false;
     }
 
@@ -413,7 +413,7 @@ bool CInstantSendManager::ProcessTx(const CTransaction& tx, bool allowReSigning,
     if (conflictingLock) {
         auto islockHash = ::SerializeHash(*conflictingLock);
         LogPrintf("CInstantSendManager::%s -- txid=%s: conflicts with islock %s, txid=%s\n", __func__,
-                  tx.GetHash().ToString(), islockHash.ToString(), conflictingLock->txid.ToString());
+            tx.GetHash().ToString(), islockHash.ToString(), conflictingLock->txid.ToString());
         return false;
     }
 
@@ -429,7 +429,7 @@ bool CInstantSendManager::ProcessTx(const CTransaction& tx, bool allowReSigning,
         if (quorumSigningManager->GetVoteForId(llmqType, id, otherTxHash)) {
             if (otherTxHash != tx.GetHash()) {
                 LogPrintf("CInstantSendManager::%s -- txid=%s: input %s is conflicting with previous vote for tx %s\n", __func__,
-                         tx.GetHash().ToString(), in.prevout.ToStringShort(), otherTxHash.ToString());
+                    tx.GetHash().ToString(), in.prevout.ToStringShort(), otherTxHash.ToString());
                 return false;
             }
             alreadyVotedCount++;
@@ -438,28 +438,28 @@ bool CInstantSendManager::ProcessTx(const CTransaction& tx, bool allowReSigning,
         // don't even try the actual signing if any input is conflicting
         if (quorumSigningManager->IsConflicting(llmqType, id, tx.GetHash())) {
             LogPrintf("CInstantSendManager::%s -- txid=%s: quorumSigningManager->IsConflicting returned true. id=%s\n", __func__,
-                     tx.GetHash().ToString(), id.ToString());
+                tx.GetHash().ToString(), id.ToString());
             return false;
         }
     }
     if (!allowReSigning && alreadyVotedCount == ids.size()) {
         LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s: already voted on all inputs, bailing out\n", __func__,
-                 tx.GetHash().ToString());
+            tx.GetHash().ToString());
         return true;
     }
 
     LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s: trying to vote on %d inputs\n", __func__,
-             tx.GetHash().ToString(), tx.vin.size());
+        tx.GetHash().ToString(), tx.vin.size());
 
     for (size_t i = 0; i < tx.vin.size(); i++) {
         auto& in = tx.vin[i];
         auto& id = ids[i];
         inputRequestIds.emplace(id);
         LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s: trying to vote on input %s with id %s. allowReSigning=%d\n", __func__,
-                 tx.GetHash().ToString(), in.prevout.ToStringShort(), id.ToString(), allowReSigning);
+            tx.GetHash().ToString(), in.prevout.ToStringShort(), id.ToString(), allowReSigning);
         if (quorumSigningManager->AsyncSignIfMember(llmqType, id, tx.GetHash(), allowReSigning)) {
             LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s: voted on input %s with id %s\n", __func__,
-                      tx.GetHash().ToString(), in.prevout.ToStringShort(), id.ToString());
+                tx.GetHash().ToString(), in.prevout.ToStringShort(), id.ToString());
         }
     }
 
@@ -500,7 +500,7 @@ bool CInstantSendManager::CheckCanLock(const COutPoint& outpoint, bool printDebu
     if (mempoolTx) {
         if (printDebug) {
             LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s: parent mempool TX %s is not locked\n", __func__,
-                     txHash.ToString(), outpoint.hash.ToString());
+                txHash.ToString(), outpoint.hash.ToString());
         }
         return false;
     }
@@ -511,7 +511,7 @@ bool CInstantSendManager::CheckCanLock(const COutPoint& outpoint, bool printDebu
     if (!GetTransaction(outpoint.hash, tx, params, hashBlock, false)) {
         if (printDebug) {
             LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s: failed to find parent TX %s\n", __func__,
-                     txHash.ToString(), outpoint.hash.ToString());
+                txHash.ToString(), outpoint.hash.ToString());
         }
         return false;
     }
@@ -528,7 +528,7 @@ bool CInstantSendManager::CheckCanLock(const COutPoint& outpoint, bool printDebu
         if (!llmq::chainLocksHandler->HasChainLock(pindexMined->nHeight, pindexMined->GetBlockHash())) {
             if (printDebug) {
                 LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s: outpoint %s too new and not ChainLocked. nTxAge=%d, nInstantSendConfirmationsRequired=%d\n", __func__,
-                         txHash.ToString(), outpoint.ToStringShort(), nTxAge, nInstantSendConfirmationsRequired);
+                    txHash.ToString(), outpoint.ToStringShort(), nTxAge, nInstantSendConfirmationsRequired);
             }
             return false;
         }
@@ -584,7 +584,7 @@ void CInstantSendManager::HandleNewInputLockRecoveredSig(const CRecoveredSig& re
             auto id = ::SerializeHash(std::make_pair(INPUTLOCK_REQUESTID_PREFIX, in.prevout));
             if (id == recoveredSig.id) {
                 LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s: got recovered sig for input %s\n", __func__,
-                         txid.ToString(), in.prevout.ToStringShort());
+                    txid.ToString(), in.prevout.ToStringShort());
                 break;
             }
         }
@@ -605,7 +605,7 @@ void CInstantSendManager::TrySignInstantSendLock(const CTransaction& tx)
     }
 
     LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s: got all recovered sigs, creating CInstantSendLock\n", __func__,
-            tx.GetHash().ToString());
+        tx.GetHash().ToString());
 
     CInstantSendLock islock;
     islock.txid = tx.GetHash();
@@ -649,7 +649,7 @@ void CInstantSendManager::HandleNewInstantSendLockRecoveredSig(const llmq::CReco
 
     if (islock.txid != recoveredSig.msgHash) {
         LogPrintf("CInstantSendManager::%s -- txid=%s: islock conflicts with %s, dropping own version", __func__,
-                islock.txid.ToString(), recoveredSig.msgHash.ToString());
+            islock.txid.ToString(), recoveredSig.msgHash.ToString());
         return;
     }
 
@@ -692,7 +692,7 @@ void CInstantSendManager::ProcessMessageInstantSendLock(CNode* pfrom, const llmq
     }
 
     LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s, islock=%s: received islock, peer=%d\n", __func__,
-            islock.txid.ToString(), hash.ToString(), pfrom->GetId());
+        islock.txid.ToString(), hash.ToString(), pfrom->GetId());
 
     pendingInstantSendLocks.emplace(hash, std::make_pair(pfrom->GetId(), std::move(islock)));
 }
@@ -757,7 +757,7 @@ bool CInstantSendManager::ProcessPendingInstantSendLocks()
             LogPrintf("CInstantSendManager::%s -- detected LLMQ active set rotation, redoing verification on old active set\n", __func__);
 
             // filter out valid IS locks from "pend"
-            for (auto it = pend.begin(); it != pend.end(); ) {
+            for (auto it = pend.begin(); it != pend.end();) {
                 if (!badISLocks.count(it->first)) {
                     it = pend.erase(it);
                 } else {
@@ -821,8 +821,8 @@ std::unordered_set<uint256> CInstantSendManager::ProcessPendingInstantSendLocks(
             recSig.msgHash = islock.txid;
             recSig.sig = islock.sig;
             recSigs.emplace(std::piecewise_construct,
-                    std::forward_as_tuple(hash),
-                    std::forward_as_tuple(std::move(quorum), std::move(recSig)));
+                std::forward_as_tuple(hash),
+                std::forward_as_tuple(std::move(quorum), std::move(recSig)));
         }
     }
 
@@ -845,7 +845,7 @@ std::unordered_set<uint256> CInstantSendManager::ProcessPendingInstantSendLocks(
 
         if (batchVerifier.badMessages.count(hash)) {
             LogPrintf("CInstantSendManager::%s -- txid=%s, islock=%s: invalid sig in islock, peer=%d\n", __func__,
-                     islock.txid.ToString(), hash.ToString(), nodeId);
+                islock.txid.ToString(), hash.ToString(), nodeId);
             badISLocks.emplace(hash);
             continue;
         }
@@ -861,7 +861,7 @@ std::unordered_set<uint256> CInstantSendManager::ProcessPendingInstantSendLocks(
             if (!quorumSigningManager->HasRecoveredSigForId(llmqType, recSig.id)) {
                 recSig.UpdateHash();
                 LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s, islock=%s: passing reconstructed recSig to signing mgr, peer=%d\n", __func__,
-                         islock.txid.ToString(), hash.ToString(), nodeId);
+                    islock.txid.ToString(), hash.ToString(), nodeId);
                 quorumSigningManager->PushReconstructedRecoveredSig(recSig, quorum);
             }
         }
@@ -892,7 +892,7 @@ void CInstantSendManager::ProcessInstantSendLock(NodeId from, const uint256& has
             // we can simply ignore the islock, as the ChainLock implies locking of all TXs in that chain
             if (llmq::chainLocksHandler->HasChainLock(pindexMined->nHeight, pindexMined->GetBlockHash())) {
                 LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txlock=%s, islock=%s: dropping islock as it already got a ChainLock in block %s, peer=%d\n", __func__,
-                         islock.txid.ToString(), hash.ToString(), hashBlock.ToString(), from);
+                    islock.txid.ToString(), hash.ToString(), hashBlock.ToString(), from);
                 return;
             }
         }
@@ -902,7 +902,7 @@ void CInstantSendManager::ProcessInstantSendLock(NodeId from, const uint256& has
         LOCK(cs);
 
         LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s, islock=%s: processsing islock, peer=%d\n", __func__,
-                 islock.txid.ToString(), hash.ToString(), from);
+            islock.txid.ToString(), hash.ToString(), from);
 
         creatingInstantSendLocks.erase(islock.GetRequestId());
         txToCreatingInstantSendLocks.erase(islock.txid);
@@ -914,13 +914,13 @@ void CInstantSendManager::ProcessInstantSendLock(NodeId from, const uint256& has
         otherIsLock = db.GetInstantSendLockByTxid(islock.txid);
         if (otherIsLock != nullptr) {
             LogPrintf("CInstantSendManager::%s -- txid=%s, islock=%s: duplicate islock, other islock=%s, peer=%d\n", __func__,
-                     islock.txid.ToString(), hash.ToString(), ::SerializeHash(*otherIsLock).ToString(), from);
+                islock.txid.ToString(), hash.ToString(), ::SerializeHash(*otherIsLock).ToString(), from);
         }
         for (auto& in : islock.inputs) {
             otherIsLock = db.GetInstantSendLockByInput(in);
             if (otherIsLock != nullptr) {
                 LogPrintf("CInstantSendManager::%s -- txid=%s, islock=%s: conflicting input in islock. input=%s, other islock=%s, peer=%d\n", __func__,
-                         islock.txid.ToString(), hash.ToString(), in.ToStringShort(), ::SerializeHash(*otherIsLock).ToString(), from);
+                    islock.txid.ToString(), hash.ToString(), in.ToStringShort(), ::SerializeHash(*otherIsLock).ToString(), from);
             }
         }
 
@@ -1058,7 +1058,7 @@ void CInstantSendManager::AddNonLockedTx(const CTransactionRef& tx, const CBlock
     }
 
     LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s, pindexMined=%s\n", __func__,
-             tx->GetHash().ToString(), pindexMined ? pindexMined->GetBlockHash().ToString() : "");
+        tx->GetHash().ToString(), pindexMined ? pindexMined->GetBlockHash().ToString() : "");
 }
 
 void CInstantSendManager::RemoveNonLockedTx(const uint256& txid, bool retryChildren)
@@ -1096,7 +1096,7 @@ void CInstantSendManager::RemoveNonLockedTx(const uint256& txid, bool retryChild
     nonLockedTxs.erase(it);
 
     LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s, retryChildren=%d, retryChildrenCount=%d\n", __func__,
-             txid.ToString(), retryChildren, retryChildrenCount);
+        txid.ToString(), retryChildren, retryChildrenCount);
 }
 
 void CInstantSendManager::RemoveConflictedTx(const CTransaction& tx)
@@ -1159,7 +1159,7 @@ void CInstantSendManager::HandleFullyConfirmedBlock(const CBlockIndex* pindex)
         auto& islockHash = p.first;
         auto& islock = p.second;
         LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s, islock=%s: removed islock as it got fully confirmed\n", __func__,
-                 islock->txid.ToString(), islockHash.ToString());
+            islock->txid.ToString(), islockHash.ToString());
 
         // No need to keep recovered sigs for fully confirmed IS locks, as there is no chance for conflicts
         // from now on. All inputs are spent now and can't be spend in any other TX.
@@ -1202,7 +1202,7 @@ void CInstantSendManager::RemoveMempoolConflictsForLock(const uint256& hash, con
                 toDelete.emplace(it->second->GetHash(), mempool.get(it->second->GetHash()));
 
                 LogPrintf("CInstantSendManager::%s -- txid=%s, islock=%s: mempool TX %s with input %s conflicts with islock\n", __func__,
-                         islock.txid.ToString(), hash.ToString(), it->second->GetHash().ToString(), in.ToStringShort());
+                    islock.txid.ToString(), hash.ToString(), it->second->GetHash().ToString(), in.ToStringShort());
             }
         }
 
@@ -1244,7 +1244,7 @@ void CInstantSendManager::ResolveBlockConflicts(const uint256& islockHash, const
                     continue;
                 }
                 LogPrintf("CInstantSendManager::%s -- txid=%s, islock=%s: mined TX %s with input %s and mined in block %s conflicts with islock\n", __func__,
-                          islock.txid.ToString(), islockHash.ToString(), conflictTxid.ToString(), in.ToStringShort(), info.pindexMined->GetBlockHash().ToString());
+                    islock.txid.ToString(), islockHash.ToString(), conflictTxid.ToString(), in.ToStringShort(), info.pindexMined->GetBlockHash().ToString());
                 conflicts[info.pindexMined].emplace(conflictTxid, info.tx);
             }
         }
@@ -1307,7 +1307,7 @@ void CInstantSendManager::ResolveBlockConflicts(const uint256& islockHash, const
 void CInstantSendManager::RemoveChainLockConflictingLock(const uint256& islockHash, const llmq::CInstantSendLock& islock)
 {
     LogPrintf("CInstantSendManager::%s -- txid=%s, islock=%s: at least one conflicted TX already got a ChainLock. Removing ISLOCK and its chained children.\n", __func__,
-              islock.txid.ToString(), islockHash.ToString());
+        islock.txid.ToString(), islockHash.ToString());
     int tipHeight;
     {
         LOCK(cs_main);
@@ -1318,7 +1318,7 @@ void CInstantSendManager::RemoveChainLockConflictingLock(const uint256& islockHa
     auto removedIslocks = db.RemoveChainedInstantSendLocks(islockHash, islock.txid, tipHeight);
     for (auto& h : removedIslocks) {
         LogPrintf("CInstantSendManager::%s -- txid=%s, islock=%s: removed (child) ISLOCK %s\n", __func__,
-                  islock.txid.ToString(), islockHash.ToString(), h.ToString());
+            islock.txid.ToString(), islockHash.ToString(), h.ToString());
     }
 }
 
@@ -1336,7 +1336,7 @@ void CInstantSendManager::AskNodesForLockedTx(const uint256& txid)
         LOCK(cs_main);
         for (CNode* pnode : nodesToAskFor) {
             LogPrintf("CInstantSendManager::%s -- txid=%s: asking other peer %d for correct TX\n", __func__,
-                      txid.ToString(), pnode->GetId());
+                txid.ToString(), pnode->GetId());
 
             CInv inv(MSG_TX, txid);
             pnode->AskFor(inv);
@@ -1398,7 +1398,7 @@ bool CInstantSendManager::ProcessPendingRetryLockTxs()
                 continue;
             }
             LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- txid=%s: retrying to lock\n", __func__,
-                     tx->GetHash().ToString());
+                tx->GetHash().ToString());
         }
 
         ProcessTx(*tx, false, Params().GetConsensus());
@@ -1408,7 +1408,7 @@ bool CInstantSendManager::ProcessPendingRetryLockTxs()
     if (retryCount != 0) {
         LOCK(cs);
         LogPrint(BCLog::INSTANTSEND, "CInstantSendManager::%s -- retried %d TXs. nonLockedTxs.size=%d\n", __func__,
-                 retryCount, nonLockedTxs.size());
+            retryCount, nonLockedTxs.size());
     }
 
     return retryCount != 0;

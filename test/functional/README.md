@@ -33,15 +33,15 @@ don't have test cases for.
 #### Naming guidelines
 
 - Name the test `<area>_test.py`, where area can be one of the following:
-    - `feature` for tests for full features that aren't wallet/mining/mempool, eg `feature_rbf.py`
-    - `interface` for tests for other interfaces (REST, ZMQ, etc), eg `interface_rest.py`
-    - `mempool` for tests for mempool behaviour, eg `mempool_reorg.py`
-    - `mining` for tests for mining features, eg `mining_prioritisetransaction.py`
-    - `p2p` for tests that explicitly test the p2p interface, eg `p2p_disconnect_ban.py`
-    - `rpc` for tests for individual RPC methods or features, eg `rpc_listtransactions.py`
-    - `wallet` for tests for wallet features, eg `wallet_keypool.py`
+  - `feature` for tests for full features that aren't wallet/mining/mempool, eg `feature_rbf.py`
+  - `interface` for tests for other interfaces (REST, ZMQ, etc), eg `interface_rest.py`
+  - `mempool` for tests for mempool behaviour, eg `mempool_reorg.py`
+  - `mining` for tests for mining features, eg `mining_prioritisetransaction.py`
+  - `p2p` for tests that explicitly test the p2p interface, eg `p2p_disconnect_ban.py`
+  - `rpc` for tests for individual RPC methods or features, eg `rpc_listtransactions.py`
+  - `wallet` for tests for wallet features, eg `wallet_keypool.py`
 - use an underscore to separate words
-    - exception: for tests for specific RPCs or command line options which don't include underscores, name the test after the exact RPC or argument name, eg `rpc_decodescript.py`, not `rpc_decode_script.py`
+  - exception: for tests for specific RPCs or command line options which don't include underscores, name the test after the exact RPC or argument name, eg `rpc_decodescript.py`, not `rpc_decode_script.py`
 - Don't use the redundant word `test` in the name, eg `interface_zmq.py`, not `interface_zmq_test.py`
 
 #### General test-writing advice
@@ -56,7 +56,7 @@ don't have test cases for.
 - Set the `self.setup_clean_chain` variable in `set_test_params()` to control whether
   or not to use the cached data directories. The cached data directories
   contain a 200-block pre-mined blockchain and wallets for four nodes. Each node
-  has 25 mature blocks (25x500=12500 YERBAS) in its wallet.
+  has 25 mature blocks (25x500=12500 MEMEIUM) in its wallet.
 - When calling RPCs with lots of arguments, consider using named keyword
   arguments instead of positional arguments to make the intent of the call
   clear to readers.
@@ -73,47 +73,55 @@ P2P messages. These can be found in the following source files:
 #### Using the P2P interface
 
 - `mininode.py` contains all the definitions for objects that pass
-over the network (`CBlock`, `CTransaction`, etc, along with the network-level
-wrappers for them, `msg_block`, `msg_tx`, etc).
+  over the network (`CBlock`, `CTransaction`, etc, along with the network-level
+  wrappers for them, `msg_block`, `msg_tx`, etc).
 
 - P2P tests have two threads. One thread handles all network communication
-with the yerbasd(s) being tested (using python's asyncore package); the other
-implements the test logic.
+  with the memeiumd(s) being tested (using python's asyncore package); the other
+  implements the test logic.
 
-- `P2PConnection` is the class used to connect to a yerbasd.  `P2PInterface`
-contains the higher level logic for processing P2P payloads and connecting to
-the Bitcoin Core node application logic. For custom behaviour, subclass the
-P2PInterface object and override the callback methods.
+- `P2PConnection` is the class used to connect to a memeiumd. `P2PInterface`
+  contains the higher level logic for processing P2P payloads and connecting to
+  the Bitcoin Core node application logic. For custom behaviour, subclass the
+  P2PInterface object and override the callback methods.
 
 - Call `network_thread_start()` after all `P2PInterface` objects are created to
-start the networking thread.  (Continue with the test logic in your existing
-thread.)
+  start the networking thread. (Continue with the test logic in your existing
+  thread.)
 
 - Can be used to write tests where specific P2P protocol behavior is tested.
-Examples tests are `p2p_unrequested_blocks.py`, `p2p_compactblocks.py`.
+  Examples tests are `p2p_unrequested_blocks.py`, `p2p_compactblocks.py`.
 
 ### test-framework modules
 
 #### [test_framework/authproxy.py](test_framework/authproxy.py)
+
 Taken from the [python-bitcoinrpc repository](https://github.com/jgarzik/python-bitcoinrpc).
 
 #### [test_framework/test_framework.py](test_framework/test_framework.py)
+
 Base class for functional tests.
 
 #### [test_framework/util.py](test_framework/util.py)
+
 Generally useful functions.
 
 #### [test_framework/mininode.py](test_framework/mininode.py)
-Basic code to support P2P connectivity to a yerbasd.
+
+Basic code to support P2P connectivity to a memeiumd.
 
 #### [test_framework/script.py](test_framework/script.py)
+
 Utilities for manipulating transaction scripts (originally from python-bitcoinlib)
 
 #### [test_framework/key.py](test_framework/key.py)
+
 Wrapper around OpenSSL EC_Key (originally from python-bitcoinlib)
 
 #### [test_framework/bignum.py](test_framework/bignum.py)
+
 Helpers for script.py
 
 #### [test_framework/blocktools.py](test_framework/blocktools.py)
+
 Helper functions for creating blocks and transactions.

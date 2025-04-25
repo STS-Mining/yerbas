@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #ifndef SMARTNODE_SYNC_H
@@ -10,15 +10,15 @@
 
 class CSmartnodeSync;
 
-static const int SMARTNODE_SYNC_FAILED          = -1;
-static const int SMARTNODE_SYNC_INITIAL         = 0; // sync just started, was reset recently or still in IDB
-static const int SMARTNODE_SYNC_WAITING         = 1; // waiting after initial to see if we can get more headers/blocks
-static const int SMARTNODE_SYNC_GOVERNANCE      = 4;
-static const int SMARTNODE_SYNC_GOVOBJ          = 10;
-static const int SMARTNODE_SYNC_GOVOBJ_VOTE     = 11;
-static const int SMARTNODE_SYNC_FINISHED        = 999;
+static const int SMARTNODE_SYNC_FAILED = -1;
+static const int SMARTNODE_SYNC_INITIAL = 0; // sync just started, was reset recently or still in IDB
+static const int SMARTNODE_SYNC_WAITING = 1; // waiting after initial to see if we can get more headers/blocks
+static const int SMARTNODE_SYNC_GOVERNANCE = 4;
+static const int SMARTNODE_SYNC_GOVOBJ = 10;
+static const int SMARTNODE_SYNC_GOVOBJ_VOTE = 11;
+static const int SMARTNODE_SYNC_FINISHED = 999;
 
-static const int SMARTNODE_SYNC_TICK_SECONDS    = 6;
+static const int SMARTNODE_SYNC_TICK_SECONDS = 6;
 static const int SMARTNODE_SYNC_TIMEOUT_SECONDS = 30; // our blocks are 2.5 minutes so 30 seconds should be fine
 
 extern CSmartnodeSync smartnodeSync;
@@ -65,11 +65,11 @@ public:
     void ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv);
     void ProcessTick(CConnman& connman);
 
-    void AcceptedBlockHeader(const CBlockIndex *pindexNew);
-    void NotifyHeaderTip(const CBlockIndex *pindexNew, bool fInitialDownload, CConnman& connman);
-    void UpdatedBlockTip(const CBlockIndex *pindexNew, bool fInitialDownload, CConnman& connman);
+    void AcceptedBlockHeader(const CBlockIndex* pindexNew);
+    void NotifyHeaderTip(const CBlockIndex* pindexNew, bool fInitialDownload, CConnman& connman);
+    void UpdatedBlockTip(const CBlockIndex* pindexNew, bool fInitialDownload, CConnman& connman);
 
-    void DoMaintenance(CConnman &connman);
+    void DoMaintenance(CConnman& connman);
 };
 
 #endif

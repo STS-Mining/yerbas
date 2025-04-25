@@ -1,19 +1,19 @@
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "privatesend-server.h"
 
-#include "smartnode/activesmartnode.h"
 #include "consensus/validation.h"
 #include "core_io.h"
 #include "init.h"
-#include "smartnode/smartnode-meta.h"
-#include "smartnode/smartnode-sync.h"
 #include "net_processing.h"
 #include "netmessagemaker.h"
 #include "script/interpreter.h"
+#include "smartnode/activesmartnode.h"
+#include "smartnode/smartnode-meta.h"
+#include "smartnode/smartnode-sync.h"
 #include "txmempool.h"
 #include "util.h"
 #include "utilmoneystr.h"
@@ -28,7 +28,7 @@ CPrivateSendServer privateSendServer;
 void CPrivateSendServer::ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman)
 {
     if (!fSmartnodeMode) return;
-    if (fLiteMode) return; // ignore all Yerbas related functionality
+    if (fLiteMode) return; // ignore all Memeium related functionality
     if (!smartnodeSync.IsBlockchainSynced()) return;
 
     if (strCommand == NetMsgType::DSACCEPT) {
@@ -144,7 +144,7 @@ void CPrivateSendServer::ProcessMessage(CNode* pfrom, const std::string& strComm
             int64_t nLastDsq = mmetaman.GetMetaInfo(dmn->proTxHash)->GetLastDsq();
             int nThreshold = nLastDsq + mnList.GetValidMNsCount() / 5;
             LogPrint(BCLog::PRIVATESEND, "DSQUEUE -- nLastDsq: %d  threshold: %d  nDsqCount: %d\n", nLastDsq, nThreshold, mmetaman.GetDsqCount());
-            //don't allow a few nodes to dominate the queuing process
+            // don't allow a few nodes to dominate the queuing process
             if (nLastDsq != 0 && nThreshold > mmetaman.GetDsqCount()) {
                 LogPrint(BCLog::PRIVATESEND, "DSQUEUE -- Smartnode %s is sending too many dsq messages\n", dmn->pdmnState->addr.ToString());
                 return;
@@ -167,7 +167,7 @@ void CPrivateSendServer::ProcessMessage(CNode* pfrom, const std::string& strComm
             return;
         }
 
-        //do we have enough users in the current session?
+        // do we have enough users in the current session?
         if (!IsSessionReady()) {
             LogPrint(BCLog::PRIVATESEND, "DSVIN -- session not complete!\n");
             PushStatus(pfrom, STATUS_REJECTED, ERR_SESSION, connman);
@@ -344,7 +344,7 @@ void CPrivateSendServer::ChargeFees(CConnman& connman)
 {
     if (!fSmartnodeMode) return;
 
-    //we don't need to charge collateral for every offence.
+    // we don't need to charge collateral for every offence.
     if (GetRandInt(100) > 33) return;
 
     std::vector<CTransactionRef> vecOffendersCollaterals;
@@ -382,13 +382,13 @@ void CPrivateSendServer::ChargeFees(CConnman& connman)
     // no offences found
     if (vecOffendersCollaterals.empty()) return;
 
-    //mostly offending? Charge sometimes
+    // mostly offending? Charge sometimes
     if ((int)vecOffendersCollaterals.size() >= nSessionMaxParticipants - 1 && GetRandInt(100) > 33) return;
 
-    //everyone is an offender? That's not right
+    // everyone is an offender? That's not right
     if ((int)vecOffendersCollaterals.size() >= nSessionMaxParticipants) return;
 
-    //charge one of the offenders randomly
+    // charge one of the offenders randomly
     std::random_shuffle(vecOffendersCollaterals.begin(), vecOffendersCollaterals.end());
 
     if (nState == POOL_STATE_ACCEPTING_ENTRIES || nState == POOL_STATE_SIGNING) {
@@ -406,7 +406,7 @@ void CPrivateSendServer::ChargeFees(CConnman& connman)
 
     Being that mixing has "no fees" we need to have some kind of cost associated
     with using it to stop abuse. Otherwise it could serve as an attack vector and
-    allow endless transaction that would bloat Yerbas and make it unusable. To
+    allow endless transaction that would bloat Memeium and make it unusable. To
     stop these kinds of attacks 1 in 10 successful transactions are charged. This
     adds up to a cost of 0.001DRK per transaction on average.
 */
@@ -521,10 +521,10 @@ bool CPrivateSendServer::IsInputScriptSigValid(const CTxIn& txin)
         }
     }
 
-    if (nTxInIndex >= 0) { //might have to do this one input at a time?
+    if (nTxInIndex >= 0) { // might have to do this one input at a time?
         txNew.vin[nTxInIndex].scriptSig = txin.scriptSig;
         LogPrint(BCLog::PRIVATESEND, "CPrivateSendServer::IsInputScriptSigValid -- verifying scriptSig %s\n", ScriptToAsmStr(txin.scriptSig).substr(0, 24));
-        // TODO we're using amount=0 here but we should use the correct amount. This works because Yerbas ignores the amount while signing/verifying (only used in Bitcoin/Segwit)
+        // TODO we're using amount=0 here but we should use the correct amount. This works because Memeium ignores the amount while signing/verifying (only used in Bitcoin/Segwit)
         if (!VerifyScript(txNew.vin[nTxInIndex].scriptSig, sigPubKey, SCRIPT_VERIFY_P2SH | SCRIPT_VERIFY_STRICTENC, MutableTransactionSignatureChecker(&txNew, nTxInIndex, 0))) {
             LogPrint(BCLog::PRIVATESEND, "CPrivateSendServer::IsInputScriptSigValid -- VerifyScript() failed on input %d\n", nTxInIndex);
             return false;
@@ -695,7 +695,7 @@ bool CPrivateSendServer::CreateNewSession(const CPrivateSendAccept& dsa, PoolMes
     SetState(POOL_STATE_QUEUE);
 
     if (!fUnitTest) {
-        //broadcast that I'm accepting entries, only if it's the first entry through
+        // broadcast that I'm accepting entries, only if it's the first entry through
         CPrivateSendQueue dsq(nSessionDenom, activeSmartnodeInfo.outpoint, GetAdjustedTime(), false);
         LogPrint(BCLog::PRIVATESEND, "CPrivateSendServer::CreateNewSession -- signing and relaying new queue: %s\n", dsq.ToString());
         dsq.Sign();
@@ -847,7 +847,7 @@ void CPrivateSendServer::SetState(PoolState nStateNew)
 
 void CPrivateSendServer::DoMaintenance(CConnman& connman)
 {
-    if (fLiteMode) return;        // disable all Yerbas specific functionality
+    if (fLiteMode) return;       // disable all Memeium specific functionality
     if (!fSmartnodeMode) return; // only run on smartnodes
 
     if (!smartnodeSync.IsBlockchainSynced() || ShutdownRequested()) return;
@@ -860,12 +860,12 @@ void CPrivateSendServer::GetJsonInfo(UniValue& obj) const
 {
     obj.clear();
     obj.setObject();
-    obj.push_back(Pair("queue_size",    GetQueueSize()));
+    obj.push_back(Pair("queue_size", GetQueueSize()));
     CAmount amount{0};
     if (nSessionDenom) {
         ParseFixedPoint(CPrivateSend::GetDenominationsToString(nSessionDenom), 8, &amount);
     }
-    obj.push_back(Pair("denomination",  ValueFromAmount(amount)));
-    obj.push_back(Pair("state",         GetStateString()));
+    obj.push_back(Pair("denomination", ValueFromAmount(amount)));
+    obj.push_back(Pair("state", GetStateString()));
     obj.push_back(Pair("entries_count", GetEntriesCount()));
 }

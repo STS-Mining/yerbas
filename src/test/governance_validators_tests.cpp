@@ -1,16 +1,16 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 
 #include "governance/governance-validators.h"
 #include "utilstrencodings.h"
 
-#include "data/proposals_valid.json.h"
 #include "data/proposals_invalid.json.h"
+#include "data/proposals_valid.json.h"
 
-#include "test/test_yerbas.h"
+#include "test/test_memeium.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <string>
 
 #include <boost/test/unit_test.hpp>
@@ -29,7 +29,7 @@ std::string CreateEncodedProposalObject(const UniValue& objJSON)
 
     UniValue outerArray(UniValue::VARR);
     outerArray.push_back(innerArray);
-    
+
     std::string strData = outerArray.write();
     std::string strHex = HexStr(strData);
     return strHex;
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(valid_proposals_test)
     UniValue tests = read_json(std::string(json_tests::proposals_valid, json_tests::proposals_valid + sizeof(json_tests::proposals_valid)));
 
     BOOST_CHECK_MESSAGE(tests.size(), "Empty `tests`");
-    for(size_t i = 0; i < tests.size(); ++i) {
+    for (size_t i = 0; i < tests.size(); ++i) {
         const UniValue& objProposal = tests[i];
 
         // legacy format
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(invalid_proposals_test)
     UniValue tests = read_json(std::string(json_tests::proposals_invalid, json_tests::proposals_invalid + sizeof(json_tests::proposals_invalid)));
 
     BOOST_CHECK_MESSAGE(tests.size(), "Empty `tests`");
-    for(size_t i = 0; i < tests.size(); ++i) {
+    for (size_t i = 0; i < tests.size(); ++i) {
         const UniValue& objProposal = tests[i];
 
         // legacy format

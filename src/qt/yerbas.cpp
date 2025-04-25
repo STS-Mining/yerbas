@@ -1,11 +1,11 @@
 // Copyright (c) 2011-2015 The Bitcoin Core developers
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/yerbas-config.h"
+#include "config/memeium-config.h"
 #endif
 
 #include "bitcoingui.h"
@@ -86,7 +86,7 @@ Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
 Q_DECLARE_METATYPE(bool*)
 Q_DECLARE_METATYPE(CAmount)
 
-static void InitMessage(const std::string &message)
+static void InitMessage(const std::string& message)
 {
     LogPrintf("init message: %s\n", message);
 }
@@ -96,7 +96,7 @@ static void InitMessage(const std::string &message)
  */
 static std::string Translate(const char* psz)
 {
-    return QCoreApplication::translate("yerbas-core", psz).toStdString();
+    return QCoreApplication::translate("memeium-core", psz).toStdString();
 }
 
 static QString GetLangTerritory()
@@ -107,7 +107,7 @@ static QString GetLangTerritory()
     QString lang_territory = QLocale::system().name();
     // 2) Language from QSettings
     QString lang_territory_qsettings = settings.value("language", "").toString();
-    if(!lang_territory_qsettings.isEmpty())
+    if (!lang_territory_qsettings.isEmpty())
         lang_territory = lang_territory_qsettings;
     // 3) -lang command line argument
     lang_territory = QString::fromStdString(gArgs.GetArg("-lang", lang_territory.toStdString()));
@@ -115,7 +115,7 @@ static QString GetLangTerritory()
 }
 
 /** Set up translations */
-static void initTranslations(QTranslator &qtTranslatorBase, QTranslator &qtTranslator, QTranslator &translatorBase, QTranslator &translator)
+static void initTranslations(QTranslator& qtTranslatorBase, QTranslator& qtTranslator, QTranslator& translatorBase, QTranslator& translator)
 {
     // Remove old translators
     QApplication::removeTranslator(&qtTranslatorBase);
@@ -143,18 +143,18 @@ static void initTranslations(QTranslator &qtTranslatorBase, QTranslator &qtTrans
     if (qtTranslator.load("qt_" + lang_territory, QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
         QApplication::installTranslator(&qtTranslator);
 
-    // Load e.g. bitcoin_de.qm (shortcut "de" needs to be defined in yerbas.qrc)
+    // Load e.g. bitcoin_de.qm (shortcut "de" needs to be defined in memeium.qrc)
     if (translatorBase.load(lang, ":/translations/"))
         QApplication::installTranslator(&translatorBase);
 
-    // Load e.g. bitcoin_de_DE.qm (shortcut "de_DE" needs to be defined in yerbas.qrc)
+    // Load e.g. bitcoin_de_DE.qm (shortcut "de_DE" needs to be defined in memeium.qrc)
     if (translator.load(lang_territory, ":/translations/"))
         QApplication::installTranslator(&translator);
 }
 
 /* qDebug() message handler --> debug.log */
 #if QT_VERSION < 0x050000
-void DebugMessageHandler(QtMsgType type, const char *msg)
+void DebugMessageHandler(QtMsgType type, const char* msg)
 {
     if (type == QtDebugMsg) {
         LogPrint(BCLog::QT, "GUI: %s\n", msg);
@@ -163,7 +163,7 @@ void DebugMessageHandler(QtMsgType type, const char *msg)
     }
 }
 #else
-void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString &msg)
+void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
 {
     Q_UNUSED(context);
     if (type == QtDebugMsg) {
@@ -174,10 +174,10 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
 }
 #endif
 
-/** Class encapsulating Yerbas Core startup and shutdown.
+/** Class encapsulating Memeium Core startup and shutdown.
  * Allows running startup and shutdown in a different thread from the UI thread.
  */
-class BitcoinCore: public QObject
+class BitcoinCore : public QObject
 {
     Q_OBJECT
 public:
@@ -195,7 +195,7 @@ public Q_SLOTS:
 Q_SIGNALS:
     void initializeResult(bool success);
     void shutdownResult();
-    void runawayException(const QString &message);
+    void runawayException(const QString& message);
 
 private:
     boost::thread_group threadGroup;
@@ -205,12 +205,12 @@ private:
     void handleRunawayException(const std::exception_ptr e);
 };
 
-/** Main Yerbas application object */
-class BitcoinApplication: public QApplication
+/** Main Memeium application object */
+class BitcoinApplication : public QApplication
 {
     Q_OBJECT
 public:
-    explicit BitcoinApplication(int &argc, char **argv);
+    explicit BitcoinApplication(int& argc, char** argv);
     ~BitcoinApplication();
 
 #ifdef ENABLE_WALLET
@@ -222,9 +222,9 @@ public:
     /// Create options model
     void createOptionsModel(bool resetSettings);
     /// Create main window
-    void createWindow(const NetworkStyle *networkStyle);
+    void createWindow(const NetworkStyle* networkStyle);
     /// Create splash screen
-    void createSplashScreen(const NetworkStyle *networkStyle);
+    void createSplashScreen(const NetworkStyle* networkStyle);
 
     /// Request core initialization
     void requestInitialize();
@@ -241,35 +241,35 @@ public Q_SLOTS:
     void initializeResult(bool success);
     void shutdownResult();
     /// Handle runaway exceptions. Shows a message box with the problem and quits the program.
-    void handleRunawayException(const QString &message);
+    void handleRunawayException(const QString& message);
 
 Q_SIGNALS:
     void requestedInitialize();
     void requestedRestart(QStringList args);
     void requestedShutdown();
     void stopThread();
-    void splashFinished(QWidget *window);
+    void splashFinished(QWidget* window);
 
 private:
-    QThread *coreThread;
-    OptionsModel *optionsModel;
-    ClientModel *clientModel;
-    BitcoinGUI *window;
-    QTimer *pollShutdownTimer;
+    QThread* coreThread;
+    OptionsModel* optionsModel;
+    ClientModel* clientModel;
+    BitcoinGUI* window;
+    QTimer* pollShutdownTimer;
 #ifdef ENABLE_WALLET
     PaymentServer* paymentServer;
-    WalletModel *walletModel;
+    WalletModel* walletModel;
 #endif
     int returnValue;
-    const PlatformStyle *platformStyle;
+    const PlatformStyle* platformStyle;
     std::unique_ptr<QWidget> shutdownWindow;
 
     void startThread();
 };
 
-#include "yerbas.moc"
+#include "memeium.moc"
 
-BitcoinCore::BitcoinCore():
+BitcoinCore::BitcoinCore() :
     QObject()
 {
 }
@@ -282,20 +282,16 @@ void BitcoinCore::handleRunawayException(const std::exception_ptr e)
 
 bool BitcoinCore::baseInitialize()
 {
-    if (!AppInitBasicSetup())
-    {
+    if (!AppInitBasicSetup()) {
         return false;
     }
-    if (!AppInitParameterInteraction())
-    {
+    if (!AppInitParameterInteraction()) {
         return false;
     }
-    if (!AppInitSanityChecks())
-    {
+    if (!AppInitSanityChecks()) {
         return false;
     }
-    if (!AppInitLockDataDirectory())
-    {
+    if (!AppInitLockDataDirectory()) {
         return false;
     }
     return true;
@@ -303,8 +299,7 @@ bool BitcoinCore::baseInitialize()
 
 void BitcoinCore::initialize()
 {
-    try
-    {
+    try {
         qDebug() << __func__ << ": Running initialization in thread";
         bool rv = AppInitMain(threadGroup, scheduler);
         Q_EMIT initializeResult(rv);
@@ -317,10 +312,9 @@ void BitcoinCore::restart(QStringList args)
 {
     static bool executing_restart{false};
 
-    if(!executing_restart) { // Only restart 1x, no matter how often a user clicks on a restart-button
+    if (!executing_restart) { // Only restart 1x, no matter how often a user clicks on a restart-button
         executing_restart = true;
-        try
-        {
+        try {
             qDebug() << __func__ << ": Running Restart in thread";
             Interrupt(threadGroup);
             threadGroup.join_all();
@@ -340,8 +334,7 @@ void BitcoinCore::restart(QStringList args)
 
 void BitcoinCore::shutdown()
 {
-    try
-    {
+    try {
         qDebug() << __func__ << ": Running Shutdown in thread";
         Interrupt(threadGroup);
         threadGroup.join_all();
@@ -353,7 +346,7 @@ void BitcoinCore::shutdown()
     }
 }
 
-BitcoinApplication::BitcoinApplication(int &argc, char **argv):
+BitcoinApplication::BitcoinApplication(int& argc, char** argv) :
     QApplication(argc, argv),
     coreThread(0),
     optionsModel(0),
@@ -381,8 +374,7 @@ BitcoinApplication::BitcoinApplication(int &argc, char **argv):
 
 BitcoinApplication::~BitcoinApplication()
 {
-    if(coreThread)
-    {
+    if (coreThread) {
         qDebug() << __func__ << ": Stopping thread";
         Q_EMIT stopThread();
         coreThread->wait();
@@ -397,7 +389,7 @@ BitcoinApplication::~BitcoinApplication()
 #endif
     // Delete Qt-settings if user clicked on "Reset Options"
     QSettings settings;
-    if(optionsModel && optionsModel->resetSettings){
+    if (optionsModel && optionsModel->resetSettings) {
         settings.clear();
         settings.sync();
     }
@@ -419,7 +411,7 @@ void BitcoinApplication::createOptionsModel(bool resetSettings)
     optionsModel = new OptionsModel(nullptr, resetSettings);
 }
 
-void BitcoinApplication::createWindow(const NetworkStyle *networkStyle)
+void BitcoinApplication::createWindow(const NetworkStyle* networkStyle)
 {
     window = new BitcoinGUI(platformStyle, networkStyle, 0);
 
@@ -428,9 +420,9 @@ void BitcoinApplication::createWindow(const NetworkStyle *networkStyle)
     pollShutdownTimer->start(200);
 }
 
-void BitcoinApplication::createSplashScreen(const NetworkStyle *networkStyle)
+void BitcoinApplication::createSplashScreen(const NetworkStyle* networkStyle)
 {
-    SplashScreen *splash = new SplashScreen(0, networkStyle);
+    SplashScreen* splash = new SplashScreen(0, networkStyle);
     // We don't hold a direct pointer to the splash screen after creation, but the splash
     // screen will take care of deleting itself when slotFinish happens.
     splash->show();
@@ -440,10 +432,10 @@ void BitcoinApplication::createSplashScreen(const NetworkStyle *networkStyle)
 
 void BitcoinApplication::startThread()
 {
-    if(coreThread)
+    if (coreThread)
         return;
     coreThread = new QThread(this);
-    BitcoinCore *executor = new BitcoinCore();
+    BitcoinCore* executor = new BitcoinCore();
     executor->moveToThread(coreThread);
 
     /*  communication to and from thread */
@@ -505,8 +497,7 @@ void BitcoinApplication::initializeResult(bool success)
     qDebug() << __func__ << ": Initialization result: " << success;
     // Set exit result.
     returnValue = success ? EXIT_SUCCESS : EXIT_FAILURE;
-    if(success)
-    {
+    if (success) {
         // Log this only after AppInitMain finishes, as then logging setup is guaranteed complete
         qWarning() << "Platform customization:" << platformStyle->getName();
 #ifdef ENABLE_WALLET
@@ -519,38 +510,34 @@ void BitcoinApplication::initializeResult(bool success)
 
 #ifdef ENABLE_WALLET
         // TODO: Expose secondary wallets
-        if (!vpwallets.empty())
-        {
+        if (!vpwallets.empty()) {
             walletModel = new WalletModel(platformStyle, vpwallets[0], optionsModel);
 
             window->addWallet(BitcoinGUI::DEFAULT_WALLET, walletModel);
             window->setCurrentWallet(BitcoinGUI::DEFAULT_WALLET);
 
-            connect(walletModel, SIGNAL(coinsSent(CWallet*,SendCoinsRecipient,QByteArray)),
-                             paymentServer, SLOT(fetchPaymentACK(CWallet*,const SendCoinsRecipient&,QByteArray)));
+            connect(walletModel, SIGNAL(coinsSent(CWallet*, SendCoinsRecipient, QByteArray)),
+                paymentServer, SLOT(fetchPaymentACK(CWallet*, const SendCoinsRecipient&, QByteArray)));
         }
 #endif
 
         // If -min option passed, start window minimized.
-        if(gArgs.GetBoolArg("-min", false))
-        {
+        if (gArgs.GetBoolArg("-min", false)) {
             window->showMinimized();
-        }
-        else
-        {
+        } else {
             window->show();
         }
         Q_EMIT splashFinished(window);
 
 #ifdef ENABLE_WALLET
         // Now that initialization/startup is done, process any command-line
-        // yerbas: URIs or payment requests:
+        // memeium: URIs or payment requests:
         connect(paymentServer, SIGNAL(receivedPaymentRequest(SendCoinsRecipient)),
-                         window, SLOT(handlePaymentRequest(SendCoinsRecipient)));
+            window, SLOT(handlePaymentRequest(SendCoinsRecipient)));
         connect(window, SIGNAL(receivedURI(QString)),
-                         paymentServer, SLOT(handleURIOrFile(QString)));
-        connect(paymentServer, SIGNAL(message(QString,QString,unsigned int)),
-                         window, SLOT(message(QString,QString,unsigned int)));
+            paymentServer, SLOT(handleURIOrFile(QString)));
+        connect(paymentServer, SIGNAL(message(QString, QString, unsigned int)),
+            window, SLOT(message(QString, QString, unsigned int)));
         QTimer::singleShot(100, paymentServer, SLOT(uiReady()));
 #endif
     } else {
@@ -563,9 +550,9 @@ void BitcoinApplication::shutdownResult()
     quit(); // Exit main loop after shutdown finished
 }
 
-void BitcoinApplication::handleRunawayException(const QString &message)
+void BitcoinApplication::handleRunawayException(const QString& message)
 {
-    QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. Yerbas Core can no longer continue safely and will quit.") + QString("\n\n") + message);
+    QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. Memeium Core can no longer continue safely and will quit.") + QString("\n\n") + message);
     ::exit(EXIT_FAILURE);
 }
 
@@ -578,7 +565,7 @@ WId BitcoinApplication::getMainWinId() const
 }
 
 #ifndef BITCOIN_QT_TEST
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
     RegisterPrettyTerminateHander();
     RegisterPrettySignalHandlers();
@@ -598,8 +585,8 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForCStrings(QTextCodec::codecForTr());
 #endif
 
-    Q_INIT_RESOURCE(yerbas);
-    Q_INIT_RESOURCE(yerbas_locale);
+    Q_INIT_RESOURCE(memeium);
+    Q_INIT_RESOURCE(memeium_locale);
 
 #if QT_VERSION > 0x050100
     // Generate high-dpi pixmaps
@@ -615,11 +602,11 @@ int main(int argc, char *argv[])
     BitcoinApplication app(argc, argv);
 
     // Register meta types used for QMetaObject::invokeMethod
-    qRegisterMetaType< bool* >();
+    qRegisterMetaType<bool*>();
     //   Need to pass name here as CAmount is a typedef (see http://qt-project.org/doc/qt-5/qmetatype.html#qRegisterMetaType)
     //   IMPORTANT if it is no longer a typedef use the normal variant above
-    qRegisterMetaType< CAmount >("CAmount");
-    qRegisterMetaType< std::function<void(void)> >("std::function<void(void)>");
+    qRegisterMetaType<CAmount>("CAmount");
+    qRegisterMetaType<std::function<void(void)>>("std::function<void(void)>");
 
     /// 3. Application identification
     // must be set before OptionsModel is initialized or translations are loaded,
@@ -644,8 +631,7 @@ int main(int argc, char *argv[])
 
     // Show help message immediately after parsing command-line options (for "-lang") and setting locale,
     // but before showing splash screen.
-    if (gArgs.IsArgSet("-?") || gArgs.IsArgSet("-h") || gArgs.IsArgSet("-help") || gArgs.IsArgSet("-version"))
-    {
+    if (gArgs.IsArgSet("-?") || gArgs.IsArgSet("-h") || gArgs.IsArgSet("-help") || gArgs.IsArgSet("-version")) {
         HelpMessageDialog help(nullptr, gArgs.IsArgSet("-version") ? HelpMessageDialog::about : HelpMessageDialog::cmdline);
         help.showOrPrint();
         return EXIT_SUCCESS;
@@ -656,19 +642,18 @@ int main(int argc, char *argv[])
     if (!Intro::pickDataDirectory())
         return EXIT_SUCCESS;
 
-    /// 6. Determine availability of data directory and parse yerbas.conf
+    /// 6. Determine availability of data directory and parse memeium.conf
     /// - Do not call GetDataDir(true) before this step finishes
-    if (!fs::is_directory(GetDataDir(false)))
-    {
+    if (!fs::is_directory(GetDataDir(false))) {
         QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
-                              QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(gArgs.GetArg("-datadir", ""))));
+            QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(gArgs.GetArg("-datadir", ""))));
         return EXIT_FAILURE;
     }
     try {
         gArgs.ReadConfigFile(gArgs.GetArg("-conf", BITCOIN_CONF_FILENAME));
     } catch (const std::exception& e) {
         QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
-                              QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
+            QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
         return EXIT_FAILURE;
     }
 
@@ -681,7 +666,7 @@ int main(int argc, char *argv[])
     // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
     try {
         SelectParams(ChainNameFromCommandLine());
-    } catch(std::exception &e) {
+    } catch (std::exception& e) {
         QMessageBox::critical(0, QObject::tr(PACKAGE_NAME), QObject::tr("Error: %1").arg(e.what()));
         return EXIT_FAILURE;
     }
@@ -708,7 +693,7 @@ int main(int argc, char *argv[])
         exit(EXIT_SUCCESS);
 
     // Start up the payment server early, too, so impatient users that click on
-    // yerbas: links repeatedly have their payment requests routed to this process:
+    // memeium: links repeatedly have their payment requests routed to this process:
     app.createPaymentServer();
 #endif
 
@@ -738,8 +723,7 @@ int main(int argc, char *argv[])
         app.createSplashScreen(networkStyle.data());
 
     int rv = EXIT_SUCCESS;
-    try
-    {
+    try {
         app.createWindow(networkStyle.data());
         // Perform base initialization before spinning up initialization/shutdown thread
         // This is acceptable because this function only contains steps that are quick to execute,

@@ -1,9 +1,8 @@
-Gitian building
-================
+# Gitian building
 
-*Setup instructions for a Gitian build of Yerbas Core using a Debian VM or physical system.*
+_Setup instructions for a Gitian build of Memeium Core using a Debian VM or physical system._
 
-Gitian is the deterministic build process that is used to build the Yerbas
+Gitian is the deterministic build process that is used to build the Memeium
 Core executables. It provides a way to be reasonably sure that the
 executables are really built from the source on GitHub. It also makes sure that
 the same, tested dependencies are used and statically built into the executable.
@@ -11,14 +10,13 @@ the same, tested dependencies are used and statically built into the executable.
 Multiple developers build the source code by following a specific descriptor
 ("recipe"), cryptographically sign the result, and upload the resulting signature.
 These results are compared and only if they match, the build is accepted and uploaded
-to yerbas.org.
+to memeium.org.
 
 More independent Gitian builders are needed, which is why this guide exists.
 It is preferred you follow these steps yourself instead of using someone else's
 VM image to avoid 'contaminating' the build.
 
-Table of Contents
-------------------
+## Table of Contents
 
 - [Create a new VirtualBox VM](#create-a-new-virtualbox-vm)
 - [Connecting to the VM](#connecting-to-the-vm)
@@ -26,27 +24,27 @@ Table of Contents
 - [Installing Gitian](#installing-gitian)
 - [Setting up the Gitian image](#setting-up-the-gitian-image)
 - [Getting and building the inputs](#getting-and-building-the-inputs)
-- [Building Yerbas Core](#building-yerbas-core)
+- [Building Memeium Core](#building-memeium-core)
 - [Building an alternative repository](#building-an-alternative-repository)
 - [Signing externally](#signing-externally)
 - [Uploading signatures](#uploading-signatures)
 
-Preparing the Gitian builder host
----------------------------------
+## Preparing the Gitian builder host
 
 The first step is to prepare the host environment that will be used to perform the Gitian builds.
 This guide explains how to set up the environment, and how to start the builds.
 
 Debian Linux was chosen as the host distribution because it has a lightweight install (in contrast to Ubuntu) and is readily available.
 Any kind of virtualization can be used, for example:
+
 - [VirtualBox](https://www.virtualbox.org/) (covered by this guide)
 - [KVM](http://www.linux-kvm.org/page/Main_Page)
 - [LXC](https://linuxcontainers.org/), see also [Gitian host docker container](https://github.com/gdm85/tenku/tree/master/docker/gitian-bitcoin-host/README.md).
 
 You can also install Gitian on actual hardware instead of using virtualization.
 
-Create a new VirtualBox VM
----------------------------
+## Create a new VirtualBox VM
+
 In the VirtualBox GUI click "New" and choose the following parameters in the wizard:
 
 ![](gitian-building/create_new_vm.png)
@@ -71,7 +69,7 @@ In the VirtualBox GUI click "New" and choose the following parameters in the wiz
 
 ![](gitian-building/create_vm_file_location_size.png)
 
-- File location and size: at least 40GB; as low as 20GB *may* be possible, but better to err on the safe side
+- File location and size: at least 40GB; as low as 20GB _may_ be possible, but better to err on the safe side
 - Click `Create`
 
 After creating the VM, we need to configure it.
@@ -90,6 +88,7 @@ After creating the VM, we need to configure it.
 ![](gitian-building/port_forwarding_rules.png)
 
 - Set up the new rule the following way:
+
   - Name: `SSH`
   - Protocol: `TCP`
   - Leave Host IP empty
@@ -110,12 +109,11 @@ Then start the VM. On the first launch you will be asked for a CD or DVD image. 
 
 ![](gitian-building/select_startup_disk.png)
 
-Installing Debian
-------------------
+## Installing Debian
 
 This section will explain how to install Debian on the newly created VM.
 
-- Choose the non-graphical installer.  We do not need the graphical environment; it will only increase installation time and disk usage.
+- Choose the non-graphical installer. We do not need the graphical environment; it will only increase installation time and disk usage.
 
 ![](gitian-building/debian_install_1_boot_menu.png)
 
@@ -152,7 +150,7 @@ To select a different button, press `Tab`.
 ![](gitian-building/debian_install_9_user_password.png)
 
 - The installer will set up the clock using a time server; this process should be automatic
-- Set up the clock: choose a time zone (depends on the locale settings that you picked earlier; specifics don't matter)  
+- Set up the clock: choose a time zone (depends on the locale settings that you picked earlier; specifics don't matter)
 
 ![](gitian-building/debian_install_10_configure_clock.png)
 
@@ -161,15 +159,15 @@ To select a different button, press `Tab`.
 
 ![](gitian-building/debian_install_11_partition_disks.png)
 
-  - Select disk to partition: SCSI1 (0,0,0)
+- Select disk to partition: SCSI1 (0,0,0)
 
 ![](gitian-building/debian_install_12_choose_disk.png)
 
-  - Partition Disks -> *All files in one partition*
+- Partition Disks -> _All files in one partition_
 
 ![](gitian-building/all_files_in_one_partition.png)
 
-  - Finish partitioning and write changes to disk -> *Yes* (`Tab`, `Enter` to select the `Yes` button)
+- Finish partitioning and write changes to disk -> _Yes_ (`Tab`, `Enter` to select the `Yes` button)
 
 ![](gitian-building/debian_install_14_finish.png)
 ![](gitian-building/debian_install_15_write_changes.png)
@@ -184,7 +182,7 @@ To select a different button, press `Tab`.
 ![](gitian-building/debian_install_18_proxy_settings.png)
 
 - Wait a bit while 'Select and install software' runs
-- Participate in popularity contest -> *No*
+- Participate in popularity contest -> _No_
 - Choose software to install. We need just the base system.
 - Make sure only 'SSH server' and 'Standard System Utilities' are checked
 - Uncheck 'Debian Desktop Environment' and 'Print Server'
@@ -199,14 +197,13 @@ To select a different button, press `Tab`.
 
 ![](gitian-building/debian_install_21_install_grub_bootloader.png)
 
-- Installation Complete -> *Continue*
+- Installation Complete -> _Continue_
 - After installation, the VM will reboot and you will have a working Debian VM. Congratulations!
 
 ![](gitian-building/debian_install_22_finish_installation.png)
 
+## After Installation
 
-After Installation
--------------------
 The next step in the guide involves logging in as root via SSH.
 SSH login for root users is disabled by default, so we'll enable that now.
 
@@ -220,14 +217,16 @@ Type:
 ```
 sed -i 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
 ```
+
 and press enter. Then,
+
 ```
 /etc/init.d/ssh restart
 ```
+
 and enter to restart SSH. Logout by typing 'logout' and pressing 'enter'.
 
-Connecting to the VM
-----------------------
+## Connecting to the VM
 
 After the VM has booted you can connect to it using SSH, and files can be copied from and to the VM using a SFTP utility.
 Connect to `localhost`, port `22222` (or the port configured when installing the VM).
@@ -252,8 +251,7 @@ For example, to connect as `root` from a Linux command prompt use
 
 Replace `root` with `debian` to log in as user.
 
-Setting up Debian for Gitian building
---------------------------------------
+## Setting up Debian for Gitian building
 
 In this section we will be setting up the Debian installation for Gitian building.
 
@@ -290,8 +288,7 @@ reboot
 At the end the VM is rebooted to make sure that the changes take effect. The steps in this
 section only need to be performed once.
 
-Installing Gitian
-------------------
+## Installing Gitian
 
 Re-login as the user `debian` that was created during installation.
 The rest of the steps in this guide will be performed as that user.
@@ -308,18 +305,17 @@ sudo python setup.py install
 cd ..
 ```
 
-**Note**: When sudo asks for a password, enter the password for the user *debian* not for *root*.
+**Note**: When sudo asks for a password, enter the password for the user _debian_ not for _root_.
 
-Clone the git repositories for Yerbas Core and Gitian.
+Clone the git repositories for Memeium Core and Gitian.
 
 ```bash
 git clone https://github.com/devrandom/gitian-builder.git
-git clone https://github.com/The-Yerbas-Endeavor/yerbas
-git clone https://github.com/yerbas/gitian.sigs.git
+git clone https://github.com/The-Memeium-Endeavor/memeium
+git clone https://github.com/memeium/gitian.sigs.git
 ```
 
-Setting up the Gitian image
--------------------------
+## Setting up the Gitian image
 
 Gitian needs a virtual image of the operating system to build in.
 Currently this is Ubuntu Trusty x86_64.
@@ -336,32 +332,31 @@ bin/make-base-vm --lxc --arch amd64 --suite bionic
 
 There will be a lot of warnings printed during the build of the image. These can be ignored.
 
-**Note**: When sudo asks for a password, enter the password for the user *debian* not for *root*.
+**Note**: When sudo asks for a password, enter the password for the user _debian_ not for _root_.
 
 **Note**: Repeat this step when you have upgraded to a newer version of Gitian.
 
-**Note**: if you get the error message *"bin/make-base-vm: mkfs.ext4: not found"* during this process you have to make the following change in file *"gitian-builder/bin/make-base-vm"* at line 117:
+**Note**: if you get the error message _"bin/make-base-vm: mkfs.ext4: not found"_ during this process you have to make the following change in file _"gitian-builder/bin/make-base-vm"_ at line 117:
+
 ```bash
 # mkfs.ext4 -F $OUT-lxc
 /sbin/mkfs.ext4 -F $OUT-lxc # (some Gitian environents do NOT find mkfs.ext4. Some do...)
 ```
 
-Getting and building the inputs
---------------------------------
+## Getting and building the inputs
 
 At this point you have two options, you can either use the automated script (found in [contrib/gitian-build.py](/contrib/gitian-build.py)) or you could manually do everything by following this guide. If you're using the automated script, then run it with the "--setup" command. Afterwards, run it with the "--build" command (example: "contrib/gitian-building.sh -b signer 0.13.0"). Otherwise ignore this.
 
 Follow the instructions in [doc/release-process.md](release-process.md#fetch-and-create-inputs-first-time-or-when-dependency-versions-change)
-in the Yerbas Core repository under 'Fetch and create inputs' to install sources which require
+in the Memeium Core repository under 'Fetch and create inputs' to install sources which require
 manual intervention. Also optionally follow the next step: 'Seed the Gitian sources cache
 and offline git repositories' which will fetch the remaining files required for building
 offline.
 
-Building Yerbas Core
-----------------
+## Building Memeium Core
 
-To build Yerbas Core (for Linux, OS X and Windows) just follow the steps under 'perform
-Gitian builds' in [doc/release-process.md](release-process.md#perform-gitian-builds) in the Yerbas Core repository.
+To build Memeium Core (for Linux, OS X and Windows) just follow the steps under 'perform
+Gitian builds' in [doc/release-process.md](release-process.md#perform-gitian-builds) in the Memeium Core repository.
 
 This may take some time as it will build all the dependencies needed for each descriptor.
 These dependencies will be cached after a successful build to avoid rebuilding them when possible.
@@ -376,12 +371,12 @@ tail -f var/build.log
 Output from `gbuild` will look something like
 
 ```bash
-    Initialized empty Git repository in /home/debian/gitian-builder/inputs/yerbas/.git/
+    Initialized empty Git repository in /home/debian/gitian-builder/inputs/memeium/.git/
     remote: Counting objects: 57959, done.
     remote: Total 57959 (delta 0), reused 0 (delta 0), pack-reused 57958
     Receiving objects: 100% (57959/57959), 53.76 MiB | 484.00 KiB/s, done.
     Resolving deltas: 100% (41590/41590), done.
-    From https://github.com/The-Yerbas-Endeavor/yerbas
+    From https://github.com/The-Memeium-Endeavor/memeium
     ... (new tags, new branch etc)
     --- Building for bionic amd64 ---
     Stopping target if it is up
@@ -398,27 +393,27 @@ Output from `gbuild` will look something like
     lxc-start: Connection refused - inotify event with no name (mask 32768)
     Running build script (log in var/build.log)
 ```
-Building an alternative repository
------------------------------------
+
+## Building an alternative repository
 
 If you want to do a test build of a pull on GitHub it can be useful to point
 the Gitian builder at an alternative repository, using the same descriptors
 and inputs.
 
 For example:
+
 ```bash
-URL=https://github.com/crowning-/yerbas.git
+URL=https://github.com/crowning-/memeium.git
 COMMIT=b616fb8ef0d49a919b72b0388b091aaec5849b96
-./bin/gbuild --commit yerbas=${COMMIT} --url yerbas=${URL} ../yerbas/contrib/gitian-descriptors/gitian-linux.yml
-./bin/gbuild --commit yerbas=${COMMIT} --url yerbas=${URL} ../yerbas/contrib/gitian-descriptors/gitian-win.yml
-./bin/gbuild --commit yerbas=${COMMIT} --url yerbas=${URL} ../yerbas/contrib/gitian-descriptors/gitian-osx.yml
+./bin/gbuild --commit memeium=${COMMIT} --url memeium=${URL} ../memeium/contrib/gitian-descriptors/gitian-linux.yml
+./bin/gbuild --commit memeium=${COMMIT} --url memeium=${URL} ../memeium/contrib/gitian-descriptors/gitian-win.yml
+./bin/gbuild --commit memeium=${COMMIT} --url memeium=${URL} ../memeium/contrib/gitian-descriptors/gitian-osx.yml
 ```
 
-Building fully offline
------------------------
+## Building fully offline
 
 For building fully offline including attaching signatures to unsigned builds, the detached-sigs repository
-and the yerbas git repository with the desired tag must both be available locally, and then gbuild must be
+and the memeium git repository with the desired tag must both be available locally, and then gbuild must be
 told where to find them. It also requires an apt-cacher-ng which is fully-populated but set to offline mode, or
 manually disabling gitian-builder's use of apt-get to update the VM build environment.
 
@@ -437,7 +432,7 @@ cd /path/to/gitian-builder
 LXC_ARCH=amd64 LXC_SUITE=bionic on-target -u root apt-get update
 LXC_ARCH=amd64 LXC_SUITE=bionic on-target -u root \
   -e DEBIAN_FRONTEND=noninteractive apt-get --no-install-recommends -y install \
-  $( sed -ne '/^packages:/,/[^-] .*/ {/^- .*/{s/"//g;s/- //;p}}' ../yerbas/contrib/gitian-descriptors/*|sort|uniq )
+  $( sed -ne '/^packages:/,/[^-] .*/ {/^- .*/{s/"//g;s/- //;p}}' ../memeium/contrib/gitian-descriptors/*|sort|uniq )
 LXC_ARCH=amd64 LXC_SUITE=bionic on-target -u root apt-get -q -y purge grub
 LXC_ARCH=amd64 LXC_SUITE=bionic on-target -u root -e DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
 ```
@@ -454,19 +449,19 @@ service apt-cacher-ng restart
 ```
 
 Then when building, override the remote URLs that gbuild would otherwise pull from the Gitian descriptors::
+
 ```bash
 
 cd /some/root/path/
-git clone https://github.com/The-Yerbas-Endeavor/yerbas-detached-sigs.git
+git clone https://github.com/The-Memeium-Endeavor/memeium-detached-sigs.git
 
-BTCPATH=/some/root/path/yerbas
-SIGPATH=/some/root/path/yerbas-detached-sigs
+BTCPATH=/some/root/path/memeium
+SIGPATH=/some/root/path/memeium-detached-sigs
 
-./bin/gbuild --url yerbas=${BTCPATH},signature=${SIGPATH} ../yerbas/contrib/gitian-descriptors/gitian-win-signer.yml
+./bin/gbuild --url memeium=${BTCPATH},signature=${SIGPATH} ../memeium/contrib/gitian-descriptors/gitian-win-signer.yml
 ```
 
-Signing externally
--------------------
+## Signing externally
 
 If you want to do the PGP signing on another device, that's also possible; just define `SIGNER` as mentioned
 and follow the steps in the build process as normal.
@@ -477,18 +472,17 @@ When you execute `gsign` you will get an error from GPG, which can be ignored. C
 in `gitian.sigs` to your signing machine and do
 
 ```bash
-    gpg --detach-sign ${VERSION}-linux/${SIGNER}/yerbas-linux-build.assert
-    gpg --detach-sign ${VERSION}-win/${SIGNER}/yerbas-win-build.assert
-    gpg --detach-sign ${VERSION}-osx-unsigned/${SIGNER}/yerbas-osx-build.assert
+    gpg --detach-sign ${VERSION}-linux/${SIGNER}/memeium-linux-build.assert
+    gpg --detach-sign ${VERSION}-win/${SIGNER}/memeium-win-build.assert
+    gpg --detach-sign ${VERSION}-osx-unsigned/${SIGNER}/memeium-osx-build.assert
 ```
 
 This will create the `.sig` files that can be committed together with the `.assert` files to assert your
 Gitian build.
 
-Uploading signatures (not yet implemented)
----------------------
+## Uploading signatures (not yet implemented)
 
 In the future it will be possible to push your signatures (both the `.assert` and `.assert.sig` files) to the
-[yerbas/gitian.sigs](https://github.com/yerbas/gitian.sigs/) repository, or if that's not possible to create a pull
+[memeium/gitian.sigs](https://github.com/memeium/gitian.sigs/) repository, or if that's not possible to create a pull
 request.
 There will be an official announcement when this repository is online.

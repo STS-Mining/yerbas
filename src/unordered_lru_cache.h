@@ -1,14 +1,14 @@
 // Copyright (c) 2019-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_UNORDERED_LRU_CACHE_H
-#define YERBAS_UNORDERED_LRU_CACHE_H
+#ifndef MEMEIUM_UNORDERED_LRU_CACHE_H
+#define MEMEIUM_UNORDERED_LRU_CACHE_H
 
 #include <unordered_map>
 
-template<typename Key, typename Value, typename Hasher, size_t MaxSize = 0, size_t TruncateThreshold = 0>
+template <typename Key, typename Value, typename Hasher, size_t MaxSize = 0, size_t TruncateThreshold = 0>
 class unordered_lru_cache
 {
 protected:
@@ -29,7 +29,7 @@ public:
     }
 
 
-    template<typename Value2>
+    template <typename Value2>
     void _emplace(const Key& key, Value2&& v)
     {
         truncate_if_needed();
@@ -42,14 +42,16 @@ public:
         }
     }
 
-    void setMaxSize(size_t _maxSize, size_t _truncateThreshold = TruncateThreshold) {
-    	maxSize = _maxSize;
-    	truncateThreshold = _truncateThreshold == 0 ? _maxSize * 2 : _truncateThreshold;
+    void setMaxSize(size_t _maxSize, size_t _truncateThreshold = TruncateThreshold)
+    {
+        maxSize = _maxSize;
+        truncateThreshold = _truncateThreshold == 0 ? _maxSize * 2 : _truncateThreshold;
         assert(_maxSize != 0);
     }
 
-    size_t getMaxSize() const {
-    	return maxSize;
+    size_t getMaxSize() const
+    {
+        return maxSize;
     }
 
     void emplace(const Key& key, Value&& v)
@@ -93,8 +95,9 @@ public:
         cacheMap.clear();
     }
 
-    int size() const {
-    	return cacheMap.size();
+    int size() const
+    {
+        return cacheMap.size();
     }
 
 private:
@@ -122,4 +125,4 @@ private:
     }
 };
 
-#endif // YERBAS_UNORDERED_LRU_CACHE_H
+#endif // MEMEIUM_UNORDERED_LRU_CACHE_H

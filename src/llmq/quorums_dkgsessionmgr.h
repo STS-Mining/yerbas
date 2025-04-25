@@ -1,10 +1,10 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_QUORUMS_DKGSESSIONMGR_H
-#define YERBAS_QUORUMS_DKGSESSIONMGR_H
+#ifndef MEMEIUM_QUORUMS_DKGSESSIONMGR_H
+#define MEMEIUM_QUORUMS_DKGSESSIONMGR_H
 
 #include "llmq/quorums_dkgsessionhandler.h"
 
@@ -54,7 +54,7 @@ public:
     void StartMessageHandlerPool();
     void StopMessageHandlerPool();
 
-    void UpdatedBlockTip(const CBlockIndex *pindexNew, bool fInitialDownload);
+    void UpdatedBlockTip(const CBlockIndex* pindexNew, bool fInitialDownload);
 
     void ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman);
     bool AlreadyHave(const CInv& inv) const;
@@ -77,4 +77,4 @@ extern CDKGSessionManager* quorumDKGSessionManager;
 
 } // namespace llmq
 
-#endif //YERBAS_QUORUMS_DKGSESSIONMGR_H
+#endif // MEMEIUM_QUORUMS_DKGSESSIONMGR_H

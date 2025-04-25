@@ -1,6 +1,6 @@
 // Copyright (c) 2011-2014 The Bitcoin Core developers
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,7 +13,7 @@
 #include <QDataWidgetMapper>
 #include <QMessageBox>
 
-EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
+EditAddressDialog::EditAddressDialog(Mode _mode, QWidget* parent) :
     QDialog(parent),
     ui(new Ui::EditAddressDialog),
     mapper(0),
@@ -24,8 +24,7 @@ EditAddressDialog::EditAddressDialog(Mode _mode, QWidget *parent) :
 
     GUIUtil::setupAddressWidget(ui->addressEdit, this);
 
-    switch(mode)
-    {
+    switch (mode) {
     case NewReceivingAddress:
         setWindowTitle(tr("New receiving address"));
         ui->addressEdit->setEnabled(false);
@@ -51,10 +50,10 @@ EditAddressDialog::~EditAddressDialog()
     delete ui;
 }
 
-void EditAddressDialog::setModel(AddressTableModel *_model)
+void EditAddressDialog::setModel(AddressTableModel* _model)
 {
     this->model = _model;
-    if(!_model)
+    if (!_model)
         return;
 
     mapper->setModel(_model);
@@ -69,22 +68,20 @@ void EditAddressDialog::loadRow(int row)
 
 bool EditAddressDialog::saveCurrentRow()
 {
-    if(!model)
+    if (!model)
         return false;
 
-    switch(mode)
-    {
+    switch (mode) {
     case NewReceivingAddress:
     case NewSendingAddress:
         address = model->addRow(
-                mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
-                ui->labelEdit->text(),
-                ui->addressEdit->text());
+            mode == NewSendingAddress ? AddressTableModel::Send : AddressTableModel::Receive,
+            ui->labelEdit->text(),
+            ui->addressEdit->text());
         break;
     case EditReceivingAddress:
     case EditSendingAddress:
-        if(mapper->submit())
-        {
+        if (mapper->submit()) {
             address = ui->addressEdit->text();
         }
         break;
@@ -94,13 +91,11 @@ bool EditAddressDialog::saveCurrentRow()
 
 void EditAddressDialog::accept()
 {
-    if(!model)
+    if (!model)
         return;
 
-    if(!saveCurrentRow())
-    {
-        switch(model->getEditStatus())
-        {
+    if (!saveCurrentRow()) {
+        switch (model->getEditStatus()) {
         case AddressTableModel::OK:
             // Failed with unknown reason. Just reject.
             break;
@@ -109,7 +104,7 @@ void EditAddressDialog::accept()
             break;
         case AddressTableModel::INVALID_ADDRESS:
             QMessageBox::warning(this, windowTitle(),
-                tr("The entered address \"%1\" is not a valid Yerbas address.").arg(ui->addressEdit->text()),
+                tr("The entered address \"%1\" is not a valid Memeium address.").arg(ui->addressEdit->text()),
                 QMessageBox::Ok, QMessageBox::Ok);
             break;
         case AddressTableModel::DUPLICATE_ADDRESS:
@@ -127,7 +122,6 @@ void EditAddressDialog::accept()
                 tr("New key generation failed."),
                 QMessageBox::Ok, QMessageBox::Ok);
             break;
-
         }
         return;
     }
@@ -139,7 +133,7 @@ QString EditAddressDialog::getAddress() const
     return address;
 }
 
-void EditAddressDialog::setAddress(const QString &_address)
+void EditAddressDialog::setAddress(const QString& _address)
 {
     this->address = _address;
     ui->addressEdit->setText(_address);

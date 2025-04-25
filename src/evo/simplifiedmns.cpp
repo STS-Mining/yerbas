@@ -1,15 +1,15 @@
 // Copyright (c) 2017-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "simplifiedmns.h"
 #include "cbtx.h"
 #include "core_io.h"
 #include "deterministicmns.h"
 #include "llmq/quorums.h"
 #include "llmq/quorums_blockprocessor.h"
 #include "llmq/quorums_commitment.h"
-#include "simplifiedmns.h"
 #include "specialtx.h"
 
 #include "base58.h"

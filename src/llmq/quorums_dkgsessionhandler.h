@@ -1,10 +1,10 @@
 // Copyright (c) 2018-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_QUORUMS_DKGSESSIONHANDLER_H
-#define YERBAS_QUORUMS_DKGSESSIONHANDLER_H
+#ifndef MEMEIUM_QUORUMS_DKGSESSIONHANDLER_H
+#define MEMEIUM_QUORUMS_DKGSESSIONHANDLER_H
 
 #include "llmq/quorums_dkgsession.h"
 
@@ -54,7 +54,7 @@ public:
     bool HasSeen(const uint256& hash) const;
     void Clear();
 
-    template<typename Message>
+    template <typename Message>
     void PushPendingMessage(NodeId from, Message& msg)
     {
         CDataStream ds(SER_NETWORK, PROTOCOL_VERSION);
@@ -63,7 +63,7 @@ public:
     }
 
     // Might return nullptr messages, which indicates that deserialization failed for some reason
-    template<typename Message>
+    template <typename Message>
     std::vector<std::pair<NodeId, std::shared_ptr<Message>>> PopAndDeserializeMessages(size_t maxCount)
     {
         auto binaryMessages = PopPendingMessages(maxCount);
@@ -123,7 +123,7 @@ public:
     CDKGSessionHandler(const Consensus::LLMQParams& _params, ctpl::thread_pool& _messageHandlerPool, CBLSWorker& blsWorker, CDKGSessionManager& _dkgManager);
     ~CDKGSessionHandler();
 
-    void UpdatedBlockTip(const CBlockIndex *pindexNew);
+    void UpdatedBlockTip(const CBlockIndex* pindexNew);
     void ProcessMessage(CNode* pfrom, const std::string& strCommand, CDataStream& vRecv, CConnman& connman);
 
 private:
@@ -143,4 +143,4 @@ private:
 
 } // namespace llmq
 
-#endif //YERBAS_QUORUMS_DKGSESSIONHANDLER_H
+#endif // MEMEIUM_QUORUMS_DKGSESSIONHANDLER_H

@@ -1,24 +1,24 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "test/test_yerbas.h"
+#include "test/test_memeium.h"
 
-#include "script/interpreter.h"
-#include "script/standard.h"
-#include "script/sign.h"
-#include "validation.h"
 #include "base58.h"
-#include "netbase.h"
-#include "messagesigner.h"
-#include "policy/policy.h"
 #include "keystore.h"
+#include "messagesigner.h"
+#include "netbase.h"
+#include "policy/policy.h"
+#include "script/interpreter.h"
+#include "script/sign.h"
+#include "script/standard.h"
 #include "spork.h"
+#include "validation.h"
 
-#include "evo/specialtx.h"
-#include "evo/providertx.h"
 #include "evo/deterministicmns.h"
+#include "evo/providertx.h"
+#include "evo/specialtx.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -119,11 +119,12 @@ static CMutableTransaction CreateProRegTx(SimpleUTXOMap& utxos, int port, const 
     return tx;
 }
 
-static CMutableTransaction CreateFutureTransaction(SimpleUTXOMap& utxos, const CScript& scriptPayout) {
-	CMutableTransaction tx;
-	tx.nVersion = 4;
-	tx.nType = TRANSACTION_FUTURE;
-	return tx;
+static CMutableTransaction CreateFutureTransaction(SimpleUTXOMap& utxos, const CScript& scriptPayout)
+{
+    CMutableTransaction tx;
+    tx.nVersion = 4;
+    tx.nType = TRANSACTION_FUTURE;
+    return tx;
 }
 
 static CMutableTransaction CreateProUpServTx(SimpleUTXOMap& utxos, const uint256& proTxHash, const CBLSSecretKey& operatorKey, int port, const CScript& scriptOperatorPayout, const CKey& coinbaseKey)
@@ -191,7 +192,7 @@ static CMutableTransaction CreateProUpRevTx(SimpleUTXOMap& utxos, const uint256&
     return tx;
 }
 
-template<typename ProTx>
+template <typename ProTx>
 static CMutableTransaction MalleateProTxPayout(const CMutableTransaction& tx)
 {
     ProTx proTx;
@@ -331,9 +332,9 @@ BOOST_FIXTURE_TEST_CASE(dip3_protx, TestChainDIP3Setup)
         nHeight++;
     }
 
-    //int DIP0003EnforcementHeightBackup = Params().GetConsensus().DIP0003EnforcementHeight;
+    // int DIP0003EnforcementHeightBackup = Params().GetConsensus().DIP0003EnforcementHeight;
     int DIP0003EnforcementHeightBackup = 1;
-    //const_cast<Consensus::Params&>(Params().GetConsensus()).DIP0003EnforcementHeight = chainActive.Height() + 1;
+    // const_cast<Consensus::Params&>(Params().GetConsensus()).DIP0003EnforcementHeight = chainActive.Height() + 1;
     CreateAndProcessBlock({}, coinbaseKey);
     deterministicMNManager->UpdatedBlockTip(chainActive.Tip());
     nHeight++;
@@ -460,6 +461,6 @@ BOOST_FIXTURE_TEST_CASE(dip3_protx, TestChainDIP3Setup)
     }
     BOOST_ASSERT(foundRevived);
 
-    //const_cast<Consensus::Params&>(Params().GetConsensus()).DIP0003EnforcementHeight = DIP0003EnforcementHeightBackup;
+    // const_cast<Consensus::Params&>(Params().GetConsensus()).DIP0003EnforcementHeight = DIP0003EnforcementHeightBackup;
 }
 BOOST_AUTO_TEST_SUITE_END()

@@ -73,10 +73,10 @@
         <file alias="arrow_right_small">res/images/arrow_right_small.png</file>
         <file alias="arrow_up_small">res/images/arrow_up_small.png</file>
         <file alias="checked">res/images/checked.png</file>
-        <file alias="yerbas_logo_horizontal">res/images/yerbas_logo_horizontal.png</file>
-        <file alias="yerbas_logo_toolbar">res/images/yerbas_logo_toolbar.png</file>
+        <file alias="memeium_logo_horizontal">res/images/memeium_logo_horizontal.png</file>
+        <file alias="memeium_logo_toolbar">res/images/memeium_logo_toolbar.png</file>
         <file alias="qtreeview_selected">res/images/qtreeview_selected.png</file>
-        <file alias="splash">res/images/splash_yerbas.png</file>
+        <file alias="splash">res/images/splash_memeium.png</file>
         <file alias="unchecked">res/images/unchecked.png</file>
     </qresource>
     <qresource prefix="/movies">

@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,11 +12,11 @@
 
 #include "evo/specialtx.h"
 
-#include "smartnode/activesmartnode.h"
 #include "chainparams.h"
 #include "init.h"
 #include "net.h"
 #include "netmessagemaker.h"
+#include "smartnode/activesmartnode.h"
 #include "spork.h"
 #include "univalue.h"
 #include "validation.h"
@@ -86,7 +86,6 @@ CDKGMember::CDKGMember(CDeterministicMNCPtr _dmn, size_t _idx) :
     idx(_idx),
     id(CBLSId::FromHash(_dmn->proTxHash))
 {
-
 }
 
 bool CDKGSession::Init(const CBlockIndex* _pindexQuorum, const std::vector<CDeterministicMNCPtr>& mns, const uint256& _myProTxHash)
@@ -187,7 +186,7 @@ void CDKGSession::SendContributions(CDKGPendingMessages& pendingMessages)
             skContrib.MakeNewKey();
         }
 
-        int minSmartnodeProtoVersion =  AreAssetsDeployed() ? MIN_SMARTNODE_PROTO_VERSION : OLD_MIN_SMARTNODE_PROTO_VERSION;
+        int minSmartnodeProtoVersion = AreAssetsDeployed() ? MIN_SMARTNODE_PROTO_VERSION : OLD_MIN_SMARTNODE_PROTO_VERSION;
         if (!qc.contributions->Encrypt(i, m->dmn->pdmnState->pubKeyOperator.Get(), skContrib, minSmartnodeProtoVersion)) {
             logger.Batch("failed to encrypt contribution for %s", m->dmn->proTxHash.ToString());
             return;
@@ -320,7 +319,7 @@ void CDKGSession::ReceiveMessage(const uint256& hash, const CDKGContribution& qc
 
     bool complain = false;
     CBLSSecretKey skContribution;
-    int minSmartnodeProtoVersion =  AreAssetsDeployed() ? MIN_SMARTNODE_PROTO_VERSION : OLD_MIN_SMARTNODE_PROTO_VERSION;
+    int minSmartnodeProtoVersion = AreAssetsDeployed() ? MIN_SMARTNODE_PROTO_VERSION : OLD_MIN_SMARTNODE_PROTO_VERSION;
     if (!qc.contributions->Decrypt(myIdx, *activeSmartnodeInfo.blsKeyOperator, skContribution, minSmartnodeProtoVersion)) {
         logger.Batch("contribution from %s could not be decrypted", member->dmn->proTxHash.ToString());
         complain = true;
@@ -520,7 +519,7 @@ bool CDKGSession::PreVerifyMessage(const uint256& hash, const CDKGComplaint& qc,
         // this is a DoS protection against members sending multiple complaints with valid signatures to us
         // we must bail out before any expensive BLS verification happens
         logger.Batch("dropping complaint from %s as we already got %d complaints",
-                      member->dmn->proTxHash.ToString(), member->complaints.size());
+            member->dmn->proTxHash.ToString(), member->complaints.size());
         return false;
     }
 
@@ -733,7 +732,7 @@ bool CDKGSession::PreVerifyMessage(const uint256& hash, const CDKGJustification&
         // this is a DoS protection against members sending multiple justifications with valid signatures to us
         // we must bail out before any expensive BLS verification happens
         logger.Batch("dropping justification from %s as we already got %d justifications",
-                      member->dmn->proTxHash.ToString(), member->justifications.size());
+            member->dmn->proTxHash.ToString(), member->justifications.size());
         return false;
     }
 
@@ -790,7 +789,7 @@ void CDKGSession::ReceiveMessage(const uint256& hash, const CDKGJustification& q
 
         if (!member->complaintsFromOthers.count(member2->dmn->proTxHash)) {
             logger.Batch("got justification from %s for %s even though he didn't complain",
-                            member->dmn->proTxHash.ToString(), member2->dmn->proTxHash.ToString());
+                member->dmn->proTxHash.ToString(), member2->dmn->proTxHash.ToString());
             MarkBadMember(member->idx);
         }
     }
@@ -989,7 +988,7 @@ void CDKGSession::SendCommitment(CDKGPendingMessages& pendingMessages)
     timerTotal.stop();
 
     logger.Batch("built premature commitment. time1=%d, time2=%d, time3=%d, totalTime=%d",
-                    t1.count(), t2.count(), t3.count(), timerTotal.count());
+        t1.count(), t2.count(), t3.count(), timerTotal.count());
 
 
     logger.Flush();
@@ -1058,7 +1057,7 @@ bool CDKGSession::PreVerifyMessage(const uint256& hash, const CDKGPrematureCommi
         // this is a DoS protection against members sending multiple commitments with valid signatures to us
         // we must bail out before any expensive BLS verification happens
         logger.Batch("dropping commitment from %s as we already got %d commitments",
-                      member->dmn->proTxHash.ToString(), member->prematureCommitments.size());
+            member->dmn->proTxHash.ToString(), member->prematureCommitments.size());
         return false;
     }
 
@@ -1237,8 +1236,8 @@ std::vector<CFinalCommitment> CDKGSession::FinalizeCommitments()
         finalCommitments.emplace_back(fqc);
 
         logger.Batch("final commitment: validMembers=%d, signers=%d, quorumPublicKey=%s, time1=%d, time2=%d",
-                        fqc.CountValidMembers(), fqc.CountSigners(), fqc.quorumPublicKey.ToString(),
-                        t1.count(), t2.count());
+            fqc.CountValidMembers(), fqc.CountSigners(), fqc.quorumPublicKey.ToString(),
+            t1.count(), t2.count());
     }
 
     logger.Flush();

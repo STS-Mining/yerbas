@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,12 +10,12 @@
 #include "governance-validators.h"
 #include "governance-vote.h"
 #include "init.h"
-#include "smartnode/smartnode-meta.h"
-#include "smartnode/smartnode-sync.h"
 #include "messagesigner.h"
 #include "net_processing.h"
 #include "netfulfilledman.h"
 #include "netmessagemaker.h"
+#include "smartnode/smartnode-meta.h"
+#include "smartnode/smartnode-sync.h"
 #include "spork.h"
 #include "util.h"
 #include "validation.h"
@@ -285,7 +285,7 @@ void CGovernanceManager::AddGovernanceObject(CGovernanceObject& govobj, CConnman
 
     // UPDATE CACHED VARIABLES FOR THIS OBJECT AND ADD IT TO OUR MANANGED DATA
 
-    govobj.UpdateSentinelVariables(); //this sets local vars in object
+    govobj.UpdateSentinelVariables(); // this sets local vars in object
 
     LOCK2(cs_main, cs);
     std::string strError = "";
@@ -311,7 +311,7 @@ void CGovernanceManager::AddGovernanceObject(CGovernanceObject& govobj, CConnman
     // SHOULD WE ADD THIS OBJECT TO ANY OTHER MANANGERS?
 
     LogPrint(BCLog::GOBJECT, "CGovernanceManager::AddGovernanceObject -- Before trigger block, GetDataAsPlainString = %s, nObjectType = %d\n",
-                govobj.GetDataAsPlainString(), govobj.GetObjectType());
+        govobj.GetDataAsPlainString(), govobj.GetObjectType());
 
     if (govobj.GetObjectType() == GOVERNANCE_OBJECT_TRIGGER) {
         if (!triggerman.AddNewTrigger(nHash)) {
@@ -566,14 +566,14 @@ bool CGovernanceManager::ConfirmInventoryRequest(const CInv& inv)
             return false;
         }
         break;
-    } 
+    }
     case MSG_GOVERNANCE_OBJECT_VOTE: {
         if (cmapVoteToObject.HasKey(inv.hash)) {
             LogPrint(BCLog::GOBJECT, "CGovernanceManager::ConfirmInventoryRequest already have governance vote, returning false\n");
             return false;
         }
         break;
-    } 
+    }
     default:
         LogPrint(BCLog::GOBJECT, "CGovernanceManager::ConfirmInventoryRequest unknown type, returning false\n");
         return false;
@@ -956,7 +956,7 @@ int CGovernanceManager::RequestGovernanceObjectVotes(CNode* pnode, CConnman& con
 
 int CGovernanceManager::RequestGovernanceObjectVotes(const std::vector<CNode*>& vNodesCopy, CConnman& connman)
 {
-    static std::map<uint256, std::map<CService, int64_t> > mapAskedRecently;
+    static std::map<uint256, std::map<CService, int64_t>> mapAskedRecently;
 
     if (vNodesCopy.empty()) return -1;
 

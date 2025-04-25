@@ -21,15 +21,15 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef YERBAS_BIP39_H
-#define YERBAS_BIP39_H
+#ifndef MEMEIUM_BIP39_H
+#define MEMEIUM_BIP39_H
 
 #include "support/allocators/secure.h"
 
 class CMnemonic
 {
 public:
-    static SecureString Generate(int strength);    // strength in bits
+    static SecureString Generate(int strength); // strength in bits
     static SecureString FromData(const SecureVector& data, int len);
     static bool Check(SecureString mnemonic);
     // passphrase must be at most 256 characters or code may crash

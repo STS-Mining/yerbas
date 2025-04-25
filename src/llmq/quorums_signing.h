@@ -1,15 +1,15 @@
 // Copyright (c) 2018-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_QUORUMS_SIGNING_H
-#define YERBAS_QUORUMS_SIGNING_H
+#ifndef MEMEIUM_QUORUMS_SIGNING_H
+#define MEMEIUM_QUORUMS_SIGNING_H
 
 #include "llmq/quorums.h"
 
-#include "net.h"
 #include "chainparams.h"
+#include "net.h"
 #include "saltedhasher.h"
 #include "univalue.h"
 #include "unordered_lru_cache.h"
@@ -32,7 +32,6 @@ public:
     uint256 hash;
 
 public:
-
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
@@ -159,8 +158,8 @@ private:
     bool PreVerifyRecoveredSig(NodeId nodeId, const CRecoveredSig& recoveredSig, bool& retBan);
 
     void CollectPendingRecoveredSigsToVerify(size_t maxUniqueSessions,
-            std::unordered_map<NodeId, std::list<CRecoveredSig>>& retSigShares,
-            std::unordered_map<std::pair<Consensus::LLMQType, uint256>, CQuorumCPtr, StaticSaltedHasher>& retQuorums);
+        std::unordered_map<NodeId, std::list<CRecoveredSig>>& retSigShares,
+        std::unordered_map<std::pair<Consensus::LLMQType, uint256>, CQuorumCPtr, StaticSaltedHasher>& retQuorums);
     void ProcessPendingReconstructedRecoveredSigs();
     bool ProcessPendingRecoveredSigs(CConnman& connman); // called from the worker thread of CSigSharesManager
     void ProcessRecoveredSig(NodeId nodeId, const CRecoveredSig& recoveredSig, const CQuorumCPtr& quorum, CConnman& connman);
@@ -192,4 +191,4 @@ extern CSigningManager* quorumSigningManager;
 
 } // namespace llmq
 
-#endif //YERBAS_QUORUMS_SIGNING_H
+#endif // MEMEIUM_QUORUMS_SIGNING_H

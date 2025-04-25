@@ -1,10 +1,10 @@
 // Copyright (c) 2018-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_EVODB_H
-#define YERBAS_EVODB_H
+#ifndef MEMEIUM_EVODB_H
+#define MEMEIUM_EVODB_H
 
 #include "dbwrapper.h"
 #include "sync.h"
@@ -109,4 +109,4 @@ private:
 
 extern CEvoDB* evoDb;
 
-#endif //YERBAS_EVODB_H
+#endif // MEMEIUM_EVODB_H

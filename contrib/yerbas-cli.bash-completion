@@ -1,10 +1,10 @@
-# bash programmable completion for yerbas-cli(1)
+# bash programmable completion for memeium-cli(1)
 # Copyright (c) 2012-2016 The Bitcoin Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-# call $yerbas-cli for RPC
-_yerbas_rpc() {
+# call $memeium-cli for RPC
+_memeium_rpc() {
     # determine already specified args necessary for RPC
     local rpcargs=()
     for i in ${COMP_LINE}; do
@@ -14,23 +14,23 @@ _yerbas_rpc() {
                 ;;
         esac
     done
-    $yerbas_cli "${rpcargs[@]}" "$@"
+    $memeium_cli "${rpcargs[@]}" "$@"
 }
 
 # Add wallet accounts to COMPREPLY
-_yerbas_accounts() {
+_memeium_accounts() {
     local accounts
-    accounts=$(_yerbas_rpc listaccounts | awk -F '"' '{ print $2 }')
+    accounts=$(_memeium_rpc listaccounts | awk -F '"' '{ print $2 }')
     COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$accounts" -- "$cur" ) )
 }
 
-_yerbas_cli() {
+_memeium_cli() {
     local cur prev words=() cword
-    local yerbas_cli
+    local memeium_cli
 
-    # save and use original argument to invoke yerbas-cli for -help, help and RPC
-    # as yerbas-cli might not be in $PATH
-    yerbas_cli="$1"
+    # save and use original argument to invoke memeium-cli for -help, help and RPC
+    # as memeium-cli might not be in $PATH
+    memeium_cli="$1"
 
     COMPREPLY=()
     _get_comp_words_by_ref -n = cur prev words cword
@@ -60,7 +60,7 @@ _yerbas_cli() {
     if ((cword > 3)); then
         case ${words[cword-3]} in
             addmultisigaddress)
-                _yerbas_accounts
+                _memeium_accounts
                 return 0
                 ;;
             getbalance|gettxout|importaddress|importpubkey|importprivkey|listreceivedbyaccount|listreceivedbyaddress|listsinceblock)
@@ -85,7 +85,7 @@ _yerbas_cli() {
                 return 0
                 ;;
             move|setaccount)
-                _yerbas_accounts
+                _memeium_accounts
                 return 0
                 ;;
         esac
@@ -101,7 +101,7 @@ _yerbas_cli() {
             return 0
             ;;
         getaccountaddress|getaddressesbyaccount|getbalance|getnewaddress|getreceivedbyaccount|listtransactions|move|sendfrom|sendmany)
-            _yerbas_accounts
+            _memeium_accounts
             return 0
             ;;
     esac
@@ -125,12 +125,12 @@ _yerbas_cli() {
 
             # only parse -help if senseful
             if [[ -z "$cur" || "$cur" =~ ^- ]]; then
-                helpopts=$($yerbas_cli -help 2>&1 | awk '$1 ~ /^-/ { sub(/=.*/, "="); print $1 }' )
+                helpopts=$($memeium_cli -help 2>&1 | awk '$1 ~ /^-/ { sub(/=.*/, "="); print $1 }' )
             fi
 
             # only parse help if senseful
             if [[ -z "$cur" || "$cur" =~ ^[a-z] ]]; then
-                commands=$(_yerbas_rpc help 2>/dev/null | awk '$1 ~ /^[a-z]/ { print $1; }')
+                commands=$(_memeium_rpc help 2>/dev/null | awk '$1 ~ /^[a-z]/ { print $1; }')
             fi
 
             COMPREPLY=( $( compgen -W "$helpopts $commands" -- "$cur" ) )
@@ -143,7 +143,7 @@ _yerbas_cli() {
             ;;
     esac
 } &&
-complete -F _yerbas_cli yerbas-cli
+complete -F _memeium_cli memeium-cli
 
 # Local variables:
 # mode: shell-script

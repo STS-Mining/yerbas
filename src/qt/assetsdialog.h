@@ -18,36 +18,37 @@ class PlatformStyle;
 class SendAssetsEntry;
 class SendCoinsRecipient;
 
-namespace Ui {
-    class AssetsDialog;
+namespace Ui
+{
+class AssetsDialog;
 }
 
 QT_BEGIN_NAMESPACE
 class QUrl;
 QT_END_NAMESPACE
 
-/** Dialog for sending yerbas */
+/** Dialog for sending memeium */
 class AssetsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit AssetsDialog(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit AssetsDialog(const PlatformStyle* platformStyle, QWidget* parent = 0);
     ~AssetsDialog();
 
-    void setClientModel(ClientModel *clientModel);
-    void setModel(WalletModel *model);
-    void setupAssetControlFrame(const PlatformStyle *platformStyle);
-    void setupScrollView(const PlatformStyle *platformStyle);
-    void setupFeeControl(const PlatformStyle *platformStyle);
+    void setClientModel(ClientModel* clientModel);
+    void setModel(WalletModel* model);
+    void setupAssetControlFrame(const PlatformStyle* platformStyle);
+    void setupScrollView(const PlatformStyle* platformStyle);
+    void setupFeeControl(const PlatformStyle* platformStyle);
 
     /** Set up the tab chain manually, as Qt messes up the tab chain by default in some cases (issue https://bugreports.qt-project.org/browse/QTBUG-10907).
      */
-    QWidget *setupTabChain(QWidget *prev);
+    QWidget* setupTabChain(QWidget* prev);
 
-    void setAddress(const QString &address);
-    void pasteEntry(const SendAssetsRecipient &rv);
-    bool handlePaymentRequest(const SendAssetsRecipient &recipient);
+    void setAddress(const QString& address);
+    void pasteEntry(const SendAssetsRecipient& rv);
+    bool handlePaymentRequest(const SendAssetsRecipient& recipient);
     void processNewTransaction();
 
     // The first time the transfer asset screen is loaded, the wallet isn't doing loading so the asset list is empty.
@@ -58,29 +59,27 @@ public Q_SLOTS:
     void clear();
     void reject();
     void accept();
-    SendAssetsEntry *addEntry();
+    SendAssetsEntry* addEntry();
     void updateTabsAndLabels();
-    void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& anonymizedBalance,
-                    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
+    void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& anonymizedBalance, const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
     void focusAssetListBox();
 
 private:
-    Ui::AssetsDialog *ui;
-    ClientModel *clientModel;
-    WalletModel *model;
+    Ui::AssetsDialog* ui;
+    ClientModel* clientModel;
+    WalletModel* model;
     bool fNewRecipientAllowed;
     bool fFeeMinimized;
-    const PlatformStyle *platformStyle;
+    const PlatformStyle* platformStyle;
 
     // Process WalletModel::SendCoinsReturn and generate a pair consisting
     // of a message and message flags for use in Q_EMIT message().
     // Additional parameter msgArg can be used via .arg(msgArg).
-    void processSendCoinsReturn(const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg = QString());
+    void processSendCoinsReturn(const WalletModel::SendCoinsReturn& sendCoinsReturn, const QString& msgArg = QString());
     void minimizeFeeSection(bool fMinimize);
     void updateFeeMinimizedLabel();
     // Update the passed in CCoinControl with state from the GUI
     void updateAssetControlState(CCoinControl& ctrl);
-
 
 
 private Q_SLOTS:
@@ -92,7 +91,7 @@ private Q_SLOTS:
     void assetControlFeatureChanged(bool);
     void assetControlButtonClicked();
     void assetControlChangeChecked(int);
-    void assetControlChangeEdited(const QString &);
+    void assetControlChangeEdited(const QString&);
     void assetControlUpdateLabels();
     void assetControlClipboardQuantity();
     void assetControlClipboardAmount();
@@ -106,14 +105,14 @@ private Q_SLOTS:
     void updateMinFeeLabel();
     void updateSmartFeeLabel();
 
-    /** YERB START */
+    /** MMM START */
     void assetControlUpdateSendCoinsDialog();
     void focusAsset(const QModelIndex& index);
-    /** YERB END */
+    /** MMM END */
 
-    Q_SIGNALS:
-            // Fired when a message should be reported to the user
-            void message(const QString &title, const QString &message, unsigned int style);
+Q_SIGNALS:
+    // Fired when a message should be reported to the user
+    void message(const QString& title, const QString& message, unsigned int style);
 };
 
 #endif // RAVEN_QT_ASSETSSDIALOG_H

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Yerbas Core developers
+// Copyright (c) 2019 The Memeium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,9 +7,9 @@
 
 #include <dbwrapper.h>
 
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 #include "amount.h"
 #include "assets/rewards.h"
@@ -25,8 +25,8 @@ public:
 
     CSnapshotRequestDBEntry();
     CSnapshotRequestDBEntry(
-        const std::string & p_assetName, int p_heightForSnapshot
-    );
+        const std::string& p_assetName,
+        int p_heightForSnapshot);
 
     void SetNull()
     {
@@ -36,7 +36,7 @@ public:
         heightAndName = "";
     }
 
-    bool operator<(const CSnapshotRequestDBEntry &rhs) const
+    bool operator<(const CSnapshotRequestDBEntry& rhs) const
     {
         return heightAndName < rhs.heightAndName;
     }
@@ -44,8 +44,8 @@ public:
     // Serialization methods
     ADD_SERIALIZE_METHODS;
 
-    template<typename Stream, typename Operation>
-    inline void SerializationOp(Stream &s, Operation ser_action)
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(assetName);
         READWRITE(heightForSnapshot);
@@ -53,7 +53,7 @@ public:
     }
 };
 
-class CSnapshotRequestDB  : public CDBWrapper
+class CSnapshotRequestDB : public CDBWrapper
 {
 public:
     explicit CSnapshotRequestDB(size_t nCacheSize, bool fMemory = false, bool fWipe = false);
@@ -63,30 +63,30 @@ public:
 
     // Schedule a asset snapshot
     bool ScheduleSnapshot(
-        const std::string & p_assetName, int p_heightForSnapshot
-    );
+        const std::string& p_assetName,
+        int p_heightForSnapshot);
 
     //  Find a snapshot request using its ID
     bool RetrieveSnapshotRequest(
-        const std::string & p_assetName, int p_heightForSnapshot,
-        CSnapshotRequestDBEntry & p_snapshotRequest
-    );
+        const std::string& p_assetName,
+        int p_heightForSnapshot,
+        CSnapshotRequestDBEntry& p_snapshotRequest);
 
-    bool ContainsSnapshotRequest(const std::string & p_assetName, int p_heightForSnapshot);
+    bool ContainsSnapshotRequest(const std::string& p_assetName, int p_heightForSnapshot);
 
     // Remove a snapshot request
-    bool RemoveSnapshotRequest(const std::string & p_assetName, int p_heightForSnapshot);
+    bool RemoveSnapshotRequest(const std::string& p_assetName, int p_heightForSnapshot);
 
     //  Retrieve all snapshot requests at the provided block height
     //      (if the block height is zero, retrieve requests at ALL HEIGHTS),
     //      limited to the specified asset name (if provided)
     bool RetrieveSnapshotRequestsForHeight(
-        const std::string & p_assetName, int p_blockHeight,
-        std::set<CSnapshotRequestDBEntry> & p_assetsToSnapshot
-    );
+        const std::string& p_assetName,
+        int p_blockHeight,
+        std::set<CSnapshotRequestDBEntry>& p_assetsToSnapshot);
 };
 
-class CDistributeSnapshotRequestDB  : public CDBWrapper
+class CDistributeSnapshotRequestDB : public CDBWrapper
 {
 public:
     explicit CDistributeSnapshotRequestDB(size_t nCacheSize, bool fMemory = false, bool fWipe = false);
@@ -108,10 +108,7 @@ public:
     bool GetDistributeTransaction(const uint256& hash, const int& nBatchNumber, uint256& txid);
 
     void LoadAllDistributeSnapshot(std::map<uint256, CRewardSnapshot>& mapRewardSnapshots);
-
-
 };
 
 
-
-#endif //SNAPSHOTREQUESTDB_H
+#endif // SNAPSHOTREQUESTDB_H

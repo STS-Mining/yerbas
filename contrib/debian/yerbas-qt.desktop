@@ -1,13 +1,13 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Yerbas Core
-Comment=Yerbas P2P Cryptocurrency
-Comment[de]=Verbinde mit dem Yerbas peer-to-peer Netzwerk
-Comment[fr]=Yerbas, monnaie virtuelle cryptographique pair à pair
-Comment[tr]=Yerbas, eşten eşe kriptografik sanal para birimi
-Exec=yerbas-qt %u
+Name=Memeium Core
+Comment=Memeium P2P Cryptocurrency
+Comment[de]=Verbinde mit dem Memeium peer-to-peer Netzwerk
+Comment[fr]=Memeium, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Memeium, eşten eşe kriptografik sanal para birimi
+Exec=memeium-qt %u
 Terminal=false
 Type=Application
-Icon=yerbas128
-MimeType=x-scheme-handler/yerbas;
+Icon=memeium128
+MimeType=x-scheme-handler/memeium;
 Categories=Office;Finance;

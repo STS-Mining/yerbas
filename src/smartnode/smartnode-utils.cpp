@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,10 +12,9 @@
 #endif
 #include "validation.h"
 
-struct CompareScoreMN
-{
+struct CompareScoreMN {
     bool operator()(const std::pair<arith_uint256, const CDeterministicMNCPtr&>& t1,
-                    const std::pair<arith_uint256, const CDeterministicMNCPtr&>& t2) const
+        const std::pair<arith_uint256, const CDeterministicMNCPtr&>& t2) const
     {
         return (t1.first != t2.first) ? (t1.first < t2.first) : (t1.second->collateralOutpoint < t2.second->collateralOutpoint);
     }
@@ -50,7 +49,7 @@ void CSmartnodeUtils::ProcessSmartnodeConnections(CConnman& connman)
                 }
             }
             if (fFound) return; // do NOT disconnect mixing smartnodes
-#endif // ENABLE_WALLET
+#endif                          // ENABLE_WALLET
             if (fLogIPs) {
                 LogPrintf("Closing Smartnode connection: peer=%d, addr=%s\n", pnode->GetId(), pnode->addr.ToString());
             } else {
@@ -63,15 +62,14 @@ void CSmartnodeUtils::ProcessSmartnodeConnections(CConnman& connman)
 
 void CSmartnodeUtils::DoMaintenance(CConnman& connman)
 {
-    if(!smartnodeSync.IsBlockchainSynced() || ShutdownRequested())
+    if (!smartnodeSync.IsBlockchainSynced() || ShutdownRequested())
         return;
 
     static unsigned int nTick = 0;
 
     nTick++;
 
-    if(nTick % 60 == 0) {
+    if (nTick % 60 == 0) {
         ProcessSmartnodeConnections(connman);
     }
 }
-

@@ -9,17 +9,16 @@ You probably need to enable hardware virtualization in your machine's BIOS.
 
 You need to be running a recent version of 64-bit-Ubuntu, and you need to install several prerequisites:
 
-	sudo apt-get install ruby apache2 git apt-cacher-ng python-vm-builder qemu-kvm
+    sudo apt-get install ruby apache2 git apt-cacher-ng python-vm-builder qemu-kvm
 
 Sanity checks:
 
-	sudo service apt-cacher-ng status  # Should return apt-cacher-ng is running
-	ls -l /dev/kvm   # Should show a /dev/kvm device
-
+    sudo service apt-cacher-ng status  # Should return apt-cacher-ng is running
+    ls -l /dev/kvm   # Should show a /dev/kvm device
 
 Once you've got the right hardware and software:
 
-    git clone git://github.com/The-Yerbas-Endeavor/yerbas.git
+    git clone git://github.com/The-Memeium-Endeavor/memeium.git
     git clone git://github.com/devrandom/gitian-builder.git
     mkdir gitian-builder/inputs
     cd gitian-builder/inputs
@@ -35,7 +34,7 @@ Once you've got the right hardware and software:
     # For further build instructions see doc/release-process.md
     ...
 
----------------------
+---
 
 `gitian-builder` now also supports building using LXC. See
 [help.ubuntu.com](https://help.ubuntu.com/14.04/serverguide/lxc.html)
@@ -47,19 +46,19 @@ LXC running inside a virtual machine.
 
 Here's a description of Gavin's setup on OSX 10.6:
 
-1. Download and install VirtualBox from [https://www.virtualbox.org/](https://www.virtualbox.org/)
+1.  Download and install VirtualBox from [https://www.virtualbox.org/](https://www.virtualbox.org/)
 
-2. Download the 64-bit Ubuntu Desktop 12.04 LTS .iso CD image from
-   [http://www.ubuntu.com/](http://www.ubuntu.com/)
+2.  Download the 64-bit Ubuntu Desktop 12.04 LTS .iso CD image from
+    [http://www.ubuntu.com/](http://www.ubuntu.com/)
 
-3. Run VirtualBox and create a new virtual machine, using the Ubuntu .iso (see the [VirtualBox documentation](https://www.virtualbox.org/wiki/Documentation) for details). Create it with at least 2 gigabytes of memory and a disk that is at least 20 gigabytes big.
+3.  Run VirtualBox and create a new virtual machine, using the Ubuntu .iso (see the [VirtualBox documentation](https://www.virtualbox.org/wiki/Documentation) for details). Create it with at least 2 gigabytes of memory and a disk that is at least 20 gigabytes big.
 
-4. Inside the running Ubuntu desktop, install:
+4.  Inside the running Ubuntu desktop, install:
 
-		sudo apt-get install debootstrap lxc ruby apache2 git apt-cacher-ng python-vm-builder
+        sudo apt-get install debootstrap lxc ruby apache2 git apt-cacher-ng python-vm-builder
 
-5. Still inside Ubuntu, tell gitian-builder to use LXC, then follow the "Once you've got the right hardware and software" instructions above:
+5.  Still inside Ubuntu, tell gitian-builder to use LXC, then follow the "Once you've got the right hardware and software" instructions above:
 
-	export USE_LXC=1
-	git clone git://github.com/The-Yerbas-Endeavor/The-Yerbas-Endeavor.git
-	... etc
+    export USE_LXC=1
+    git clone git://github.com/The-Memeium-Endeavor/The-Memeium-Endeavor.git
+    ... etc

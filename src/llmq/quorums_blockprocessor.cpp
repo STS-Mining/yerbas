@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -49,8 +49,10 @@ void CQuorumBlockProcessor::ProcessMessage(CNode* pfrom, const std::string& strC
 
         if (!Params().GetConsensus().llmqs.count((Consensus::LLMQType)qc.llmqType)) {
             LOCK(cs_main);
-            LogPrintf("llmq""CQuorumBlockProcessor::%s -- invalid commitment type %d from peer=%d\n", __func__,
-                    qc.llmqType, pfrom->GetId());
+            LogPrintf("llmq"
+                      "CQuorumBlockProcessor::%s -- invalid commitment type %d from peer=%d\n",
+                __func__,
+                qc.llmqType, pfrom->GetId());
             Misbehaving(pfrom->GetId(), 100);
             return;
         }
@@ -63,7 +65,7 @@ void CQuorumBlockProcessor::ProcessMessage(CNode* pfrom, const std::string& strC
             LOCK(cs_main);
             if (!mapBlockIndex.count(qc.quorumHash)) {
                 LogPrintf("CQuorumBlockProcessor::%s -- unknown block %s in commitment, peer=%d\n", __func__,
-                        qc.quorumHash.ToString(), pfrom->GetId());
+                    qc.quorumHash.ToString(), pfrom->GetId());
                 // can't really punish the node here, as we might simply be the one that is on the wrong chain or not
                 // fully synced
                 return;
@@ -71,14 +73,14 @@ void CQuorumBlockProcessor::ProcessMessage(CNode* pfrom, const std::string& strC
             pquorumIndex = mapBlockIndex[qc.quorumHash];
             if (chainActive.Tip()->GetAncestor(pquorumIndex->nHeight) != pquorumIndex) {
                 LogPrintf("CQuorumBlockProcessor::%s -- block %s not in active chain, peer=%d\n", __func__,
-                          qc.quorumHash.ToString(), pfrom->GetId());
+                    qc.quorumHash.ToString(), pfrom->GetId());
                 // same, can't punish
                 return;
             }
             int quorumHeight = pquorumIndex->nHeight - (pquorumIndex->nHeight % params.dkgInterval);
             if (quorumHeight != pquorumIndex->nHeight) {
                 LogPrintf("CQuorumBlockProcessor::%s -- block %s is not the first block in the DKG interval, peer=%d\n", __func__,
-                          qc.quorumHash.ToString(), pfrom->GetId());
+                    qc.quorumHash.ToString(), pfrom->GetId());
                 Misbehaving(pfrom->GetId(), 100);
                 return;
             }
@@ -105,13 +107,13 @@ void CQuorumBlockProcessor::ProcessMessage(CNode* pfrom, const std::string& strC
         if (!qc.Verify(members, true)) {
             LOCK(cs_main);
             LogPrintf("CQuorumBlockProcessor::%s -- commitment for quorum %s:%d is not valid, peer=%d\n", __func__,
-                      qc.quorumHash.ToString(), qc.llmqType, pfrom->GetId());
+                qc.quorumHash.ToString(), qc.llmqType, pfrom->GetId());
             Misbehaving(pfrom->GetId(), 100);
             return;
         }
 
         LogPrint(BCLog::LLMQ, "CQuorumBlockProcessor::%s -- received commitment for quorum %s:%d, validMembers=%d, signers=%d, peer=%d\n", __func__,
-                  qc.quorumHash.ToString(), qc.llmqType, qc.CountValidMembers(), qc.CountSigners(), pfrom->GetId());
+            qc.quorumHash.ToString(), qc.llmqType, qc.CountValidMembers(), qc.CountSigners(), pfrom->GetId());
 
         AddMinableCommitment(qc);
     }
@@ -222,7 +224,7 @@ bool CQuorumBlockProcessor::ProcessCommitment(int nHeight, const uint256& blockH
     }
 
     LogPrint(BCLog::LLMQ, "CQuorumBlockProcessor::%s -- processed commitment from block. type=%d, quorumHash=%s, signers=%s, validMembers=%d, quorumPublicKey=%s\n", __func__,
-              qc.llmqType, quorumHash.ToString(), qc.CountSigners(), qc.CountValidMembers(), qc.quorumPublicKey.ToString());
+        qc.llmqType, quorumHash.ToString(), qc.CountSigners(), qc.CountValidMembers(), qc.quorumPublicKey.ToString());
 
     return true;
 }
@@ -270,10 +272,10 @@ void CQuorumBlockProcessor::UpgradeDB()
 
     LogPrintf("CQuorumBlockProcessor::%s -- Upgrading DB...\n", __func__);
 
-    //if (chainActive.Height() >= Params().GetConsensus().DIP0003EnforcementHeight) {
-    //    auto pindex = chainActive[Params().GetConsensus().DIP0003EnforcementHeight];
+    // if (chainActive.Height() >= Params().GetConsensus().DIP0003EnforcementHeight) {
+    //     auto pindex = chainActive[Params().GetConsensus().DIP0003EnforcementHeight];
     if (chainActive.Height() >= 1) {
-           auto pindex = chainActive[1];
+        auto pindex = chainActive[1];
         while (pindex) {
             if (fPruneMode && !(pindex->nStatus & BLOCK_HAVE_DATA)) {
                 // Too late, we already pruned blocks we needed to reprocess commitments
@@ -325,7 +327,7 @@ bool CQuorumBlockProcessor::GetCommitmentsFromBlock(const CBlock& block, const C
 
             // only allow one commitment per type and per block
             if (ret.count((Consensus::LLMQType)qc.commitment.llmqType)) {
-            	std::cout << "ret.count failed \n";
+                std::cout << "ret.count failed \n";
                 return state.DoS(100, false, REJECT_INVALID, "bad-qc-dup");
             }
 
@@ -483,7 +485,7 @@ void CQuorumBlockProcessor::AddMinableCommitment(const CFinalCommitment& fqc)
     {
         LOCK(minableCommitmentsCs);
 
-        auto k = std::make_pair((Consensus::LLMQType) fqc.llmqType, fqc.quorumHash);
+        auto k = std::make_pair((Consensus::LLMQType)fqc.llmqType, fqc.quorumHash);
         auto ins = minableCommitmentsByQuorum.emplace(k, commitmentHash);
         if (ins.second) {
             minableCommitments.emplace(commitmentHash, fqc);

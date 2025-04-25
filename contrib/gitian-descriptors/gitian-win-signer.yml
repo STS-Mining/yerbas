@@ -1,21 +1,21 @@
 ---
-name: "yerbas-win-signer"
+name: "memeium-win-signer"
 suites:
-- "bionic"
+  - "bionic"
 architectures:
-- "amd64"
+  - "amd64"
 packages:
-- "libssl-dev"
-- "autoconf"
-- "automake"
-- "libtool"
-- "pkg-config"
+  - "libssl-dev"
+  - "autoconf"
+  - "automake"
+  - "libtool"
+  - "pkg-config"
 remotes:
-- "url": "https://github.com/The-Yerbas-Endeavor/yerbas-detached-sigs.git"
-  "dir": "signature"
+  - "url": "https://github.com/The-Memeium-Endeavor/memeium-detached-sigs.git"
+    "dir": "signature"
 files:
-- "osslsigncode-2.0.tar.gz"
-- "yerbascore-win-unsigned.tar.gz"
+  - "osslsigncode-2.0.tar.gz"
+  - "memeiumcore-win-unsigned.tar.gz"
 script: |
   BUILD_DIR=`pwd`
   SIGDIR=${BUILD_DIR}/signature/win
@@ -24,7 +24,7 @@ script: |
   echo "5a60e0a4b3e0b4d655317b2f12a810211c50242138322b16e7e01c6fbb89d92f  osslsigncode-2.0.tar.gz" | sha256sum -c
 
   mkdir -p ${UNSIGNED_DIR}
-  tar -C ${UNSIGNED_DIR} -xf yerbascore-win-unsigned.tar.gz
+  tar -C ${UNSIGNED_DIR} -xf memeiumcore-win-unsigned.tar.gz
 
   tar xf osslsigncode-2.0.tar.gz
   cd osslsigncode-2.0

@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -92,8 +92,8 @@ CAmount ParsePaymentAmount(const std::string& strAmount)
 }
 
 /**
-*   Add Governance Object
-*/
+ *   Add Governance Object
+ */
 
 bool CGovernanceTriggerManager::AddNewTrigger(uint256 nHash)
 {
@@ -102,7 +102,7 @@ bool CGovernanceTriggerManager::AddNewTrigger(uint256 nHash)
     // IF WE ALREADY HAVE THIS HASH, RETURN
     if (mapTrigger.count(nHash)) {
         LogPrint(BCLog::GOBJECT, "CGovernanceTriggerManager::AddNewTrigger -- Already have hash, nHash = %s, count = %d, size = %s\n",
-                    nHash.GetHex(), mapTrigger.count(nHash), mapTrigger.size());
+            nHash.GetHex(), mapTrigger.count(nHash), mapTrigger.size());
         return false;
     }
 
@@ -126,10 +126,10 @@ bool CGovernanceTriggerManager::AddNewTrigger(uint256 nHash)
 }
 
 /**
-*
-*   Clean And Remove
-*
-*/
+ *
+ *   Clean And Remove
+ *
+ */
 
 void CGovernanceTriggerManager::CleanAndRemove()
 {
@@ -193,11 +193,11 @@ void CGovernanceTriggerManager::CleanAndRemove()
 }
 
 /**
-*   Get Active Triggers
-*
-*   - Look through triggers and scan for active ones
-*   - Return the triggers in a list
-*/
+ *   Get Active Triggers
+ *
+ *   - Look through triggers and scan for active ones
+ *   - Return the triggers in a list
+ */
 
 std::vector<CSuperblock_sptr> CGovernanceTriggerManager::GetActiveTriggers()
 {
@@ -216,10 +216,10 @@ std::vector<CSuperblock_sptr> CGovernanceTriggerManager::GetActiveTriggers()
 }
 
 /**
-*   Is Superblock Triggered
-*
-*   - Does this block have a non-executed and actived trigger?
-*/
+ *   Is Superblock Triggered
+ *
+ *   - Does this block have a non-executed and actived trigger?
+ */
 
 bool CSuperblockManager::IsSuperblockTriggered(int nBlockHeight)
 {
@@ -308,10 +308,10 @@ bool CSuperblockManager::GetBestSuperblock(CSuperblock_sptr& pSuperblockRet, int
 }
 
 /**
-*   Get Superblock Payments
-*
-*   - Returns payments for superblock
-*/
+ *   Get Superblock Payments
+ *
+ *   - Returns payments for superblock
+ */
 
 bool CSuperblockManager::GetSuperblockPayments(int nBlockHeight, std::vector<CTxOut>& voutSuperblockRet)
 {
@@ -350,10 +350,10 @@ bool CSuperblockManager::GetSuperblockPayments(int nBlockHeight, std::vector<CTx
             ExtractDestination(payment.script, address1);
             CBitcoinAddress address2(address1);
 
-            // TODO: PRINT NICE N.N YERBAS OUTPUT
+            // TODO: PRINT NICE N.N MEMEIUM OUTPUT
 
             LogPrint(BCLog::GOBJECT, "CSuperblockManager::GetSuperblockPayments -- NEW Superblock: output %d (addr %s, amount %lld)\n",
-                        i, address2.ToString(), payment.nAmount);
+                i, address2.ToString(), payment.nAmount);
         } else {
             LogPrint(BCLog::GOBJECT, "CSuperblockManager::GetSuperblockPayments -- Payment not found\n");
         }
@@ -410,7 +410,7 @@ CSuperblock::
     }
 
     LogPrint(BCLog::GOBJECT, "CSuperblock -- Constructor pGovObj: %s, nObjectType = %d\n",
-                pGovObj->GetDataAsPlainString(), pGovObj->GetObjectType());
+        pGovObj->GetDataAsPlainString(), pGovObj->GetObjectType());
 
     if (pGovObj->GetObjectType() != GOVERNANCE_OBJECT_TRIGGER) {
         throw std::runtime_error("CSuperblock: Governance Object not a trigger");
@@ -515,7 +515,7 @@ void CSuperblock::ParsePaymentSchedule(const std::string& strPaymentAddresses, c
         CBitcoinAddress address(vecParsed1[i]);
         if (!address.IsValid()) {
             std::ostringstream ostr;
-            ostr << "CSuperblock::ParsePaymentSchedule -- Invalid Yerbas Address : " << vecParsed1[i];
+            ostr << "CSuperblock::ParsePaymentSchedule -- Invalid Memeium Address : " << vecParsed1[i];
             LogPrintf("%s\n", ostr.str());
             throw std::runtime_error(ostr.str());
         }
@@ -573,10 +573,10 @@ CAmount CSuperblock::GetPaymentsTotalAmount()
 }
 
 /**
-*   Is Transaction Valid
-*
-*   - Does this transaction match the superblock?
-*/
+ *   Is Transaction Valid
+ *
+ *   - Does this transaction match the superblock?
+ */
 
 bool CSuperblock::IsValid(const CTransaction& txNew, int nBlockHeight, CAmount blockReward)
 {
@@ -694,10 +694,10 @@ bool CSuperblock::IsExpired() const
 }
 
 /**
-*   Get Required Payment String
-*
-*   - Get a string representing the payments required for a given superblock
-*/
+ *   Get Required Payment String
+ *
+ *   - Get a string representing the payments required for a given superblock
+ */
 
 std::string CSuperblockManager::GetRequiredPaymentsString(int nBlockHeight)
 {

@@ -1,17 +1,17 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_CRYPTO_BLS_BATCHVERIFIER_H
-#define YERBAS_CRYPTO_BLS_BATCHVERIFIER_H
+#ifndef MEMEIUM_CRYPTO_BLS_BATCHVERIFIER_H
+#define MEMEIUM_CRYPTO_BLS_BATCHVERIFIER_H
 
 #include "bls.h"
 
 #include <map>
 #include <vector>
 
-template<typename SourceId, typename MessageId>
+template <typename SourceId, typename MessageId>
 class CBLSBatchVerifier
 {
 private:
@@ -39,9 +39,9 @@ public:
 
 public:
     CBLSBatchVerifier(bool _secureVerification, bool _perMessageFallback, size_t _subBatchSize = 0) :
-            secureVerification(_secureVerification),
-            perMessageFallback(_perMessageFallback),
-            subBatchSize(_subBatchSize)
+        secureVerification(_secureVerification),
+        perMessageFallback(_perMessageFallback),
+        subBatchSize(_subBatchSize)
     {
     }
 
@@ -203,7 +203,7 @@ private:
         msgHashes.reserve(messages.size());
         pubKeys.reserve(messages.size());
 
-        for (auto it = byMessageHash.begin(); it != byMessageHash.end(); ) {
+        for (auto it = byMessageHash.begin(); it != byMessageHash.end();) {
             const auto& msgHash = it->first;
             auto& messageIts = it->second;
             const auto& msg = messageIts.back()->second;
@@ -233,4 +233,4 @@ private:
     }
 };
 
-#endif //YERBAS_CRYPTO_BLS_BATCHVERIFIER_H
+#endif // MEMEIUM_CRYPTO_BLS_BATCHVERIFIER_H

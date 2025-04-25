@@ -34,8 +34,7 @@ std::string ValueFromAmountString(const CAmount& amount, const int8_t units)
 
     if (units == 0 && remainder == 0) {
         return strprintf("%s%d", sign ? "-" : "", quotient);
-    }
-    else {
+    } else {
         return strprintf("%s%d.%0" + std::to_string(units) + "d", sign ? "-" : "", quotient, remainder);
     }
 }
@@ -87,11 +86,11 @@ std::string FormatScript(const CScript& script)
 
 const std::map<unsigned char, std::string> mapSigHashTypes = {
     {static_cast<unsigned char>(SIGHASH_ALL), std::string("ALL")},
-    {static_cast<unsigned char>(SIGHASH_ALL|SIGHASH_ANYONECANPAY), std::string("ALL|ANYONECANPAY")},
+    {static_cast<unsigned char>(SIGHASH_ALL | SIGHASH_ANYONECANPAY), std::string("ALL|ANYONECANPAY")},
     {static_cast<unsigned char>(SIGHASH_NONE), std::string("NONE")},
-    {static_cast<unsigned char>(SIGHASH_NONE|SIGHASH_ANYONECANPAY), std::string("NONE|ANYONECANPAY")},
+    {static_cast<unsigned char>(SIGHASH_NONE | SIGHASH_ANYONECANPAY), std::string("NONE|ANYONECANPAY")},
     {static_cast<unsigned char>(SIGHASH_SINGLE), std::string("SINGLE")},
-    {static_cast<unsigned char>(SIGHASH_SINGLE|SIGHASH_ANYONECANPAY), std::string("SINGLE|ANYONECANPAY")},
+    {static_cast<unsigned char>(SIGHASH_SINGLE | SIGHASH_ANYONECANPAY), std::string("SINGLE|ANYONECANPAY")},
 };
 
 /**
@@ -115,8 +114,8 @@ std::string ScriptToAsmStr(const CScript& script, const bool fAttemptSighashDeco
             str += "[error]";
             return str;
         }
-        if (opcode == OP_YERB_ASSET) {
-            // Once we hit an OP_YERB_ASSET, we know that all the next data should be considered as hex
+        if (opcode == OP_MMM_ASSET) {
+            // Once we hit an OP_MMM_ASSET, we know that all the next data should be considered as hex
             str += GetOpName(opcode);
             str += " ";
             str += HexStr(vch);
@@ -158,7 +157,8 @@ std::string EncodeHexTx(const CTransaction& tx)
 }
 
 void ScriptPubKeyToUniv(const CScript& scriptPubKey,
-                        UniValue& out, bool fIncludeHex)
+    UniValue& out,
+    bool fIncludeHex)
 {
     txnouttype type;
     std::vector<CTxDestination> addresses;
@@ -176,8 +176,8 @@ void ScriptPubKeyToUniv(const CScript& scriptPubKey,
     out.pushKV("reqSigs", nRequired);
     out.pushKV("type", GetTxnOutputType(type));
 
-        /** YERB ASSETS START */
-     if (type == TX_NEW_ASSET || type == TX_TRANSFER_ASSET || type == TX_REISSUE_ASSET) {
+    /** MMM ASSETS START */
+    if (type == TX_NEW_ASSET || type == TX_TRANSFER_ASSET || type == TX_REISSUE_ASSET) {
         UniValue assetInfo(UniValue::VOBJ);
 
         std::string _assetAddress;
@@ -188,47 +188,47 @@ void ScriptPubKeyToUniv(const CScript& scriptPubKey,
             assetInfo.pushKV("amount", ValueFromAmount(data.nAmount));
             if (!data.message.empty())
                 assetInfo.pushKV("message", EncodeAssetData(data.message));
-            if(data.expireTime)
+            if (data.expireTime)
                 assetInfo.pushKV("expire_time", data.expireTime);
 
             switch (type) {
-                case TX_NONSTANDARD:
-                case TX_PUBKEY:
-                case TX_PUBKEYHASH:
-                case TX_SCRIPTHASH:
-                case TX_MULTISIG:
-                case TX_NULL_DATA:
-                case TX_RESTRICTED_ASSET_DATA:
-                default:
-                    break;
-                case TX_NEW_ASSET:
-                    if (IsAssetNameAnOwner(data.assetName)) {
-                        // pwnd n00b
-                    } else {
-                        CNewAsset asset;
-                        if (AssetFromScript(scriptPubKey, asset, _assetAddress)) {
-                            assetInfo.pushKV("units", asset.units);
-                            assetInfo.pushKV("reissuable", asset.nReissuable > 0 ? true : false);
-                            if (asset.nHasIPFS > 0) {
-                                assetInfo.pushKV("ipfs_hash", EncodeAssetData(asset.strIPFSHash));
-                            }
-                        }
-                    }
-                    break;
-                case TX_TRANSFER_ASSET:
-                    break;
-                case TX_REISSUE_ASSET:
-                    CReissueAsset asset;
-                    if (ReissueAssetFromScript(scriptPubKey, asset, _assetAddress)) {
-                        if (asset.nUnits >= 0) {
-                            assetInfo.pushKV("units", asset.nUnits);
-                        }
+            case TX_NONSTANDARD:
+            case TX_PUBKEY:
+            case TX_PUBKEYHASH:
+            case TX_SCRIPTHASH:
+            case TX_MULTISIG:
+            case TX_NULL_DATA:
+            case TX_RESTRICTED_ASSET_DATA:
+            default:
+                break;
+            case TX_NEW_ASSET:
+                if (IsAssetNameAnOwner(data.assetName)) {
+                    // pwnd n00b
+                } else {
+                    CNewAsset asset;
+                    if (AssetFromScript(scriptPubKey, asset, _assetAddress)) {
+                        assetInfo.pushKV("units", asset.units);
                         assetInfo.pushKV("reissuable", asset.nReissuable > 0 ? true : false);
-                        if (!asset.strIPFSHash.empty()) {
+                        if (asset.nHasIPFS > 0) {
                             assetInfo.pushKV("ipfs_hash", EncodeAssetData(asset.strIPFSHash));
                         }
                     }
-                    break;
+                }
+                break;
+            case TX_TRANSFER_ASSET:
+                break;
+            case TX_REISSUE_ASSET:
+                CReissueAsset asset;
+                if (ReissueAssetFromScript(scriptPubKey, asset, _assetAddress)) {
+                    if (asset.nUnits >= 0) {
+                        assetInfo.pushKV("units", asset.nUnits);
+                    }
+                    assetInfo.pushKV("reissuable", asset.nReissuable > 0 ? true : false);
+                    if (!asset.strIPFSHash.empty()) {
+                        assetInfo.pushKV("ipfs_hash", EncodeAssetData(asset.strIPFSHash));
+                    }
+                }
+                break;
             }
         }
 
@@ -263,7 +263,7 @@ void ScriptPubKeyToUniv(const CScript& scriptPubKey,
         out.pushKV("asset_data", assetInfo);
     }
 
-     /** YERB ASSETS END */
+    /** MMM ASSETS END */
 
     UniValue a(UniValue::VARR);
     for (const CTxDestination& addr : addresses)

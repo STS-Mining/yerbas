@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -9,10 +9,10 @@
 #include "quorums_init.h"
 #include "quorums_utils.h"
 
-#include "smartnode/activesmartnode.h"
 #include "chainparams.h"
 #include "init.h"
 #include "net_processing.h"
+#include "smartnode/activesmartnode.h"
 #include "validation.h"
 
 namespace llmq
@@ -96,7 +96,7 @@ CDKGSessionHandler::CDKGSessionHandler(const Consensus::LLMQParams& _params, ctp
     pendingPrematureCommitments((size_t)_params.size * 2)
 {
     phaseHandlerThread = std::thread([this] {
-        RenameThread(strprintf("yerbas-q-phase-%d", (uint8_t)params.type).c_str());
+        RenameThread(strprintf("memeium-q-phase-%d", (uint8_t)params.type).c_str());
         PhaseHandlerThread();
     });
 }
@@ -143,7 +143,7 @@ void CDKGSessionHandler::ProcessMessage(CNode* pfrom, const std::string& strComm
 
 bool CDKGSessionHandler::InitNewQuorum(const CBlockIndex* pindexQuorum)
 {
-    //AssertLockHeld(cs_main);
+    // AssertLockHeld(cs_main);
 
     const auto& consensus = Params().GetConsensus();
 
@@ -169,13 +169,14 @@ std::pair<QuorumPhase, uint256> CDKGSessionHandler::GetPhaseAndQuorumHash() cons
     return std::make_pair(phase, quorumHash);
 }
 
-class AbortPhaseException : public std::exception {
+class AbortPhaseException : public std::exception
+{
 };
 
 void CDKGSessionHandler::WaitForNextPhase(QuorumPhase curPhase,
-                                          QuorumPhase nextPhase,
-                                          const uint256& expectedQuorumHash,
-                                          const WhileWaitFunc& runWhileWaiting)
+    QuorumPhase nextPhase,
+    const uint256& expectedQuorumHash,
+    const WhileWaitFunc& runWhileWaiting)
 {
     while (true) {
         if (stopRequested || ShutdownRequested()) {
@@ -200,8 +201,8 @@ void CDKGSessionHandler::WaitForNextPhase(QuorumPhase curPhase,
         quorumDKGDebugManager->ResetLocalSessionStatus(params.type);
     } else {
         quorumDKGDebugManager->UpdateLocalSessionStatus(params.type, [&](CDKGDebugSessionStatus& status) {
-            bool changed = status.phase != (uint8_t) nextPhase;
-            status.phase = (uint8_t) nextPhase;
+            bool changed = status.phase != (uint8_t)nextPhase;
+            status.phase = (uint8_t)nextPhase;
             return changed;
         });
     }
@@ -223,9 +224,9 @@ void CDKGSessionHandler::WaitForNewQuorum(const uint256& oldQuorumHash)
 
 // Sleep some time to not fully overload the whole network
 void CDKGSessionHandler::SleepBeforePhase(QuorumPhase curPhase,
-                                          const uint256& expectedQuorumHash,
-                                          double randomSleepFactor,
-                                          const WhileWaitFunc& runWhileWaiting)
+    const uint256& expectedQuorumHash,
+    double randomSleepFactor,
+    const WhileWaitFunc& runWhileWaiting)
 {
     if (!curSession->AreWeMember()) {
         // Non-members do not participate and do not create any network load, no need to sleep.
@@ -283,11 +284,11 @@ void CDKGSessionHandler::SleepBeforePhase(QuorumPhase curPhase,
 }
 
 void CDKGSessionHandler::HandlePhase(QuorumPhase curPhase,
-                                     QuorumPhase nextPhase,
-                                     const uint256& expectedQuorumHash,
-                                     double randomSleepFactor,
-                                     const StartPhaseFunc& startPhaseFunc,
-                                     const WhileWaitFunc& runWhileWaiting)
+    QuorumPhase nextPhase,
+    const uint256& expectedQuorumHash,
+    double randomSleepFactor,
+    const StartPhaseFunc& startPhaseFunc,
+    const WhileWaitFunc& runWhileWaiting)
 {
     SleepBeforePhase(curPhase, expectedQuorumHash, randomSleepFactor, runWhileWaiting);
     startPhaseFunc();
@@ -295,7 +296,7 @@ void CDKGSessionHandler::HandlePhase(QuorumPhase curPhase,
 }
 
 // returns a set of NodeIds which sent invalid messages
-template<typename Message>
+template <typename Message>
 std::set<NodeId> BatchVerifyMessageSigs(CDKGSession& session, const std::vector<std::pair<NodeId, std::shared_ptr<Message>>>& messages)
 {
     if (messages.empty()) {
@@ -312,7 +313,7 @@ std::set<NodeId> BatchVerifyMessageSigs(CDKGSession& session, const std::vector<
     pubKeys.reserve(messages.size());
     messageHashes.reserve(messages.size());
     bool first = true;
-    for (const auto& p : messages ) {
+    for (const auto& p : messages) {
         const auto& msg = *p.second;
 
         auto member = session.GetMember(msg.proTxHash);
@@ -389,7 +390,7 @@ std::set<NodeId> BatchVerifyMessageSigs(CDKGSession& session, const std::vector<
     return ret;
 }
 
-template<typename Message>
+template <typename Message>
 bool ProcessPendingMessageBatch(CDKGSession& session, CDKGPendingMessages& pendingMessages, size_t maxCount)
 {
     auto msgs = pendingMessages.PopAndDeserializeMessages<Message>(maxCount);
@@ -471,7 +472,7 @@ void CDKGSessionHandler::HandleDKGRound()
     uint256 curQuorumHash;
     int curQuorumHeight;
 
-    WaitForNextPhase(QuorumPhase_None, QuorumPhase_Initialized, uint256(), []{return false;});
+    WaitForNextPhase(QuorumPhase_None, QuorumPhase_Initialized, uint256(), [] { return false; });
 
     {
         LOCK(cs);
@@ -496,8 +497,8 @@ void CDKGSessionHandler::HandleDKGRound()
     }
 
     quorumDKGDebugManager->UpdateLocalSessionStatus(params.type, [&](CDKGDebugSessionStatus& status) {
-        bool changed = status.phase != (uint8_t) QuorumPhase_Initialized;
-        status.phase = (uint8_t) QuorumPhase_Initialized;
+        bool changed = status.phase != (uint8_t)QuorumPhase_Initialized;
+        status.phase = (uint8_t)QuorumPhase_Initialized;
         return changed;
     });
 
@@ -529,7 +530,7 @@ void CDKGSessionHandler::HandleDKGRound()
         }
     }
 
-    WaitForNextPhase(QuorumPhase_Initialized, QuorumPhase_Contribute, curQuorumHash, []{return false;});
+    WaitForNextPhase(QuorumPhase_Initialized, QuorumPhase_Contribute, curQuorumHash, [] { return false; });
 
     // Contribute
     auto fContributeStart = [this]() {

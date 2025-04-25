@@ -1,11 +1,11 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "bench.h"
-#include "random.h"
 #include "bls/bls_worker.h"
+#include "random.h"
 #include "utiltime.h"
 
 #include <iostream>
@@ -22,10 +22,7 @@ void CleanupBLSTests()
     blsWorker.Stop();
 }
 
-static void BuildTestVectors(size_t count, size_t invalidCount,
-                             BLSPublicKeyVector& pubKeys, BLSSecretKeyVector& secKeys, BLSSignatureVector& sigs,
-                             std::vector<uint256>& msgHashes,
-                             std::vector<bool>& invalid)
+static void BuildTestVectors(size_t count, size_t invalidCount, BLSPublicKeyVector& pubKeys, BLSSecretKeyVector& secKeys, BLSSignatureVector& sigs, std::vector<uint256>& msgHashes, std::vector<bool>& invalid)
 {
     secKeys.resize(count);
     pubKeys.resize(count);

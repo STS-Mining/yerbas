@@ -1,4 +1,4 @@
-// Copyright (c) 2019 The Yerbas Core developers
+// Copyright (c) 2019 The Memeium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,8 +7,8 @@
 
 #include <set>
 
-#include <dbwrapper.h>
 #include "amount.h"
+#include <dbwrapper.h>
 
 class CAssetSnapshotDBEntry
 {
@@ -22,9 +22,9 @@ public:
 
     CAssetSnapshotDBEntry();
     CAssetSnapshotDBEntry(
-        const std::string & p_assetName, const int p_snapshotHeight,
-        const std::set<std::pair<std::string, CAmount>> & p_ownersAndAmounts
-    );
+        const std::string& p_assetName,
+        const int p_snapshotHeight,
+        const std::set<std::pair<std::string, CAmount>>& p_ownersAndAmounts);
 
     void SetNull()
     {
@@ -35,7 +35,7 @@ public:
         heightAndName = "";
     }
 
-    bool operator<(const CAssetSnapshotDBEntry &rhs) const
+    bool operator<(const CAssetSnapshotDBEntry& rhs) const
     {
         return heightAndName < rhs.heightAndName;
     }
@@ -43,8 +43,8 @@ public:
     // Serialization methods
     ADD_SERIALIZE_METHODS;
 
-    template<typename Stream, typename Operation>
-    inline void SerializationOp(Stream &s, Operation ser_action)
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(height);
         READWRITE(assetName);
@@ -53,7 +53,8 @@ public:
     }
 };
 
-class CAssetSnapshotDB  : public CDBWrapper {
+class CAssetSnapshotDB : public CDBWrapper
+{
 public:
     explicit CAssetSnapshotDB(size_t nCacheSize, bool fMemory = false, bool fWipe = false);
 
@@ -62,17 +63,20 @@ public:
 
     //  Add an entry to the snapshot at the specified height
     bool AddAssetOwnershipSnapshot(
-        const std::string & p_assetName, int p_height);
+        const std::string& p_assetName,
+        int p_height);
 
     //  Read all of the entries at a specified height
     bool RetrieveOwnershipSnapshot(
-        const std::string & p_assetName, int p_height,
-        CAssetSnapshotDBEntry & p_snapshotEntry);
+        const std::string& p_assetName,
+        int p_height,
+        CAssetSnapshotDBEntry& p_snapshotEntry);
 
     //  Remove the asset snapshot at the specified height
     bool RemoveOwnershipSnapshot(
-        const std::string & p_assetName, int p_height);
+        const std::string& p_assetName,
+        int p_height);
 };
 
 
-#endif //ASSETSNAPSHOTDB_H
+#endif // ASSETSNAPSHOTDB_H

@@ -1,5 +1,5 @@
 // Copyright (c) 2017-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -19,18 +19,18 @@
 bool CheckCbTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CValidationState& state)
 {
     if (tx.nType != TRANSACTION_COINBASE) {
-    	std::cout << "fail to check TRANSACTION_COINBASE\n";
+        std::cout << "fail to check TRANSACTION_COINBASE\n";
         return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-type");
     }
 
     if (!tx.IsCoinBase()) {
-    	std::cout << "fail to check IsCoinBase\n";
+        std::cout << "fail to check IsCoinBase\n";
         return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-invalid");
     }
 
     CCbTx cbTx;
     if (!GetTxPayload(tx, cbTx)) {
-    	std::cout << "fail to check GetTxPayload " << tx.ToString() << endl;
+        std::cout << "fail to check GetTxPayload " << tx.ToString() << endl;
         return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-payload");
     }
 
@@ -40,13 +40,13 @@ bool CheckCbTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CValidatio
     }
 
     if (pindexPrev && pindexPrev->nHeight + 1 != cbTx.nHeight) {
-    	std::cout << "fail to check nHeight\n";
+        std::cout << "fail to check nHeight\n";
         return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-height");
     }
 
     if (pindexPrev) {
         if (Params().GetConsensus().DIP0008Enabled && cbTx.nVersion < 2) {
-        	LogPrintf("CheckCbTx DIP0008Enabled: cbTx.nVersion=%d\n", cbTx.nVersion);
+            LogPrintf("CheckCbTx DIP0008Enabled: cbTx.nVersion=%d\n", cbTx.nVersion);
             return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-version");
         }
     }
@@ -72,21 +72,23 @@ bool CheckCbTxMerkleRoots(const CBlock& block, const CBlockIndex* pindex, CValid
         return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-payload");
     }
 
-    int64_t nTime2 = GetTimeMicros(); nTimePayload += nTime2 - nTime1;
+    int64_t nTime2 = GetTimeMicros();
+    nTimePayload += nTime2 - nTime1;
     LogPrint(BCLog::BENCHMARK, "          - GetTxPayload: %.2fms [%.2fs]\n", 0.001 * (nTime2 - nTime1), nTimePayload * 0.000001);
 
     if (pindex) {
         uint256 calculatedMerkleRoot;
         if (!CalcCbTxMerkleRootMNList(block, pindex->pprev, calculatedMerkleRoot, state)) {
-        	std::cout << "CalcCbTxMerkleRootMNList false\n";
+            std::cout << "CalcCbTxMerkleRootMNList false\n";
             return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-mnmerkleroot");
         }
         if (calculatedMerkleRoot != cbTx.merkleRootMNList) {
-        	std::cout << "calculatedMerkleRoot !=  cbTx.merkleRootMNList " << calculatedMerkleRoot.GetHex() << "!=" <<  cbTx.merkleRootMNList.GetHex() << endl;
+            std::cout << "calculatedMerkleRoot !=  cbTx.merkleRootMNList " << calculatedMerkleRoot.GetHex() << "!=" << cbTx.merkleRootMNList.GetHex() << endl;
             return state.DoS(100, false, REJECT_INVALID, "bad-cbtx-mnmerkleroot");
         }
 
-        int64_t nTime3 = GetTimeMicros(); nTimeMerkleMNL += nTime3 - nTime2;
+        int64_t nTime3 = GetTimeMicros();
+        nTimeMerkleMNL += nTime3 - nTime2;
         LogPrint(BCLog::BENCHMARK, "          - CalcCbTxMerkleRootMNList: %.2fms [%.2fs]\n", 0.001 * (nTime3 - nTime2), nTimeMerkleMNL * 0.000001);
 
         if (cbTx.nVersion >= 2) {
@@ -98,9 +100,9 @@ bool CheckCbTxMerkleRoots(const CBlock& block, const CBlockIndex* pindex, CValid
             }
         }
 
-        int64_t nTime4 = GetTimeMicros(); nTimeMerkleQuorum += nTime4 - nTime3;
+        int64_t nTime4 = GetTimeMicros();
+        nTimeMerkleQuorum += nTime4 - nTime3;
         LogPrint(BCLog::BENCHMARK, "          - CalcCbTxMerkleRootQuorums: %.2fms [%.2fs]\n", 0.001 * (nTime4 - nTime3), nTimeMerkleQuorum * 0.000001);
-
     }
 
     return true;
@@ -118,15 +120,17 @@ bool CalcCbTxMerkleRootMNList(const CBlock& block, const CBlockIndex* pindexPrev
 
     CDeterministicMNList tmpMNList;
     if (!deterministicMNManager->BuildNewListFromBlock(block, pindexPrev, state, tmpMNList, false)) {
-    	return false;
+        return false;
     }
 
-    int64_t nTime2 = GetTimeMicros(); nTimeDMN += nTime2 - nTime1;
+    int64_t nTime2 = GetTimeMicros();
+    nTimeDMN += nTime2 - nTime1;
     LogPrint(BCLog::BENCHMARK, "            - BuildNewListFromBlock: %.2fms [%.2fs]\n", 0.001 * (nTime2 - nTime1), nTimeDMN * 0.000001);
 
     CSimplifiedMNList sml(tmpMNList);
 
-    int64_t nTime3 = GetTimeMicros(); nTimeSMNL += nTime3 - nTime2;
+    int64_t nTime3 = GetTimeMicros();
+    nTimeSMNL += nTime3 - nTime2;
     LogPrint(BCLog::BENCHMARK, "            - CSimplifiedMNList: %.2fms [%.2fs]\n", 0.001 * (nTime3 - nTime2), nTimeSMNL * 0.000001);
 
     static CSimplifiedMNList smlCached;
@@ -141,7 +145,8 @@ bool CalcCbTxMerkleRootMNList(const CBlock& block, const CBlockIndex* pindexPrev
     bool mutated = false;
     merkleRootRet = sml.CalcMerkleRoot(&mutated);
 
-    int64_t nTime4 = GetTimeMicros(); nTimeMerkle += nTime4 - nTime3;
+    int64_t nTime4 = GetTimeMicros();
+    nTimeMerkle += nTime4 - nTime3;
     LogPrint(BCLog::BENCHMARK, "            - CalcMerkleRoot: %.2fms [%.2fs]\n", 0.001 * (nTime4 - nTime3), nTimeMerkle * 0.000001);
 
     smlCached = std::move(sml);
@@ -168,7 +173,8 @@ bool CalcCbTxMerkleRootQuorums(const CBlock& block, const CBlockIndex* pindexPre
     std::map<Consensus::LLMQType, std::vector<uint256>> qcHashes;
     size_t hashCount = 0;
 
-    int64_t nTime2 = GetTimeMicros(); nTimeMinedAndActive += nTime2 - nTime1;
+    int64_t nTime2 = GetTimeMicros();
+    nTimeMinedAndActive += nTime2 - nTime1;
     LogPrint(BCLog::BENCHMARK, "            - GetMinedAndActiveCommitmentsUntilBlock: %.2fms [%.2fs]\n", 0.001 * (nTime2 - nTime1), nTimeMinedAndActive * 0.000001);
 
     if (quorums == quorumsCached) {
@@ -190,7 +196,8 @@ bool CalcCbTxMerkleRootQuorums(const CBlock& block, const CBlockIndex* pindexPre
         qcHashesCached = qcHashes;
     }
 
-    int64_t nTime3 = GetTimeMicros(); nTimeMined += nTime3 - nTime2;
+    int64_t nTime3 = GetTimeMicros();
+    nTimeMined += nTime3 - nTime2;
     LogPrint(BCLog::BENCHMARK, "            - GetMinedCommitment: %.2fms [%.2fs]\n", 0.001 * (nTime3 - nTime2), nTimeMined * 0.000001);
 
     // now add the commitments from the current block, which are not returned by GetMinedAndActiveCommitmentsUntilBlock
@@ -231,13 +238,15 @@ bool CalcCbTxMerkleRootQuorums(const CBlock& block, const CBlockIndex* pindexPre
     }
     std::sort(qcHashesVec.begin(), qcHashesVec.end());
 
-    int64_t nTime4 = GetTimeMicros(); nTimeLoop += nTime4 - nTime3;
+    int64_t nTime4 = GetTimeMicros();
+    nTimeLoop += nTime4 - nTime3;
     LogPrint(BCLog::BENCHMARK, "            - Loop: %.2fms [%.2fs]\n", 0.001 * (nTime4 - nTime3), nTimeLoop * 0.000001);
 
     bool mutated = false;
     merkleRootRet = ComputeMerkleRoot(qcHashesVec, &mutated);
 
-    int64_t nTime5 = GetTimeMicros(); nTimeMerkle += nTime5 - nTime4;
+    int64_t nTime5 = GetTimeMicros();
+    nTimeMerkle += nTime5 - nTime4;
     LogPrint(BCLog::BENCHMARK, "            - ComputeMerkleRoot: %.2fms [%.2fs]\n", 0.001 * (nTime5 - nTime4), nTimeMerkle * 0.000001);
 
     return !mutated;

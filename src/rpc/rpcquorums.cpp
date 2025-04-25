@@ -1,5 +1,5 @@
 // Copyright (c) 2017-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -16,23 +16,20 @@
 void quorum_list_help()
 {
     throw std::runtime_error(
-            "quorum list ( count )\n"
-            "List of on-chain quorums\n"
-            "\nArguments:\n"
-            "1. count           (number, optional) Number of quorums to list. Will list active quorums\n"
-            "                   if \"count\" is not specified.\n"
-            "\nResult:\n"
-            "{\n"
-            "  \"quorumName\" : [                    (array of strings) List of quorum hashes per some quorum type.\n"
-            "     \"quorumHash\"                     (string) Quorum hash. Note: most recent quorums come first.\n"
-            "     ,...\n"
-            "  ],\n"
-            "}\n"
-            "\nExamples:\n"
-            + HelpExampleCli("quorum", "list")
-            + HelpExampleCli("quorum", "list 10")
-            + HelpExampleRpc("quorum", "list, 10")
-    );
+        "quorum list ( count )\n"
+        "List of on-chain quorums\n"
+        "\nArguments:\n"
+        "1. count           (number, optional) Number of quorums to list. Will list active quorums\n"
+        "                   if \"count\" is not specified.\n"
+        "\nResult:\n"
+        "{\n"
+        "  \"quorumName\" : [                    (array of strings) List of quorum hashes per some quorum type.\n"
+        "     \"quorumHash\"                     (string) Quorum hash. Note: most recent quorums come first.\n"
+        "     ,...\n"
+        "  ],\n"
+        "}\n"
+        "\nExamples:\n" +
+        HelpExampleCli("quorum", "list") + HelpExampleCli("quorum", "list 10") + HelpExampleRpc("quorum", "list, 10"));
 }
 
 UniValue quorum_list(const JSONRPCRequest& request)
@@ -70,13 +67,12 @@ UniValue quorum_list(const JSONRPCRequest& request)
 void quorum_info_help()
 {
     throw std::runtime_error(
-            "quorum info llmqType \"quorumHash\" ( includeSkShare )\n"
-            "Return information about a quorum\n"
-            "\nArguments:\n"
-            "1. llmqType              (int, required) LLMQ type.\n"
-            "2. \"quorumHash\"          (string, required) Block hash of quorum.\n"
-            "3. includeSkShare        (boolean, optional) Include secret key share in output.\n"
-    );
+        "quorum info llmqType \"quorumHash\" ( includeSkShare )\n"
+        "Return information about a quorum\n"
+        "\nArguments:\n"
+        "1. llmqType              (int, required) LLMQ type.\n"
+        "2. \"quorumHash\"          (string, required) Block hash of quorum.\n"
+        "3. includeSkShare        (boolean, optional) Include secret key share in output.\n");
 }
 
 UniValue BuildQuorumInfo(const llmq::CQuorumCPtr& quorum, bool includeMembers, bool includeSkShare)
@@ -146,13 +142,12 @@ UniValue quorum_info(const JSONRPCRequest& request)
 void quorum_dkgstatus_help()
 {
     throw std::runtime_error(
-            "quorum dkgstatus ( detail_level )\n"
-            "Return the status of the current DKG process.\n"
-            "Works only when SPORK_17_QUORUM_DKG_ENABLED spork is ON.\n"
-            "\nArguments:\n"
-            "1. detail_level         (number, optional, default=0) Detail level of output.\n"
-            "                        0=Only show counts. 1=Show member indexes. 2=Show member's ProTxHashes.\n"
-    );
+        "quorum dkgstatus ( detail_level )\n"
+        "Return the status of the current DKG process.\n"
+        "Works only when SPORK_17_QUORUM_DKG_ENABLED spork is ON.\n"
+        "\nArguments:\n"
+        "1. detail_level         (number, optional, default=0) Detail level of output.\n"
+        "                        0=Only show counts. 1=Show member indexes. 2=Show member's ProTxHashes.\n");
 }
 
 UniValue quorum_dkgstatus(const JSONRPCRequest& request)
@@ -196,13 +191,12 @@ UniValue quorum_dkgstatus(const JSONRPCRequest& request)
 void quorum_memberof_help()
 {
     throw std::runtime_error(
-            "quorum memberof \"proTxHash\" (quorumCount)\n"
-            "Checks which quorums the given smartnode is a member of.\n"
-            "\nArguments:\n"
-            "1. \"proTxHash\"                (string, required) ProTxHash of the smartnode.\n"
-            "2. scanQuorumsCount           (number, optional) Number of quorums to scan for. If not specified,\n"
-            "                              the active quorum count for each specific quorum type is used."
-    );
+        "quorum memberof \"proTxHash\" (quorumCount)\n"
+        "Checks which quorums the given smartnode is a member of.\n"
+        "\nArguments:\n"
+        "1. \"proTxHash\"                (string, required) ProTxHash of the smartnode.\n"
+        "2. scanQuorumsCount           (number, optional) Number of quorums to scan for. If not specified,\n"
+        "                              the active quorum count for each specific quorum type is used.");
 }
 
 UniValue quorum_memberof(const JSONRPCRequest& request)
@@ -257,49 +251,45 @@ UniValue quorum_memberof(const JSONRPCRequest& request)
 void quorum_sign_help()
 {
     throw std::runtime_error(
-            "quorum sign llmqType \"id\" \"msgHash\"\n"
-            "Threshold-sign a message\n"
-            "\nArguments:\n"
-            "1. llmqType              (int, required) LLMQ type.\n"
-            "2. \"id\"                  (string, required) Request id.\n"
-            "3. \"msgHash\"             (string, required) Message hash.\n"
-    );
+        "quorum sign llmqType \"id\" \"msgHash\"\n"
+        "Threshold-sign a message\n"
+        "\nArguments:\n"
+        "1. llmqType              (int, required) LLMQ type.\n"
+        "2. \"id\"                  (string, required) Request id.\n"
+        "3. \"msgHash\"             (string, required) Message hash.\n");
 }
 
 void quorum_hasrecsig_help()
 {
     throw std::runtime_error(
-            "quorum hasrecsig llmqType \"id\" \"msgHash\"\n"
-            "Test if a valid recovered signature is present\n"
-            "\nArguments:\n"
-            "1. llmqType              (int, required) LLMQ type.\n"
-            "2. \"id\"                  (string, required) Request id.\n"
-            "3. \"msgHash\"             (string, required) Message hash.\n"
-    );
+        "quorum hasrecsig llmqType \"id\" \"msgHash\"\n"
+        "Test if a valid recovered signature is present\n"
+        "\nArguments:\n"
+        "1. llmqType              (int, required) LLMQ type.\n"
+        "2. \"id\"                  (string, required) Request id.\n"
+        "3. \"msgHash\"             (string, required) Message hash.\n");
 }
 
 void quorum_getrecsig_help()
 {
     throw std::runtime_error(
-            "quorum getrecsig llmqType \"id\" \"msgHash\"\n"
-            "Get a recovered signature\n"
-            "\nArguments:\n"
-            "1. llmqType              (int, required) LLMQ type.\n"
-            "2. \"id\"                  (string, required) Request id.\n"
-            "3. \"msgHash\"             (string, required) Message hash.\n"
-    );
+        "quorum getrecsig llmqType \"id\" \"msgHash\"\n"
+        "Get a recovered signature\n"
+        "\nArguments:\n"
+        "1. llmqType              (int, required) LLMQ type.\n"
+        "2. \"id\"                  (string, required) Request id.\n"
+        "3. \"msgHash\"             (string, required) Message hash.\n");
 }
 
 void quorum_isconflicting_help()
 {
     throw std::runtime_error(
-            "quorum isconflicting llmqType \"id\" \"msgHash\"\n"
-            "Test if a conflict exists\n"
-            "\nArguments:\n"
-            "1. llmqType              (int, required) LLMQ type.\n"
-            "2. \"id\"                  (string, required) Request id.\n"
-            "3. \"msgHash\"             (string, required) Message hash.\n"
-    );
+        "quorum isconflicting llmqType \"id\" \"msgHash\"\n"
+        "Test if a conflict exists\n"
+        "\nArguments:\n"
+        "1. llmqType              (int, required) LLMQ type.\n"
+        "2. \"id\"                  (string, required) Request id.\n"
+        "3. \"msgHash\"             (string, required) Message hash.\n");
 }
 
 UniValue quorum_sigs_cmd(const JSONRPCRequest& request)
@@ -352,13 +342,12 @@ UniValue quorum_sigs_cmd(const JSONRPCRequest& request)
 void quorum_dkgsimerror_help()
 {
     throw std::runtime_error(
-            "quorum dkgsimerror \"type\" rate\n"
-            "This enables simulation of errors and malicious behaviour in the DKG. Do NOT use this on mainnet\n"
-            "as you will get yourself very likely PoSe banned for this.\n"
-            "\nArguments:\n"
-            "1. \"type\"                (string, required) Error type.\n"
-            "2. rate                  (number, required) Rate at which to simulate this error type.\n"
-    );
+        "quorum dkgsimerror \"type\" rate\n"
+        "This enables simulation of errors and malicious behaviour in the DKG. Do NOT use this on mainnet\n"
+        "as you will get yourself very likely PoSe banned for this.\n"
+        "\nArguments:\n"
+        "1. \"type\"                (string, required) Error type.\n"
+        "2. rate                  (number, required) Rate at which to simulate this error type.\n");
 }
 
 UniValue quorum_dkgsimerror(const JSONRPCRequest& request)
@@ -381,25 +370,24 @@ UniValue quorum_dkgsimerror(const JSONRPCRequest& request)
 }
 
 
-[[ noreturn ]] void quorum_help()
+[[noreturn]] void quorum_help()
 {
     throw std::runtime_error(
-            "quorum \"command\" ...\n"
-            "Set of commands for quorums/LLMQs.\n"
-            "To get help on individual commands, use \"help quorum command\".\n"
-            "\nArguments:\n"
-            "1. \"command\"        (string, required) The command to execute\n"
-            "\nAvailable commands:\n"
-            "  list              - List of on-chain quorums\n"
-            "  info              - Return information about a quorum\n"
-            "  dkgsimerror       - Simulates DKG errors and malicious behavior\n"
-            "  dkgstatus         - Return the status of the current DKG process\n"
-            "  memberof          - Checks which quorums the given smartnode is a member of\n"
-            "  sign              - Threshold-sign a message\n"
-            "  hasrecsig         - Test if a valid recovered signature is present\n"
-            "  getrecsig         - Get a recovered signature\n"
-            "  isconflicting     - Test if a conflict exists\n"
-    );
+        "quorum \"command\" ...\n"
+        "Set of commands for quorums/LLMQs.\n"
+        "To get help on individual commands, use \"help quorum command\".\n"
+        "\nArguments:\n"
+        "1. \"command\"        (string, required) The command to execute\n"
+        "\nAvailable commands:\n"
+        "  list              - List of on-chain quorums\n"
+        "  info              - Return information about a quorum\n"
+        "  dkgsimerror       - Simulates DKG errors and malicious behavior\n"
+        "  dkgstatus         - Return the status of the current DKG process\n"
+        "  memberof          - Checks which quorums the given smartnode is a member of\n"
+        "  sign              - Threshold-sign a message\n"
+        "  hasrecsig         - Test if a valid recovered signature is present\n"
+        "  getrecsig         - Get a recovered signature\n"
+        "  isconflicting     - Test if a conflict exists\n");
 }
 
 UniValue quorum(const JSONRPCRequest& request)
@@ -431,12 +419,13 @@ UniValue quorum(const JSONRPCRequest& request)
 }
 
 static const CRPCCommand commands[] =
-{ //  category              name                      actor (function)         okSafeMode
-  //  --------------------- ------------------------  -----------------------  ----------
-    { "evo",                "quorum",                 &quorum,                 false, {}  },
+    {
+        //  category              name                      actor (function)         okSafeMode
+        //  --------------------- ------------------------  -----------------------  ----------
+        {"evo", "quorum", &quorum, false, {}},
 };
 
-void RegisterQuorumsRPCCommands(CRPCTable &tableRPC)
+void RegisterQuorumsRPCCommands(CRPCTable& tableRPC)
 {
     for (unsigned int vcidx = 0; vcidx < ARRAYLEN(commands); vcidx++)
         tableRPC.appendCommand(commands[vcidx].name, &commands[vcidx]);

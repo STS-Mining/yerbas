@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -9,9 +9,9 @@
 #include "governance-validators.h"
 #include "governance-vote.h"
 #include "governance.h"
+#include "messagesigner.h"
 #include "smartnode/smartnode-meta.h"
 #include "smartnode/smartnode-sync.h"
-#include "messagesigner.h"
 #include "spork.h"
 #include "util.h"
 #include "validation.h"
@@ -251,7 +251,7 @@ std::set<uint256> CGovernanceObject::RemoveInvalidVotes(const COutPoint& mnOutpo
     }
 
     auto nParentHash = GetHash();
-    for (auto jt = it->second.mapInstances.begin(); jt != it->second.mapInstances.end(); ) {
+    for (auto jt = it->second.mapInstances.begin(); jt != it->second.mapInstances.end();) {
         CGovernanceVote tmpVote(mnOutpoint, nParentHash, (vote_signal_enum_t)jt->first, jt->second.eOutcome);
         tmpVote.SetTime(jt->second.nCreationTime);
         if (removedVotes.count(tmpVote.GetHash())) {
@@ -352,12 +352,12 @@ UniValue CGovernanceObject::GetJSONObject()
 }
 
 /**
-*   LoadData
-*   --------------------------------------------------------
-*
-*   Attempt to load data from vchData
-*
-*/
+ *   LoadData
+ *   --------------------------------------------------------
+ *
+ *   Attempt to load data from vchData
+ *
+ */
 
 void CGovernanceObject::LoadData()
 {
@@ -389,12 +389,12 @@ void CGovernanceObject::LoadData()
 }
 
 /**
-*   GetData - Example usage:
-*   --------------------------------------------------------
-*
-*   Decode governance object data into UniValue(VOBJ)
-*
-*/
+ *   GetData - Example usage:
+ *   --------------------------------------------------------
+ *
+ *   Decode governance object data into UniValue(VOBJ)
+ *
+ */
 
 void CGovernanceObject::GetData(UniValue& objResult)
 {
@@ -405,10 +405,10 @@ void CGovernanceObject::GetData(UniValue& objResult)
 }
 
 /**
-*   GetData - As
-*   --------------------------------------------------------
-*
-*/
+ *   GetData - As
+ *   --------------------------------------------------------
+ *
+ */
 
 std::string CGovernanceObject::GetDataAsHexString() const
 {
@@ -539,12 +539,12 @@ bool CGovernanceObject::IsCollateralValid(std::string& strError, bool& fMissingC
     findScript << OP_RETURN << ToByteVector(nExpectedHash);
 
     LogPrint(BCLog::GOBJECT, "CGovernanceObject::IsCollateralValid -- txCollateral->vout.size() = %s, findScript = %s, nMinFee = %lld\n",
-                txCollateral->vout.size(), ScriptToAsmStr(findScript, false), nMinFee);
+        txCollateral->vout.size(), ScriptToAsmStr(findScript, false), nMinFee);
 
     bool foundOpReturn = false;
     for (const auto& output : txCollateral->vout) {
         LogPrint(BCLog::GOBJECT, "CGovernanceObject::IsCollateralValid -- txout = %s, output.nValue = %lld, output.scriptPubKey = %s\n",
-                    output.ToString(), output.nValue, ScriptToAsmStr(output.scriptPubKey, false));
+            output.ToString(), output.nValue, ScriptToAsmStr(output.scriptPubKey, false));
         if (!output.scriptPubKey.IsPayToPublicKeyHash() && !output.scriptPubKey.IsUnspendable()) {
             strError = strprintf("Invalid Script %s", txCollateral->ToString());
             LogPrintf("CGovernanceObject::IsCollateralValid -- %s\n", strError);
@@ -608,8 +608,8 @@ int CGovernanceObject::CountMatchingVotes(vote_signal_enum_t eVoteSignalIn, vote
 }
 
 /**
-*   Get specific vote counts for each outcome (funding, validity, etc)
-*/
+ *   Get specific vote counts for each outcome (funding, validity, etc)
+ */
 
 int CGovernanceObject::GetAbsoluteYesCount(vote_signal_enum_t eVoteSignalIn) const
 {
@@ -675,7 +675,7 @@ void CGovernanceObject::UpdateSentinelVariables()
     // SET SENTINEL FLAGS TO FALSE
 
     fCachedFunding = false;
-    fCachedValid = true; //default to valid
+    fCachedValid = true; // default to valid
     fCachedEndorsed = false;
     fDirtyCache = false;
 

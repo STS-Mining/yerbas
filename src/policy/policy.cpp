@@ -7,11 +7,11 @@
 
 #include "policy/policy.h"
 
-#include "validation.h"
 #include "coins.h"
 #include "tinyformat.h"
 #include "util.h"
 #include "utilstrencodings.h"
+#include "validation.h"
 
 
 CAmount GetDustThreshold(const CTxOut& txout, const CFeeRate& dustRelayFeeIn)
@@ -28,7 +28,7 @@ CAmount GetDustThreshold(const CTxOut& txout, const CFeeRate& dustRelayFeeIn)
     if (txout.scriptPubKey.IsUnspendable())
         return 0;
 
-    size_t nSize = GetSerializeSize(txout, SER_DISK, 0)+148u;
+    size_t nSize = GetSerializeSize(txout, SER_DISK, 0) + 148u;
     return dustRelayFeeIn.GetFee(nSize);
 }
 
@@ -40,31 +40,30 @@ bool IsDust(const CTxOut& txout, const CFeeRate& dustRelayFeeIn)
         return (txout.nValue < GetDustThreshold(txout, dustRelayFeeIn));
 }
 
-    /**
-     * Check transaction inputs to mitigate two
-     * potential denial-of-service attacks:
-     * 
-     * 1. scriptSigs with extra data stuffed into them,
-     *    not consumed by scriptPubKey (or P2SH script)
-     * 2. P2SH scripts with a crazy number of expensive
-     *    CHECKSIG/CHECKMULTISIG operations
-     *
-     * Why bother? To avoid denial-of-service attacks; an attacker
-     * can submit a standard HASH... OP_EQUAL transaction,
-     * which will get accepted into blocks. The redemption
-     * script can be anything; an attacker could use a very
-     * expensive-to-check-upon-redemption script like:
-     *   DUP CHECKSIG DROP ... repeated 100 times... OP_1
-     */
+/**
+ * Check transaction inputs to mitigate two
+ * potential denial-of-service attacks:
+ *
+ * 1. scriptSigs with extra data stuffed into them,
+ *    not consumed by scriptPubKey (or P2SH script)
+ * 2. P2SH scripts with a crazy number of expensive
+ *    CHECKSIG/CHECKMULTISIG operations
+ *
+ * Why bother? To avoid denial-of-service attacks; an attacker
+ * can submit a standard HASH... OP_EQUAL transaction,
+ * which will get accepted into blocks. The redemption
+ * script can be anything; an attacker could use a very
+ * expensive-to-check-upon-redemption script like:
+ *   DUP CHECKSIG DROP ... repeated 100 times... OP_1
+ */
 
 bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType)
 {
-    std::vector<std::vector<unsigned char> > vSolutions;
+    std::vector<std::vector<unsigned char>> vSolutions;
     if (!Solver(scriptPubKey, whichType, vSolutions))
         return false;
 
-    if (whichType == TX_MULTISIG)
-    {
+    if (whichType == TX_MULTISIG) {
         unsigned char m = vSolutions.front()[0];
         unsigned char n = vSolutions.back()[0];
         // Support up to x-of-3 multisig txns as standard
@@ -98,8 +97,7 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason)
         return false;
     }
 
-    for (const CTxIn& txin : tx.vin)
-    {
+    for (const CTxIn& txin : tx.vin) {
         // Biggest 'standard' txin is a 15-of-15 P2SH multisig with compressed
         // keys (remember the 520 byte limit on redeemScript size). That works
         // out to a (15*(33+1))+3=513 byte redeemScript, 513+1+15*(73+1)+3=1627
@@ -144,8 +142,8 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason)
         reason = "multi-op-return";
         return false;
     }
-    
-    // only one hundred OP_YERB_ASSET txout is permitted
+
+    // only one hundred OP_MMM_ASSET txout is permitted
     if (nAssetDataOut > 100) {
         reason = "tomany-op-yerb-asset";
         return false;
@@ -159,20 +157,18 @@ bool AreInputsStandard(const CTransaction& tx, const CCoinsViewCache& mapInputs)
     if (tx.IsCoinBase())
         return true; // Coinbases don't use vin normally
 
-    for (unsigned int i = 0; i < tx.vin.size(); i++)
-    {
+    for (unsigned int i = 0; i < tx.vin.size(); i++) {
         const CTxOut& prev = mapInputs.AccessCoin(tx.vin[i].prevout).out;
 
-        std::vector<std::vector<unsigned char> > vSolutions;
+        std::vector<std::vector<unsigned char>> vSolutions;
         txnouttype whichType;
         // get the scriptPubKey corresponding to this input:
         const CScript& prevScript = prev.scriptPubKey;
         if (!Solver(prevScript, whichType, vSolutions))
             return false;
 
-        if (whichType == TX_SCRIPTHASH)
-        {
-            std::vector<std::vector<unsigned char> > stack;
+        if (whichType == TX_SCRIPTHASH) {
+            std::vector<std::vector<unsigned char>> stack;
             // convert the scriptSig into a stack, so we can inspect the redeemScript
             if (!EvalScript(stack, tx.vin[i].scriptSig, SCRIPT_VERIFY_NONE, BaseSignatureChecker(), SIGVERSION_BASE))
                 return false;

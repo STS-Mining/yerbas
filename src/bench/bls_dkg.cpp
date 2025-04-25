@@ -1,11 +1,11 @@
 // Copyright (c) 2018 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "bench.h"
-#include "random.h"
 #include "bls/bls_worker.h"
+#include "random.h"
 
 extern CBLSWorker blsWorker;
 
@@ -16,8 +16,7 @@ struct Member {
     BLSSecretKeyVector skShares;
 };
 
-struct DKG
-{
+struct DKG {
     std::vector<Member> members;
     std::vector<CBLSId> ids;
 
@@ -40,7 +39,7 @@ struct DKG
             blsWorker.GenerateContributions(quorumSize / 2 + 1, ids, members[i].vvec, members[i].skShares);
         }
 
-        //printf("initialized quorum %d\n", quorumSize);
+        // printf("initialized quorum %d\n", quorumSize);
     }
 
     void ReceiveVvecs()
@@ -63,7 +62,7 @@ struct DKG
     void BuildQuorumVerificationVector(bool parallel)
     {
         quorumVvec = blsWorker.BuildQuorumVerificationVector(receivedVvecs, 0, 0, parallel);
-        //assert(worker.VerifyVerificationVector(*members[memberIdx].quorumVvec));
+        // assert(worker.VerifyVerificationVector(*members[memberIdx].quorumVvec));
     }
 
     void Bench_BuildQuorumVerificationVectors(benchmark::State& state, bool parallel)
@@ -137,46 +136,44 @@ void CleanupBLSDkgTests()
 }
 
 
-
-#define BENCH_BuildQuorumVerificationVectors(name, quorumSize, parallel) \
+#define BENCH_BuildQuorumVerificationVectors(name, quorumSize, parallel)                             \
     static void BLSDKG_BuildQuorumVerificationVectors_##name##_##quorumSize(benchmark::State& state) \
-    { \
-        InitIfNeeded(); \
-        dkg##quorumSize->Bench_BuildQuorumVerificationVectors(state, parallel); \
-    } \
+    {                                                                                                \
+        InitIfNeeded();                                                                              \
+        dkg##quorumSize->Bench_BuildQuorumVerificationVectors(state, parallel);                      \
+    }                                                                                                \
     BENCHMARK(BLSDKG_BuildQuorumVerificationVectors_##name##_##quorumSize)
 
 BENCH_BuildQuorumVerificationVectors(simple, 10, false)
-BENCH_BuildQuorumVerificationVectors(simple, 100, false)
-BENCH_BuildQuorumVerificationVectors(simple, 400, false)
-BENCH_BuildQuorumVerificationVectors(parallel, 10, true)
-BENCH_BuildQuorumVerificationVectors(parallel, 100, true)
-BENCH_BuildQuorumVerificationVectors(parallel, 400, true)
+    BENCH_BuildQuorumVerificationVectors(simple, 100, false)
+        BENCH_BuildQuorumVerificationVectors(simple, 400, false)
+            BENCH_BuildQuorumVerificationVectors(parallel, 10, true)
+                BENCH_BuildQuorumVerificationVectors(parallel, 100, true)
+                    BENCH_BuildQuorumVerificationVectors(parallel, 400, true)
 
 ///////////////////////////////
 
 
-
-#define BENCH_VerifyContributionShares(name, quorumSize, invalidCount, parallel, aggregated) \
-    static void BLSDKG_VerifyContributionShares_##name##_##quorumSize(benchmark::State& state) \
-    { \
-        InitIfNeeded(); \
+#define BENCH_VerifyContributionShares(name, quorumSize, invalidCount, parallel, aggregated)        \
+    static void BLSDKG_VerifyContributionShares_##name##_##quorumSize(benchmark::State& state)      \
+    {                                                                                               \
+        InitIfNeeded();                                                                             \
         dkg##quorumSize->Bench_VerifyContributionShares(state, invalidCount, parallel, aggregated); \
-    } \
+    }                                                                                               \
     BENCHMARK(BLSDKG_VerifyContributionShares_##name##_##quorumSize)
 
-BENCH_VerifyContributionShares(simple, 10, 5, false, false)
-BENCH_VerifyContributionShares(simple, 100, 5, false, false)
-BENCH_VerifyContributionShares(simple, 400, 5, false, false)
+                        BENCH_VerifyContributionShares(simple, 10, 5, false, false)
+                            BENCH_VerifyContributionShares(simple, 100, 5, false, false)
+                                BENCH_VerifyContributionShares(simple, 400, 5, false, false)
 
-BENCH_VerifyContributionShares(aggregated, 10, 5, false, true)
-BENCH_VerifyContributionShares(aggregated, 100, 5, false, true)
-BENCH_VerifyContributionShares(aggregated, 400, 5, false, true)
+                                    BENCH_VerifyContributionShares(aggregated, 10, 5, false, true)
+                                        BENCH_VerifyContributionShares(aggregated, 100, 5, false, true)
+                                            BENCH_VerifyContributionShares(aggregated, 400, 5, false, true)
 
-BENCH_VerifyContributionShares(parallel, 10, 5, true, false)
-BENCH_VerifyContributionShares(parallel, 100, 5, true, false)
-BENCH_VerifyContributionShares(parallel, 400, 5, true, false)
+                                                BENCH_VerifyContributionShares(parallel, 10, 5, true, false)
+                                                    BENCH_VerifyContributionShares(parallel, 100, 5, true, false)
+                                                        BENCH_VerifyContributionShares(parallel, 400, 5, true, false)
 
-BENCH_VerifyContributionShares(parallel_aggregated, 10, 5, true, true)
-BENCH_VerifyContributionShares(parallel_aggregated, 100, 5, true, true)
-BENCH_VerifyContributionShares(parallel_aggregated, 400, 5, true, true)
+                                                            BENCH_VerifyContributionShares(parallel_aggregated, 10, 5, true, true)
+                                                                BENCH_VerifyContributionShares(parallel_aggregated, 100, 5, true, true)
+                                                                    BENCH_VerifyContributionShares(parallel_aggregated, 400, 5, true, true)

@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,7 +7,7 @@
 
 CEvoDB* evoDb;
 
-CEvoDBScopedCommitter::CEvoDBScopedCommitter(CEvoDB &_evoDB) :
+CEvoDBScopedCommitter::CEvoDBScopedCommitter(CEvoDB& _evoDB) :
     evoDB(_evoDB)
 {
 }

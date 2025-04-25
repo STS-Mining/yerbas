@@ -1,36 +1,36 @@
 #!/usr/bin/env bash
 #
-#  yerbasd The Yerbas Core server.
+#  memeiumd The Memeium Core server.
 #
 #
 # chkconfig: 345 80 20
-# description: yerbasd
-# processname: yerbasd
+# description: memeiumd
+# processname: memeiumd
 #
 
 # Source function library.
 . /etc/init.d/functions
 
-# you can override defaults in /etc/sysconfig/yerbasd, see below
-if [ -f /etc/sysconfig/yerbasd ]; then
-        . /etc/sysconfig/yerbasd
+# you can override defaults in /etc/sysconfig/memeiumd, see below
+if [ -f /etc/sysconfig/memeiumd ]; then
+        . /etc/sysconfig/memeiumd
 fi
 
 RETVAL=0
 
-prog=yerbasd
-# you can override the lockfile via BITCOIND_LOCKFILE in /etc/sysconfig/yerbasd
-lockfile=${BITCOIND_LOCKFILE-/var/lock/subsys/yerbasd}
+prog=memeiumd
+# you can override the lockfile via BITCOIND_LOCKFILE in /etc/sysconfig/memeiumd
+lockfile=${BITCOIND_LOCKFILE-/var/lock/subsys/memeiumd}
 
-# yerbasd defaults to /usr/bin/yerbasd, override with BITCOIND_BIN
-yerbasd=${BITCOIND_BIN-/usr/bin/yerbasd}
+# memeiumd defaults to /usr/bin/memeiumd, override with BITCOIND_BIN
+memeiumd=${BITCOIND_BIN-/usr/bin/memeiumd}
 
-# yerbasd opts default to -disablewallet, override with BITCOIND_OPTS
-yerbasd_opts=${BITCOIND_OPTS--disablewallet}
+# memeiumd opts default to -disablewallet, override with BITCOIND_OPTS
+memeiumd_opts=${BITCOIND_OPTS--disablewallet}
 
 start() {
     echo -n $"Starting $prog: "
-    daemon $DAEMONOPTS $yerbasd $yerbasd_opts
+    daemon $DAEMONOPTS $memeiumd $memeiumd_opts
     RETVAL=$?
     echo
     [ $RETVAL -eq 0 ] && touch $lockfile

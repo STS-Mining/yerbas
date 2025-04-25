@@ -1,10 +1,10 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_QUORUMS_SIGNING_SHARES_H
-#define YERBAS_QUORUMS_SIGNING_SHARES_H
+#ifndef MEMEIUM_QUORUMS_SIGNING_SHARES_H
+#define MEMEIUM_QUORUMS_SIGNING_SHARES_H
 
 #include "bls/bls.h"
 #include "chainparams.h"
@@ -18,8 +18,8 @@
 
 #include "llmq/quorums.h"
 
-#include <thread>
 #include <mutex>
+#include <thread>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -71,8 +71,9 @@ public:
 
     ADD_SERIALIZE_METHODS
 
-    template<typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action) {
+    template <typename Stream, typename Operation>
+    inline void SerializationOp(Stream& s, Operation ser_action)
+    {
         READWRITE(VARINT(sessionId));
         READWRITE(llmqType);
         READWRITE(quorumHash);
@@ -92,7 +93,7 @@ public:
 public:
     ADD_SERIALIZE_METHODS
 
-    template<typename Stream, typename Operation>
+    template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
         uint64_t invSize = inv.size();
@@ -122,7 +123,7 @@ public:
 public:
     ADD_SERIALIZE_METHODS;
 
-    template<typename Stream, typename Operation>
+    template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(VARINT(sessionId));
@@ -132,7 +133,7 @@ public:
     std::string ToInvString() const;
 };
 
-template<typename T>
+template <typename T>
 class SigShareMap
 {
 private:
@@ -241,13 +242,13 @@ public:
         internalMap.erase(signHash);
     }
 
-    template<typename F>
+    template <typename F>
     void EraseIf(F&& f)
     {
-        for (auto it = internalMap.begin(); it != internalMap.end(); ) {
+        for (auto it = internalMap.begin(); it != internalMap.end();) {
             SigShareKey k;
             k.first = it->first;
-            for (auto jt = it->second.begin(); jt != it->second.end(); ) {
+            for (auto jt = it->second.begin(); jt != it->second.end();) {
                 k.second = jt->first;
                 if (f(k, jt->second)) {
                     jt = it->second.erase(jt);
@@ -263,7 +264,7 @@ public:
         }
     }
 
-    template<typename F>
+    template <typename F>
     void ForEach(F&& f)
     {
         for (auto& p : internalMap) {
@@ -281,8 +282,7 @@ class CSigSharesNodeState
 {
 public:
     // Used to avoid holding locks too long
-    struct SessionInfo
-    {
+    struct SessionInfo {
         Consensus::LLMQType llmqType;
         uint256 quorumHash;
         uint256 id;
@@ -393,14 +393,14 @@ private:
     bool PreVerifyBatchedSigShares(NodeId nodeId, const CSigSharesNodeState::SessionInfo& session, const CBatchedSigShares& batchedSigShares, bool& retBan);
 
     void CollectPendingSigSharesToVerify(size_t maxUniqueSessions,
-            std::unordered_map<NodeId, std::vector<CSigShare>>& retSigShares,
-            std::unordered_map<std::pair<Consensus::LLMQType, uint256>, CQuorumCPtr, StaticSaltedHasher>& retQuorums);
+        std::unordered_map<NodeId, std::vector<CSigShare>>& retSigShares,
+        std::unordered_map<std::pair<Consensus::LLMQType, uint256>, CQuorumCPtr, StaticSaltedHasher>& retQuorums);
     bool ProcessPendingSigShares(CConnman& connman);
 
     void ProcessPendingSigSharesFromNode(NodeId nodeId,
-            const std::vector<CSigShare>& sigShares,
-            const std::unordered_map<std::pair<Consensus::LLMQType, uint256>, CQuorumCPtr, StaticSaltedHasher>& quorums,
-            CConnman& connman);
+        const std::vector<CSigShare>& sigShares,
+        const std::unordered_map<std::pair<Consensus::LLMQType, uint256>, CQuorumCPtr, StaticSaltedHasher>& quorums,
+        CConnman& connman);
 
     void ProcessSigShare(NodeId nodeId, const CSigShare& sigShare, CConnman& connman, const CQuorumCPtr& quorum);
     void TryRecoverSig(const CQuorumCPtr& quorum, const uint256& id, const uint256& msgHash, CConnman& connman);
@@ -427,4 +427,4 @@ extern CSigSharesManager* quorumSigSharesManager;
 
 } // namespace llmq
 
-#endif //YERBAS_QUORUMS_SIGNING_SHARES_H
+#endif // MEMEIUM_QUORUMS_SIGNING_SHARES_H

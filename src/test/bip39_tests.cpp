@@ -1,15 +1,15 @@
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "base58.h"
+#include "bip39.h"
 #include "data/bip39_vectors.json.h"
 #include "key.h"
+#include "test/test_memeium.h"
 #include "util.h"
 #include "utilstrencodings.h"
-#include "test/test_yerbas.h"
-#include "bip39.h"
 
 #include <boost/test/unit_test.hpp>
 

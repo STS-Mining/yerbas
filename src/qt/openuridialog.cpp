@@ -1,6 +1,6 @@
 // Copyright (c) 2011-2014 The Bitcoin Core developers
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,13 +12,13 @@
 
 #include <QUrl>
 
-OpenURIDialog::OpenURIDialog(QWidget *parent) :
+OpenURIDialog::OpenURIDialog(QWidget* parent) :
     QDialog(parent),
     ui(new Ui::OpenURIDialog)
 {
     ui->setupUi(this);
 #if QT_VERSION >= 0x040700
-    ui->uriEdit->setPlaceholderText("yerbas:");
+    ui->uriEdit->setPlaceholderText("memeium:");
 #endif
 }
 
@@ -35,8 +35,7 @@ QString OpenURIDialog::getURI()
 void OpenURIDialog::accept()
 {
     SendCoinsRecipient rcp;
-    if(GUIUtil::parseBitcoinURI(getURI(), &rcp))
-    {
+    if (GUIUtil::parseBitcoinURI(getURI(), &rcp)) {
         /* Only accept value URIs */
         QDialog::accept();
     } else {
@@ -47,8 +46,8 @@ void OpenURIDialog::accept()
 void OpenURIDialog::on_selectFileButton_clicked()
 {
     QString filename = GUIUtil::getOpenFileName(this, tr("Select payment request file to open"), "", "", nullptr);
-    if(filename.isEmpty())
+    if (filename.isEmpty())
         return;
     QUrl fileUri = QUrl::fromLocalFile(filename);
-    ui->uriEdit->setText("yerbas:?r=" + QUrl::toPercentEncoding(fileUri.toString()));
+    ui->uriEdit->setText("memeium:?r=" + QUrl::toPercentEncoding(fileUri.toString()));
 }

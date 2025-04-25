@@ -1,8 +1,8 @@
-Source: yerbas
+Source: memeium
 Section: utils
 Priority: optional
-Maintainer: Holger Schinzel <holger@yerbas.org>
-Uploaders: Holger Schinzel <holger@yerbas.org>
+Maintainer: Holger Schinzel <holger@memeium.org>
+Uploaders: Holger Schinzel <holger@memeium.org>
 Build-Depends: debhelper,
  devscripts,
  automake,
@@ -26,45 +26,45 @@ Build-Depends: debhelper,
  python,
  libzmq3-dev
 Standards-Version: 3.9.2
-Homepage: https://www.yerbas.org/
-Vcs-Git: git://github.com/The-Yerbas-Endeavor/yerbas.git
-Vcs-Browser: https://github.com/The-Yerbas-Endeavor/yerbas
+Homepage: https://www.memeium.org/
+Vcs-Git: git://github.com/The-Memeium-Endeavor/memeium.git
+Vcs-Browser: https://github.com/The-Memeium-Endeavor/memeium
 
-Package: yerbasd
+Package: memeiumd
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer network based digital currency - daemon
- Yerbas is an experimental new digital currency that enables instant, private
- payments to anyone, anywhere in the world. Yerbas uses peer-to-peer
+ Memeium is an experimental new digital currency that enables instant, private
+ payments to anyone, anywhere in the world. Memeium uses peer-to-peer
  technology to operate with no central authority: managing transactions
- and issuing money are carried out collectively by the network. Yerbas Core
+ and issuing money are carried out collectively by the network. Memeium Core
  is the name of the open source software which enables the use of this currency.
  .
- This package provides the daemon, yerbasd, and the CLI tool
- yerbas-cli to interact with the daemon.
+ This package provides the daemon, memeiumd, and the CLI tool
+ memeium-cli to interact with the daemon.
 
-Package: yerbas-qt
+Package: memeium-qt
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer network based digital currency - Qt GUI
- Yerbas is an experimental new digital currency that enables instant, private
- payments to anyone, anywhere in the world. Yerbas uses peer-to-peer
+ Memeium is an experimental new digital currency that enables instant, private
+ payments to anyone, anywhere in the world. Memeium uses peer-to-peer
  technology to operate with no central authority: managing transactions
- and issuing money are carried out collectively by the network. Yerbas Core
+ and issuing money are carried out collectively by the network. Memeium Core
  is the name of the open source software which enables the use of this currency.
  .
- This package provides Yerbas-Qt, a GUI for Yerbas based on Qt.
+ This package provides Memeium-Qt, a GUI for Memeium based on Qt.
 
-Package: yerbas-tx
+Package: memeium-tx
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer digital currency - standalone transaction tool
- Yerbas is an experimental new digital currency that enables instant, private
- payments to anyone, anywhere in the world. Yerbas uses peer-to-peer
+ Memeium is an experimental new digital currency that enables instant, private
+ payments to anyone, anywhere in the world. Memeium uses peer-to-peer
  technology to operate with no central authority: managing transactions
- and issuing money are carried out collectively by the network. Yerbas Core
+ and issuing money are carried out collectively by the network. Memeium Core
  is the name of the open source software which enables the use of this currency.
  .
- This package provides yerbas-tx, a command-line transaction creation
- tool which can be used without a yerbas daemon.  Some means of
+ This package provides memeium-tx, a command-line transaction creation
+ tool which can be used without a memeium daemon.  Some means of
  exchanging minimal transaction data with peers is still required.

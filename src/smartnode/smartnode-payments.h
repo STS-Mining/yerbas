@@ -1,15 +1,15 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef SMARTNODE_PAYMENTS_H
 #define SMARTNODE_PAYMENTS_H
 
-#include "util.h"
 #include "core_io.h"
 #include "key.h"
 #include "net_processing.h"
+#include "util.h"
 #include "utilstrencodings.h"
 
 #include "evo/deterministicmns.h"

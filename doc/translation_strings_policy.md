@@ -1,10 +1,8 @@
-Translation Strings Policy
-===========================
+# Translation Strings Policy
 
-This document provides guidelines for internationalization of the Yerbas Core software.
+This document provides guidelines for internationalization of the Memeium Core software.
 
-How to translate?
-------------------
+## How to translate?
 
 To mark a message as translatable
 
@@ -14,8 +12,7 @@ To mark a message as translatable
 
 No internationalization is used for e.g. developer scripts outside `src`.
 
-Strings to be translated
--------------------------
+## Strings to be translated
 
 On a high level, these strings are to be translated:
 
@@ -26,8 +23,7 @@ On a high level, these strings are to be translated:
 Anything that appears to the user in the GUI is to be translated. This includes labels, menu items, button texts, tooltips and window titles.
 This includes messages passed to the GUI through the UI interface through `InitMessage`, `ThreadSafeMessageBox` or `ShowProgress`.
 
-General recommendations
-------------------------
+## General recommendations
 
 ### Avoid unnecessary translation strings
 
@@ -75,10 +71,10 @@ In Qt code use tr's third argument for optional plurality. For example:
 This adds `<numerusform>`s to the respective `.ts` file, which can be translated separately depending on the language. In English, this is simply:
 
     <message numerus="yes">
-        <source>%n active connection(s) to Yerbas network</source>
+        <source>%n active connection(s) to Memeium network</source>
         <translation>
-            <numerusform>%n active connection to Yerbas network</numerusform>
-            <numerusform>%n active connections to Yerbas network</numerusform>
+            <numerusform>%n active connection to Memeium network</numerusform>
+            <numerusform>%n active connections to Memeium network</numerusform>
         </translation>
     </message>
 
@@ -96,4 +92,4 @@ The second example reduces the number of pluralized words that translators have 
 
 During a string freeze (often before a major release), no translation strings are to be added, modified or removed.
 
-This can be checked by executing `make translate` in the `src` directory, then verifying that `yerbas_en.ts` remains unchanged.
+This can be checked by executing `make translate` in the `src` directory, then verifying that `memeium_en.ts` remains unchanged.

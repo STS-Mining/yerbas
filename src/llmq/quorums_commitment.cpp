@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,16 +15,17 @@ namespace llmq
 {
 
 CFinalCommitment::CFinalCommitment(const Consensus::LLMQParams& params, const uint256& _quorumHash) :
-        llmqType(params.type),
-        quorumHash(_quorumHash),
-        signers(params.size),
-        validMembers(params.size)
+    llmqType(params.type),
+    quorumHash(_quorumHash),
+    signers(params.size),
+    validMembers(params.size)
 {
 }
 
-#define LogPrintfFinalCommitment(...) do { \
-    LogPrintStr(strprintf("CFinalCommitment::%s -- %s", __func__, tinyformat::format(__VA_ARGS__))); \
-} while(0)
+#define LogPrintfFinalCommitment(...)                                                                    \
+    do {                                                                                                 \
+        LogPrintStr(strprintf("CFinalCommitment::%s -- %s", __func__, tinyformat::format(__VA_ARGS__))); \
+    } while (0)
 
 bool CFinalCommitment::Verify(const std::vector<CDeterministicMNCPtr>& members, bool checkSigs) const
 {
@@ -159,7 +160,7 @@ bool CheckLLMQCommitment(const CTransaction& tx, const CBlockIndex* pindexPrev, 
     }
 
     if (!Params().GetConsensus().llmqs.count((Consensus::LLMQType)qcTx.commitment.llmqType)) {
-    	std::cout << "qcTx.commitment.llmqType " << qcTx.commitment.llmqType << endl;
+        std::cout << "qcTx.commitment.llmqType " << qcTx.commitment.llmqType << endl;
         return state.DoS(100, false, REJECT_INVALID, "bad-qc-type");
     }
     const auto& params = Params().GetConsensus().llmqs.at((Consensus::LLMQType)qcTx.commitment.llmqType);

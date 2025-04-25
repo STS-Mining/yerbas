@@ -1,5 +1,5 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -40,7 +40,7 @@ CScript CKeyHolderStorage::AddKey(CWallet* pwallet)
 
 void CKeyHolderStorage::KeepAll()
 {
-    std::vector<std::unique_ptr<CKeyHolder> > tmp;
+    std::vector<std::unique_ptr<CKeyHolder>> tmp;
     {
         // don't hold cs_storage while calling KeepKey(), which might lock cs_wallet
         LOCK(cs_storage);
@@ -57,7 +57,7 @@ void CKeyHolderStorage::KeepAll()
 
 void CKeyHolderStorage::ReturnAll()
 {
-    std::vector<std::unique_ptr<CKeyHolder> > tmp;
+    std::vector<std::unique_ptr<CKeyHolder>> tmp;
     {
         // don't hold cs_storage while calling ReturnKey(), which might lock cs_wallet
         LOCK(cs_storage);

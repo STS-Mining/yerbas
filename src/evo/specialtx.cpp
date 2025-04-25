@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,8 +15,8 @@
 #include "deterministicmns.h"
 #include "specialtx.h"
 
-#include "llmq/quorums_commitment.h"
 #include "llmq/quorums_blockprocessor.h"
+#include "llmq/quorums_commitment.h"
 
 bool CheckSpecialTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CValidationState& state)
 {
@@ -24,7 +24,7 @@ bool CheckSpecialTx(const CTransaction& tx, const CBlockIndex* pindexPrev, CVali
         return true;
 
     if (!Params().GetConsensus().DIP0003Enabled) {
-    	std::cout << "fail to check DIP0003Enabled\n";
+        std::cout << "fail to check DIP0003Enabled\n";
         return state.DoS(10, false, REJECT_INVALID, "bad-tx-type");
     }
 
@@ -110,40 +110,44 @@ bool ProcessSpecialTxsInBlock(const CBlock& block, const CBlockIndex* pindex, CV
     for (int i = 0; i < (int)block.vtx.size(); i++) {
         const CTransaction& tx = *block.vtx[i];
         if (!CheckSpecialTx(tx, pindex->pprev, state)) {
-        	std::cout << "fail to check CheckSpecialTx\n";
+            std::cout << "fail to check CheckSpecialTx\n";
             return false;
         }
         if (!ProcessSpecialTx(tx, pindex, state)) {
-        	std::cout << "fail to check ProcessSpecialTx\n";
+            std::cout << "fail to check ProcessSpecialTx\n";
             return false;
         }
     }
 
-    int64_t nTime2 = GetTimeMicros(); nTimeLoop += nTime2 - nTime1;
+    int64_t nTime2 = GetTimeMicros();
+    nTimeLoop += nTime2 - nTime1;
     LogPrint(BCLog::BENCHMARK, "        - Loop: %.2fms [%.2fs]\n", 0.001 * (nTime2 - nTime1), nTimeLoop * 0.000001);
 
     if (!llmq::quorumBlockProcessor->ProcessBlock(block, pindex, state)) {
-    	std::cout << "fail to check llmq::quorumBlockProcessor->ProcessBlock\n";
+        std::cout << "fail to check llmq::quorumBlockProcessor->ProcessBlock\n";
         return false;
     }
 
-    int64_t nTime3 = GetTimeMicros(); nTimeQuorum += nTime3 - nTime2;
+    int64_t nTime3 = GetTimeMicros();
+    nTimeQuorum += nTime3 - nTime2;
     LogPrint(BCLog::BENCHMARK, "        - quorumBlockProcessor: %.2fms [%.2fs]\n", 0.001 * (nTime3 - nTime2), nTimeQuorum * 0.000001);
 
     if (!deterministicMNManager->ProcessBlock(block, pindex, state, fJustCheck)) {
-    	std::cout << "fail to check deterministicMNManager->ProcessBlock\n";
+        std::cout << "fail to check deterministicMNManager->ProcessBlock\n";
         return false;
     }
 
-    int64_t nTime4 = GetTimeMicros(); nTimeDMN += nTime4 - nTime3;
+    int64_t nTime4 = GetTimeMicros();
+    nTimeDMN += nTime4 - nTime3;
     LogPrint(BCLog::BENCHMARK, "        - deterministicMNManager: %.2fms [%.2fs]\n", 0.001 * (nTime4 - nTime3), nTimeDMN * 0.000001);
 
     if (fCheckCbTxMerleRoots && !CheckCbTxMerkleRoots(block, pindex, state)) {
-    	std::cout << "fail to check CheckCbTxMerkleRoots\n";
+        std::cout << "fail to check CheckCbTxMerkleRoots\n";
         return false;
     }
 
-    int64_t nTime5 = GetTimeMicros(); nTimeMerkle += nTime5 - nTime4;
+    int64_t nTime5 = GetTimeMicros();
+    nTimeMerkle += nTime5 - nTime4;
     LogPrint(BCLog::BENCHMARK, "        - CheckCbTxMerkleRoots: %.2fms [%.2fs]\n", 0.001 * (nTime5 - nTime4), nTimeMerkle * 0.000001);
 
     return true;

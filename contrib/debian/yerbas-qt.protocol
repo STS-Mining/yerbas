@@ -1,6 +1,6 @@
 [Protocol]
-exec=yerbas-qt '%u'
-protocol=yerbas
+exec=memeium-qt '%u'
+protocol=memeium
 input=none
 output=none
 helper=true

@@ -1,43 +1,43 @@
 // Copyright (c) 2014-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef GOVERNANCE_VOTE_H
 #define GOVERNANCE_VOTE_H
 
+#include "bls/bls.h"
 #include "key.h"
 #include "primitives/transaction.h"
-#include "bls/bls.h"
 
 class CGovernanceVote;
 class CConnman;
 
 // INTENTION OF SMARTNODES REGARDING ITEM
 enum vote_outcome_enum_t {
-    VOTE_OUTCOME_NONE      = 0,
-    VOTE_OUTCOME_YES       = 1,
-    VOTE_OUTCOME_NO        = 2,
-    VOTE_OUTCOME_ABSTAIN   = 3
+    VOTE_OUTCOME_NONE = 0,
+    VOTE_OUTCOME_YES = 1,
+    VOTE_OUTCOME_NO = 2,
+    VOTE_OUTCOME_ABSTAIN = 3
 };
 
 
 // SIGNAL VARIOUS THINGS TO HAPPEN:
 enum vote_signal_enum_t {
-    VOTE_SIGNAL_NONE       = 0,
-    VOTE_SIGNAL_FUNDING    = 1, //   -- fund this object for it's stated amount
-    VOTE_SIGNAL_VALID      = 2, //   -- this object checks out in sentinel engine
-    VOTE_SIGNAL_DELETE     = 3, //   -- this object should be deleted from memory entirely
-    VOTE_SIGNAL_ENDORSED   = 4, //   -- officially endorsed by the network somehow (delegation)
+    VOTE_SIGNAL_NONE = 0,
+    VOTE_SIGNAL_FUNDING = 1,  //   -- fund this object for it's stated amount
+    VOTE_SIGNAL_VALID = 2,    //   -- this object checks out in sentinel engine
+    VOTE_SIGNAL_DELETE = 3,   //   -- this object should be deleted from memory entirely
+    VOTE_SIGNAL_ENDORSED = 4, //   -- officially endorsed by the network somehow (delegation)
 };
 
 static const int MAX_SUPPORTED_VOTE_SIGNAL = VOTE_SIGNAL_ENDORSED;
 
 /**
-* Governance Voting
-*
-*   Static class for accessing governance data
-*/
+ * Governance Voting
+ *
+ *   Static class for accessing governance data
+ */
 
 class CGovernanceVoting
 {
@@ -59,8 +59,8 @@ class CGovernanceVote
     friend bool operator<(const CGovernanceVote& vote1, const CGovernanceVote& vote2);
 
 private:
-    bool fValid;     //if the vote is currently valid / counted
-    bool fSynced;    //if we've sent this to our peers
+    bool fValid;     // if the vote is currently valid / counted
+    bool fSynced;    // if we've sent this to our peers
     int nVoteSignal; // see VOTE_ACTIONS above
     COutPoint smartnodeOutpoint;
     uint256 nParentHash;
@@ -106,10 +106,10 @@ public:
     const COutPoint& GetSmartnodeOutpoint() const { return smartnodeOutpoint; }
 
     /**
-    *   GetHash()
-    *
-    *   GET UNIQUE HASH WITH DETERMINISTIC VALUE OF THIS SPECIFIC VOTE
-    */
+     *   GetHash()
+     *
+     *   GET UNIQUE HASH WITH DETERMINISTIC VALUE OF THIS SPECIFIC VOTE
+     */
 
     uint256 GetHash() const;
     uint256 GetSignatureHash() const;

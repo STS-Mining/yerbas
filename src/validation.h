@@ -1,7 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2015 The Bitcoin Core developers
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -9,24 +9,24 @@
 #define BITCOIN_VALIDATION_H
 
 #if defined(HAVE_CONFIG_H)
-#include "config/yerbas-config.h"
+#include "config/memeium-config.h"
 #endif
 
 #include "amount.h"
 #include "coins.h"
 #include "fs.h"
-#include "protocol.h" // For CMessageHeader::MessageStartChars
 #include "policy/feerate.h"
+#include "protocol.h" // For CMessageHeader::MessageStartChars
 #include "script/script_error.h"
+#include "spentindex.h"
 #include "sync.h"
 #include "versionbits.h"
-#include "spentindex.h"
-#include <assets/assets.h>
 #include <assets/assetdb.h>
+#include <assets/assets.h>
+#include <assets/assetsnapshotdb.h>
 #include <assets/messages.h>
 #include <assets/myassetsdb.h>
 #include <assets/restricteddb.h>
-#include <assets/assetsnapshotdb.h>
 #include <assets/snapshotrequestdb.h>
 
 #include <algorithm>
@@ -124,7 +124,7 @@ static const unsigned int AVG_ADDRESS_BROADCAST_INTERVAL = 30;
 static const unsigned int INVENTORY_BROADCAST_INTERVAL = 5;
 /** Maximum number of inventory items to send per transmission.
  *  Limits the impact of low-fee transaction floods.
- *  We have 4 times smaller block times in Yerbas, so we need to push 4 times more invs per 1MB. */
+ *  We have 4 times smaller block times in Memeium, so we need to push 4 times more invs per 1MB. */
 static const unsigned int INVENTORY_BROADCAST_MAX_PER_1MB_BLOCK = 4 * 7 * INVENTORY_BROADCAST_INTERVAL;
 /** Block download timeout base, expressed in millionths of the block interval (i.e. 2.5 min) */
 static const int64_t BLOCK_DOWNLOAD_TIMEOUT_BASE = 1000000;
@@ -161,8 +161,7 @@ static const bool DEFAULT_PEERBLOOMFILTERS = true;
 /** Default for -stopatheight */
 static const int DEFAULT_STOPATHEIGHT = 0;
 
-struct BlockHasher
-{
+struct BlockHasher {
     size_t operator()(const uint256& hash) const { return hash.GetCheapHash(); }
 };
 
@@ -215,7 +214,7 @@ extern uint256 hashAssumeValid;
 extern arith_uint256 nMinimumChainWork;
 
 /** Best header we've seen so far (used for getheaders queries' starting points). */
-extern CBlockIndex *pindexBestHeader;
+extern CBlockIndex* pindexBestHeader;
 
 /** Minimum disk space required - used in CheckDiskSpace() */
 static const uint64_t nMinDiskSpace = 52428800;
@@ -243,7 +242,7 @@ static const unsigned int DEFAULT_CHECKLEVEL = 3;
 // Setting the target to > than 945MB will make it likely we can respect the target.
 static const uint64_t MIN_DISK_SPACE_FOR_BLOCK_FILES = 945 * 1024 * 1024;
 
-/** 
+/**
  * Process an incoming block. This only returns after the best known valid
  * block is made active. Note that it does not, however, guarantee that the
  * specific block passed to it has been checked for validity!
@@ -275,16 +274,16 @@ bool ProcessNewBlock(const CChainParams& chainparams, const std::shared_ptr<cons
  * @param[out] ppindex If set, the pointer will be set to point to the last new block index object for the given headers
  * @param[out] first_invalid First header that fails validation, if one exists
  */
-bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& block, CValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex=nullptr, CBlockHeader *first_invalid=nullptr);
+bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& block, CValidationState& state, const CChainParams& chainparams, const CBlockIndex** ppindex = nullptr, CBlockHeader* first_invalid = nullptr);
 
 /** Check whether enough disk space is available for an incoming block */
 bool CheckDiskSpace(uint64_t nAdditionalBytes = 0);
 /** Open a block file (blk?????.dat) */
-FILE* OpenBlockFile(const CDiskBlockPos &pos, bool fReadOnly = false);
+FILE* OpenBlockFile(const CDiskBlockPos& pos, bool fReadOnly = false);
 /** Translation to a filesystem path */
-fs::path GetBlockPosFilename(const CDiskBlockPos &pos, const char *prefix);
+fs::path GetBlockPosFilename(const CDiskBlockPos& pos, const char* prefix);
 /** Import blocks from an external file */
-bool LoadExternalBlockFile(const CChainParams& chainparams, FILE* fileIn, CDiskBlockPos *dbp = nullptr);
+bool LoadExternalBlockFile(const CChainParams& chainparams, FILE* fileIn, CDiskBlockPos* dbp = nullptr);
 /** Ensures we have a genesis block in the block tree, possibly writing one to disk. */
 bool LoadGenesisBlock(const CChainParams& chainparams);
 /** Load the block tree and coins database from disk,
@@ -299,7 +298,7 @@ void ThreadScriptCheck();
 /** Check whether we are doing an initial block download (synchronizing from disk or network) */
 bool IsInitialBlockDownload();
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
-bool GetTransaction(const uint256 &hash, CTransactionRef &tx, const Consensus::Params& params, uint256 &hashBlock, bool fAllowSlow = false);
+bool GetTransaction(const uint256& hash, CTransactionRef& tx, const Consensus::Params& params, uint256& hashBlock, bool fAllowSlow = false);
 /** Find the best known block, and make it the tip of the block chain */
 bool ActivateBestChain(CValidationState& state, const CChainParams& chainparams, std::shared_ptr<const CBlock> pblock = std::shared_ptr<const CBlock>());
 
@@ -321,7 +320,7 @@ void PruneOneBlockFile(const int fileNumber);
 void UnlinkPrunedFiles(const std::set<int>& setFilesToPrune);
 
 /** Create a new block index entry for a given block hash */
-CBlockIndex * InsertBlockIndex(uint256 hash);
+CBlockIndex* InsertBlockIndex(uint256 hash);
 /** Flush all state, indexes and buffers to disk. */
 void FlushStateToDisk();
 /** Prune block files and flush state to disk. */
@@ -330,16 +329,14 @@ void PruneAndFlush();
 void PruneBlockFilesManual(int nManualPruneHeight);
 
 /** (try to) add transaction to memory pool */
-bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState &state, const CTransactionRef &tx, bool fLimitFree,
-                        bool* pfMissingInputs, bool fOverrideMempoolLimit=false,
-                        const CAmount nAbsurdFee=0, bool fDryRun=false);
+bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransactionRef& tx, bool fLimitFree, bool* pfMissingInputs, bool fOverrideMempoolLimit = false, const CAmount nAbsurdFee = 0, bool fDryRun = false);
 
 bool GetUTXOCoin(const COutPoint& outpoint, Coin& coin);
 int GetUTXOHeight(const COutPoint& outpoint);
 int GetUTXOConfirmations(const COutPoint& outpoint);
 
 /** Convert CValidationState to a human-readable message for logging */
-std::string FormatStateMessage(const CValidationState &state);
+std::string FormatStateMessage(const CValidationState& state);
 
 /** Get the BIP9 state for a given deployment at the current tip. */
 ThresholdState VersionBitsTipState(const Consensus::Params& params, Consensus::DeploymentPos pos);
@@ -363,7 +360,7 @@ void UpdateCoins(const CTransaction& tx, CCoinsViewCache& inputs, CTxUndo& txund
  *
  * See consensus/consensus.h for flag definitions.
  */
-bool CheckFinalTx(const CTransaction &tx, int flags = -1);
+bool CheckFinalTx(const CTransaction& tx, int flags = -1);
 
 /**
  * Test whether the LockPoints height and time are still valid on the current chain
@@ -381,33 +378,35 @@ bool TestLockPointValidity(const LockPoints* lp);
  *
  * See consensus/consensus.h for flag definitions.
  */
-bool CheckSequenceLocks(const CTransaction &tx, int flags, LockPoints* lp = nullptr, bool useExistingLockPoints = false);
+bool CheckSequenceLocks(const CTransaction& tx, int flags, LockPoints* lp = nullptr, bool useExistingLockPoints = false);
 
 /**
  * Closure representing one script verification
- * Note that this stores references to the spending transaction 
+ * Note that this stores references to the spending transaction
  */
 class CScriptCheck
 {
 private:
     CScript scriptPubKey;
     CAmount amount;
-    const CTransaction *ptxTo;
+    const CTransaction* ptxTo;
     unsigned int nIn;
     unsigned int nFlags;
     bool cacheStore;
     ScriptError error;
-    PrecomputedTransactionData *txdata;
+    PrecomputedTransactionData* txdata;
 
 public:
-    CScriptCheck(): amount(0), ptxTo(0), nIn(0), nFlags(0), cacheStore(false), error(SCRIPT_ERR_UNKNOWN_ERROR) {}
+    CScriptCheck() :
+        amount(0), ptxTo(0), nIn(0), nFlags(0), cacheStore(false), error(SCRIPT_ERR_UNKNOWN_ERROR) {}
     CScriptCheck(const CScript& scriptPubKeyIn, const CAmount amountIn, const CTransaction& txToIn, unsigned int nInIn, unsigned int nFlagsIn, bool cacheIn, PrecomputedTransactionData* txdataIn) :
         scriptPubKey(scriptPubKeyIn), amount(amountIn),
-        ptxTo(&txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn), error(SCRIPT_ERR_UNKNOWN_ERROR), txdata(txdataIn) { }
+        ptxTo(&txToIn), nIn(nInIn), nFlags(nFlagsIn), cacheStore(cacheIn), error(SCRIPT_ERR_UNKNOWN_ERROR), txdata(txdataIn) {}
 
     bool operator()();
 
-    void swap(CScriptCheck &check) {
+    void swap(CScriptCheck& check)
+    {
         scriptPubKey.swap(check.scriptPubKey);
         std::swap(ptxTo, check.ptxTo);
         std::swap(amount, check.amount);
@@ -421,13 +420,10 @@ public:
     ScriptError GetScriptError() const { return error; }
 };
 
-bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, std::vector<uint256> &hashes);
-bool GetSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value);
-bool GetAddressIndex(uint160 addressHash, int type,
-                     std::vector<std::pair<CAddressIndexKey, CAmount> > &addressIndex,
-                     int start = 0, int end = 0);
-bool GetAddressUnspent(uint160 addressHash, int type,
-                       std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > &unspentOutputs);
+bool GetTimestampIndex(const unsigned int& high, const unsigned int& low, std::vector<uint256>& hashes);
+bool GetSpentIndex(CSpentIndexKey& key, CSpentIndexValue& value);
+bool GetAddressIndex(uint160 addressHash, int type, std::vector<std::pair<CAddressIndexKey, CAmount>>& addressIndex, int start = 0, int end = 0);
+bool GetAddressUnspent(uint160 addressHash, int type, std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue>>& unspentOutputs);
 /** Initializes the script-execution cache */
 void InitScriptExecutionCache();
 
@@ -445,11 +441,12 @@ bool CheckBlock(const CBlock& block, CValidationState& state, const Consensus::P
 bool TestBlockValidity(CValidationState& state, const CChainParams& chainparams, const CBlock& block, CBlockIndex* pindexPrev, bool fCheckPOW = true, bool fCheckMerkleRoot = true);
 
 /** RAII wrapper for VerifyDB: Verify consistency of the block and coin databases */
-class CVerifyDB {
+class CVerifyDB
+{
 public:
     CVerifyDB();
     ~CVerifyDB();
-    bool VerifyDB(const CChainParams& chainparams, CCoinsView *coinsview, int nCheckLevel, int nCheckDepth);
+    bool VerifyDB(const CChainParams& chainparams, CCoinsView* coinsview, int nCheckLevel, int nCheckDepth);
 };
 
 /** Replay blocks that aren't fully applied to the database. */
@@ -459,79 +456,79 @@ bool ReplayBlocks(const CChainParams& params, CCoinsView* view);
 CBlockIndex* FindForkInGlobalIndex(const CChain& chain, const CBlockLocator& locator);
 
 /** Mark a block as precious and reorganize. */
-bool PreciousBlock(CValidationState& state, const CChainParams& params, CBlockIndex *pindex);
+bool PreciousBlock(CValidationState& state, const CChainParams& params, CBlockIndex* pindex);
 
 /** Mark a block as invalid. */
-bool InvalidateBlock(CValidationState& state, const CChainParams& chainparams, CBlockIndex *pindex);
+bool InvalidateBlock(CValidationState& state, const CChainParams& chainparams, CBlockIndex* pindex);
 
 /** Remove invalidity status from a block and its descendants. */
-bool ResetBlockFailureFlags(CBlockIndex *pindex);
+bool ResetBlockFailureFlags(CBlockIndex* pindex);
 
 /** The currently-connected chain of blocks (protected by cs_main). */
 extern CChain chainActive;
 
 /** Global variable that points to the coins database (protected by cs_main) */
-extern CCoinsViewDB *pcoinsdbview;
+extern CCoinsViewDB* pcoinsdbview;
 
 /** Global variable that points to the active CCoinsView (protected by cs_main) */
-extern CCoinsViewCache *pcoinsTip;
+extern CCoinsViewCache* pcoinsTip;
 
 /** Global variable that points to the active block tree (protected by cs_main) */
-extern CBlockTreeDB *pblocktree;
+extern CBlockTreeDB* pblocktree;
 
-/** YERB START */
+/** MMM START */
 
 /** Global variable that point to the active assets database (protected by cs_main) */
-extern CAssetsDB *passetsdb;
+extern CAssetsDB* passetsdb;
 
 /** Global variable that point to the active assets (protected by cs_main) */
-extern CAssetsCache *passets;
+extern CAssetsCache* passets;
 
 /** Global variable that point to the assets metadata LRU Cache (protected by cs_main) */
-extern CLRUCache<std::string, CDatabasedAssetData> *passetsCache;
+extern CLRUCache<std::string, CDatabasedAssetData>* passetsCache;
 
 /** Global variable that points to the subscribed channel LRU Cache (protected by cs_main) */
-extern CLRUCache<std::string, CMessage> *pMessagesCache;
+extern CLRUCache<std::string, CMessage>* pMessagesCache;
 
 /** Global variable that points to the subscribed channel LRU Cache (protected by cs_main) */
-extern CLRUCache<std::string, int> *pMessageSubscribedChannelsCache;
+extern CLRUCache<std::string, int>* pMessageSubscribedChannelsCache;
 
 /** Global variable that points to the address seen LRU Cache (protected by cs_main) */
-extern CLRUCache<std::string, int> *pMessagesSeenAddressCache;
+extern CLRUCache<std::string, int>* pMessagesSeenAddressCache;
 
 /** Global variable that points to the messages database (protected by cs_main) */
-extern CMessageDB *pmessagedb;
+extern CMessageDB* pmessagedb;
 
 /** Global variable that points to the message channel database (protected by cs_main) */
-extern CMessageChannelDB *pmessagechanneldb;
+extern CMessageChannelDB* pmessagechanneldb;
 
 /** Global variable that points to my wallets restricted database (protected by cs_main) */
-extern CMyRestrictedDB *pmyrestricteddb;
+extern CMyRestrictedDB* pmyrestricteddb;
 
 /** Global variable that points to the active restricted asset database (protected by cs_main) */
-extern CRestrictedDB *prestricteddb;
+extern CRestrictedDB* prestricteddb;
 
 /** Global variable that points to the asset verifier LRU Cache (protected by cs_main) */
-extern CLRUCache<std::string, CNullAssetTxVerifierString> *passetsVerifierCache;
+extern CLRUCache<std::string, CNullAssetTxVerifierString>* passetsVerifierCache;
 
 /** Global variable that points to the asset address qualifier LRU Cache (protected by cs_main) */
-extern CLRUCache<std::string, int8_t> *passetsQualifierCache; // hash(address,qualifier_name) ->int8_t
+extern CLRUCache<std::string, int8_t>* passetsQualifierCache; // hash(address,qualifier_name) ->int8_t
 
 /** Global variable that points to the asset address restriction LRU Cache (protected by cs_main) */
-extern CLRUCache<std::string, int8_t> *passetsRestrictionCache; // hash(address,qualifier_name) ->int8_t
+extern CLRUCache<std::string, int8_t>* passetsRestrictionCache; // hash(address,qualifier_name) ->int8_t
 
 /** Global variable that points to the global asset restriction LRU Cache (protected by cs_main) */
-extern CLRUCache<std::string, int8_t> *passetsGlobalRestrictionCache;
+extern CLRUCache<std::string, int8_t>* passetsGlobalRestrictionCache;
 
 /** Global variable that point to the active Snapshot Request database (protected by cs_main) */
-extern CSnapshotRequestDB *pSnapshotRequestDb;
+extern CSnapshotRequestDB* pSnapshotRequestDb;
 
 /** Global variable that point to the active asset snapshot database (protected by cs_main) */
-extern CAssetSnapshotDB *pAssetSnapshotDb;
+extern CAssetSnapshotDB* pAssetSnapshotDb;
 
-extern CDistributeSnapshotRequestDB *pDistributeSnapshotDb;
+extern CDistributeSnapshotRequestDB* pDistributeSnapshotDb;
 
-/** YERB END */
+/** MMM END */
 
 /**
  * Return the spend height, which is one more than the inputs.GetBestBlock().

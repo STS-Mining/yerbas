@@ -1,19 +1,21 @@
 ## InstantSend Technical Information
 
 InstantSend has been integrated into the Core Daemon in two ways:
-* "push" notifications (ZMQ and `-instantsendnotify` cmd-line/config option);
-* RPC commands.
+
+- "push" notifications (ZMQ and `-instantsendnotify` cmd-line/config option);
+- RPC commands.
 
 #### ZMQ
 
 When a "Transaction Lock" occurs the hash of the related transaction is broadcasted through ZMQ using both the `zmqpubrawtxlock` and `zmqpubhashtxlock` channels.
 
-* `zmqpubrawtxlock`: publishes the raw transaction when locked via InstantSend
-* `zmqpubhashtxlock`: publishes the transaction hash when locked via InstantSend
+- `zmqpubrawtxlock`: publishes the raw transaction when locked via InstantSend
+- `zmqpubhashtxlock`: publishes the transaction hash when locked via InstantSend
 
-This mechanism has been integrated into Bitcore-Node-Yerbas which allows for notification to be broadcast through Insight API in one of two ways:
-* WebSocket: [https://github.com/yerbas/insight-api-yerbas#web-socket-api](https://github.com/yerbas/insight-api-yerbas#web-socket-api)
-* API: [https://github.com/yerbas/insight-api-yerbas#instantsend-transactions](https://github.com/yerbas/insight-api-yerbas#instantsend-transactions)
+This mechanism has been integrated into Bitcore-Node-Memeium which allows for notification to be broadcast through Insight API in one of two ways:
+
+- WebSocket: [https://github.com/memeium/insight-api-memeium#web-socket-api](https://github.com/memeium/insight-api-memeium#web-socket-api)
+- API: [https://github.com/memeium/insight-api-memeium#instantsend-transactions](https://github.com/memeium/insight-api-memeium#instantsend-transactions)
 
 #### Command line option
 

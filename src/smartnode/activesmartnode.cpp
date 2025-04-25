@@ -1,14 +1,14 @@
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "activesmartnode.h"
 #include "evo/deterministicmns.h"
 #include "init.h"
-#include "smartnode/smartnode-sync.h"
 #include "netbase.h"
 #include "protocol.h"
+#include "smartnode/smartnode-sync.h"
 #include "validation.h"
 #include "warnings.h"
 
@@ -214,11 +214,11 @@ bool CActiveSmartnodeManager::IsValidNetAddr(CService addrIn)
 {
     // TODO: regtest is fine with any addresses for now,
     // should probably be a bit smarter if one day we start to implement tests for this
-    if (AreAssetsDeployed()){
-    return Params().NetworkIDString() == CBaseChainParams::REGTEST ||
-           ((addrIn.IsIPv4() || addrIn.IsIPv6())  && IsReachable(addrIn) && addrIn.IsRoutable());
+    if (AreAssetsDeployed()) {
+        return Params().NetworkIDString() == CBaseChainParams::REGTEST ||
+               ((addrIn.IsIPv4() || addrIn.IsIPv6()) && IsReachable(addrIn) && addrIn.IsRoutable());
     } else {
         return Params().NetworkIDString() == CBaseChainParams::REGTEST ||
-           (addrIn.IsIPv4()  && IsReachable(addrIn) && addrIn.IsRoutable());   
+               (addrIn.IsIPv4() && IsReachable(addrIn) && addrIn.IsRoutable());
     }
 }

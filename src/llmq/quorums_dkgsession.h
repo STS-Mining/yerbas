@@ -1,14 +1,14 @@
 // Copyright (c) 2018-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef YERBAS_QUORUMS_DKGSESSION_H
-#define YERBAS_QUORUMS_DKGSESSION_H
+#ifndef MEMEIUM_QUORUMS_DKGSESSION_H
+#define MEMEIUM_QUORUMS_DKGSESSION_H
 
+#include "batchedlogger.h"
 #include "consensus/params.h"
 #include "net.h"
-#include "batchedlogger.h"
 
 #include "bls/bls_ies.h"
 #include "bls/bls_worker.h"
@@ -45,7 +45,7 @@ public:
     CBLSSignature sig;
 
 public:
-    template<typename Stream>
+    template <typename Stream>
     inline void SerializeWithoutSig(Stream& s) const
     {
         s << llmqType;
@@ -54,13 +54,13 @@ public:
         s << *vvec;
         s << *contributions;
     }
-    template<typename Stream>
+    template <typename Stream>
     inline void Serialize(Stream& s) const
     {
         SerializeWithoutSig(s);
         s << sig;
     }
-    template<typename Stream>
+    template <typename Stream>
     inline void Unserialize(Stream& s)
     {
         BLSVerificationVector tmp1;
@@ -102,7 +102,7 @@ public:
 
     ADD_SERIALIZE_METHODS
 
-    template<typename Stream, typename Operation>
+    template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(llmqType);
@@ -133,7 +133,7 @@ public:
 public:
     ADD_SERIALIZE_METHODS
 
-    template<typename Stream, typename Operation>
+    template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(llmqType);
@@ -167,7 +167,7 @@ public:
     uint256 quorumVvecHash;
 
     CBLSSignature quorumSig; // threshold sig share of quorumHash+validMembers+pubKeyHash+vvecHash
-    CBLSSignature sig; // single member sig of quorumHash+validMembers+pubKeyHash+vvecHash
+    CBLSSignature sig;       // single member sig of quorumHash+validMembers+pubKeyHash+vvecHash
 
 public:
     CDKGPrematureCommitment() {}
@@ -181,7 +181,7 @@ public:
 public:
     ADD_SERIALIZE_METHODS
 
-    template<typename Stream, typename Operation>
+    template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action)
     {
         READWRITE(llmqType);
@@ -343,4 +343,4 @@ void SetSimulatedDKGErrorRate(const std::string& type, double rate);
 
 } // namespace llmq
 
-#endif //YERBAS_QUORUMS_DKGSESSION_H
+#endif // MEMEIUM_QUORUMS_DKGSESSION_H

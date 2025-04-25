@@ -1,24 +1,24 @@
 // Copyright (c) 2014-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "privatesend.h"
 
-#include "smartnode/activesmartnode.h"
 #include "consensus/validation.h"
-#include "smartnode/smartnode-payments.h"
-#include "smartnode/smartnode-sync.h"
 #include "messagesigner.h"
 #include "netmessagemaker.h"
 #include "script/sign.h"
+#include "smartnode/activesmartnode.h"
+#include "smartnode/smartnode-payments.h"
+#include "smartnode/smartnode-sync.h"
 #include "txmempool.h"
 #include "util.h"
 #include "utilmoneystr.h"
 #include "validation.h"
 
-#include "llmq/quorums_instantsend.h"
 #include "llmq/quorums_chainlocks.h"
+#include "llmq/quorums_instantsend.h"
 
 #include <string>
 
@@ -126,7 +126,7 @@ bool CPrivateSendBroadcastTx::IsExpired(const CBlockIndex* pindex)
 {
     // expire confirmed DSTXes after ~1h since confirmation or chainlocked confirmation
     if (nConfirmedHeight == -1 || pindex->nHeight < nConfirmedHeight) return false; // not mined yet
-    if (pindex->nHeight - nConfirmedHeight > 24) return true; // mined more then an hour ago
+    if (pindex->nHeight - nConfirmedHeight > 24) return true;                       // mined more then an hour ago
     return llmq::chainLocksHandler->HasChainLock(pindex->nHeight, *pindex->phashBlock);
 }
 
@@ -243,7 +243,7 @@ bool CPrivateSendBaseSession::IsValidInOuts(const std::vector<CTxIn>& vin, const
         int nDenom = CPrivateSend::GetDenominations(vecTxOut);
         if (nDenom != nSessionDenom) {
             LogPrint(BCLog::PRIVATESEND, "CPrivateSendBaseSession::IsValidInOuts -- ERROR: incompatible denom %d (%s) != nSessionDenom %d (%s)\n",
-                    nDenom, CPrivateSend::GetDenominationsToString(nDenom), nSessionDenom, CPrivateSend::GetDenominationsToString(nSessionDenom));
+                nDenom, CPrivateSend::GetDenominationsToString(nDenom), nSessionDenom, CPrivateSend::GetDenominationsToString(nSessionDenom));
             nMessageIDRet = ERR_DENOM;
             if (fConsumeCollateralRet) *fConsumeCollateralRet = true;
             return false;
@@ -326,8 +326,8 @@ void CPrivateSend::InitStandardDenominations()
         is convertible to another.
 
         For example:
-        100YERB+1000 == (10YERB+100)*10
-        10RM+10000 == (1YERB+1000)*10
+        100MMM+1000 == (10MMM+100)*10
+        10RM+10000 == (1MMM+1000)*10
     */
     /* Disabled
     vecStandardDenominations.push_back( (100      * COIN)+100000 );
@@ -374,7 +374,7 @@ bool CPrivateSend::IsCollateralValid(const CTransaction& txCollateral)
         }
     }
 
-    //collateral transactions are required to pay out a small fee to the miners
+    // collateral transactions are required to pay out a small fee to the miners
     if (nValueIn - nValueOut < GetCollateralAmount()) {
         LogPrint(BCLog::PRIVATESEND, "CPrivateSend::IsCollateralValid -- did not include enough fees in transaction: fees: %d, txCollateral=%s", nValueOut - nValueIn, txCollateral.ToString());
         return false;
@@ -443,7 +443,7 @@ std::string CPrivateSend::GetDenominationsToString(int nDenom)
 */
 int CPrivateSend::GetDenominations(const std::vector<CTxOut>& vecTxOut, bool fSingleRandomDenom)
 {
-    std::vector<std::pair<CAmount, int> > vecDenomUsed;
+    std::vector<std::pair<CAmount, int>> vecDenomUsed;
 
     // make a list of denominations, with zero uses
     for (const auto& nDenomValue : vecStandardDenominations) {
@@ -477,10 +477,10 @@ int CPrivateSend::GetDenominations(const std::vector<CTxOut>& vecTxOut, bool fSi
 bool CPrivateSend::GetDenominationsBits(int nDenom, std::vector<int>& vecBitsRet)
 {
     // ( bit on if present, 4 denominations example )
-    // bit 0 - 100YERBAS+1
-    // bit 1 - 10YERBAS+1
-    // bit 2 - 1YERBAS+1
-    // bit 3 - .1YERBAS+1
+    // bit 0 - 100MEMEIUM+1
+    // bit 1 - 10MEMEIUM+1
+    // bit 2 - 1MEMEIUM+1
+    // bit 3 - .1MEMEIUM+1
 
     int nMaxDenoms = vecStandardDenominations.size();
 

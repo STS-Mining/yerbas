@@ -1,35 +1,37 @@
-// Copyright (c) 2018-2020 The Yerbas Core developers
+// Copyright (c) 2018-2020 The Memeium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-#include "validation.h"
 #include "myassetsdb.h"
 #include "messages.h"
+#include "validation.h"
 #include <boost/thread.hpp>
 
 #include <boost/thread.hpp>
 
-static const char MESSAGE_FLAG = 'Z'; // Message
+static const char MESSAGE_FLAG = 'Z';       // Message
 static const char MY_MESSAGE_CHANNEL = 'C'; // My followed Channels
-static const char MY_SEEN_ADDRESSES = 'S'; // Addresses that have been seen on the chain
-static const char DB_FLAG = 'D'; // Database Flags
+static const char MY_SEEN_ADDRESSES = 'S';  // Addresses that have been seen on the chain
+static const char DB_FLAG = 'D';            // Database Flags
 
-static const char MY_TAGGED_ADDRESSES = 'T'; // Addresses that have been tagged
+static const char MY_TAGGED_ADDRESSES = 'T';     // Addresses that have been tagged
 static const char MY_RESTRICTED_ADDRESSES = 'R'; // Addresses that have been restricted
 
-CMessageDB::CMessageDB(size_t nCacheSize, bool fMemory, bool fWipe) : CDBWrapper(GetDataDir() / "messages" / "messages", nCacheSize, fMemory, fWipe) {
+CMessageDB::CMessageDB(size_t nCacheSize, bool fMemory, bool fWipe) :
+    CDBWrapper(GetDataDir() / "messages" / "messages", nCacheSize, fMemory, fWipe)
+{
 }
 
-bool CMessageDB::WriteMessage(const CMessage &message)
+bool CMessageDB::WriteMessage(const CMessage& message)
 {
     return Write(std::make_pair(MESSAGE_FLAG, message.out), message);
 }
 
-bool CMessageDB::ReadMessage(const COutPoint &out, CMessage &message)
+bool CMessageDB::ReadMessage(const COutPoint& out, CMessage& message)
 {
     return Read(std::make_pair(MESSAGE_FLAG, out), message);
 }
 
-bool CMessageDB::EraseMessage(const COutPoint &out)
+bool CMessageDB::EraseMessage(const COutPoint& out)
 {
     return Erase(std::make_pair(MESSAGE_FLAG, out));
 }
@@ -92,9 +94,9 @@ bool CMessageDB::EraseAllMessages(int& count)
     return true;
 }
 
-bool CMessageDB::Flush() {
+bool CMessageDB::Flush()
+{
     try {
-
         for (auto messageRemove : setDirtyMessagesRemove) {
             if (!EraseMessage(messageRemove))
                 return error("%s: failed to erase message %s", __func__, messageRemove.ToString());
@@ -124,7 +126,9 @@ bool CMessageDB::Flush() {
     return true;
 }
 
-CMessageChannelDB::CMessageChannelDB(size_t nCacheSize, bool fMemory, bool fWipe) : CDBWrapper(GetDataDir() / "messages" / "channels", nCacheSize, fMemory, fWipe) {
+CMessageChannelDB::CMessageChannelDB(size_t nCacheSize, bool fMemory, bool fWipe) :
+    CDBWrapper(GetDataDir() / "messages" / "channels", nCacheSize, fMemory, fWipe)
+{
 }
 
 bool CMessageChannelDB::WriteMyMessageChannel(const std::string& channelname)
@@ -165,12 +169,12 @@ bool CMessageChannelDB::LoadMyMessageChannels(std::set<std::string>& setChannels
     return true;
 }
 
-bool CMessageDB::WriteFlag(const std::string &name, bool fValue)
+bool CMessageDB::WriteFlag(const std::string& name, bool fValue)
 {
     return Write(std::make_pair(DB_FLAG, name), fValue ? '1' : '0');
 }
 
-bool CMessageDB::ReadFlag(const std::string &name, bool &fValue)
+bool CMessageDB::ReadFlag(const std::string& name, bool& fValue)
 {
     char ch;
     if (!Read(std::make_pair(DB_FLAG, name), ch))
@@ -194,12 +198,12 @@ bool CMessageChannelDB::EraseUsedAddress(const std::string& address)
     return Erase(std::make_pair(MY_SEEN_ADDRESSES, address));
 }
 
-bool CMessageChannelDB::WriteFlag(const std::string &name, bool fValue)
+bool CMessageChannelDB::WriteFlag(const std::string& name, bool fValue)
 {
     return Write(std::make_pair(DB_FLAG, name), fValue ? '1' : '0');
 }
 
-bool CMessageChannelDB::ReadFlag(const std::string &name, bool &fValue)
+bool CMessageChannelDB::ReadFlag(const std::string& name, bool& fValue)
 {
     char ch;
     if (!Read(std::make_pair(DB_FLAG, name), ch))
@@ -208,7 +212,8 @@ bool CMessageChannelDB::ReadFlag(const std::string &name, bool &fValue)
     return true;
 }
 
-bool CMessageChannelDB::Flush() {
+bool CMessageChannelDB::Flush()
+{
     try {
         LogPrintf("%s: Flushing messagechannelsdb addSize:%u, removeSize:%u, seenAddressSize:%u\n", __func__, setDirtyChannelsAdd.size(), setDirtyChannelsRemove.size(), setDirtySeenAddressAdd.size());
 
@@ -240,7 +245,9 @@ bool CMessageChannelDB::Flush() {
 }
 
 
-CMyRestrictedDB::CMyRestrictedDB(size_t nCacheSize, bool fMemory, bool fWipe) : CDBWrapper(GetDataDir() / "myrestricted", nCacheSize, fMemory, fWipe) {
+CMyRestrictedDB::CMyRestrictedDB(size_t nCacheSize, bool fMemory, bool fWipe) :
+    CDBWrapper(GetDataDir() / "myrestricted", nCacheSize, fMemory, fWipe)
+{
 }
 
 bool CMyRestrictedDB::WriteTaggedAddress(const std::string& address, const std::string& tag_name, const bool fAdd, const uint32_t& nHeight)
@@ -259,7 +266,7 @@ bool CMyRestrictedDB::EraseTaggedAddress(const std::string& address, const std::
 {
     return Erase(std::make_pair(MY_TAGGED_ADDRESSES, std::make_pair(address, tag_name)));
 }
-bool CMyRestrictedDB::LoadMyTaggedAddresses(std::vector<std::tuple<std::string, std::string, bool, uint32_t> >& vecTaggedAddresses)
+bool CMyRestrictedDB::LoadMyTaggedAddresses(std::vector<std::tuple<std::string, std::string, bool, uint32_t>>& vecTaggedAddresses)
 {
     vecTaggedAddresses.clear();
     std::unique_ptr<CDBIterator> pcursor(NewIterator());
@@ -303,7 +310,7 @@ bool CMyRestrictedDB::EraseRestrictedAddress(const std::string& address, const s
     return Erase(std::make_pair(MY_RESTRICTED_ADDRESSES, std::make_pair(address, tag_name)));
 }
 
-bool CMyRestrictedDB::LoadMyRestrictedAddresses(std::vector<std::tuple<std::string, std::string, bool, uint32_t> >& vecRestrictedAddresses)
+bool CMyRestrictedDB::LoadMyRestrictedAddresses(std::vector<std::tuple<std::string, std::string, bool, uint32_t>>& vecRestrictedAddresses)
 {
     vecRestrictedAddresses.clear();
     std::unique_ptr<CDBIterator> pcursor(NewIterator());
@@ -329,12 +336,12 @@ bool CMyRestrictedDB::LoadMyRestrictedAddresses(std::vector<std::tuple<std::stri
 }
 
 
-bool CMyRestrictedDB::WriteFlag(const std::string &name, bool fValue)
+bool CMyRestrictedDB::WriteFlag(const std::string& name, bool fValue)
 {
     return Write(std::make_pair(DB_FLAG, name), fValue ? '1' : '0');
 }
 
-bool CMyRestrictedDB::ReadFlag(const std::string &name, bool &fValue)
+bool CMyRestrictedDB::ReadFlag(const std::string& name, bool& fValue)
 {
     char ch;
     if (!Read(std::make_pair(DB_FLAG, name), ch))

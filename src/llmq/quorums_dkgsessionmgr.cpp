@@ -1,5 +1,5 @@
 // Copyright (c) 2018-2019 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -36,12 +36,12 @@ void CDKGSessionManager::StartMessageHandlerPool()
 {
     for (const auto& qt : Params().GetConsensus().llmqs) {
         dkgSessionHandlers.emplace(std::piecewise_construct,
-                std::forward_as_tuple(qt.first),
-                std::forward_as_tuple(qt.second, messageHandlerPool, blsWorker, *this));
+            std::forward_as_tuple(qt.first),
+            std::forward_as_tuple(qt.second, messageHandlerPool, blsWorker, *this));
     }
 
     messageHandlerPool.resize(2);
-    RenameThreadPool(messageHandlerPool, "yerbas-q-msg");
+    RenameThreadPool(messageHandlerPool, "memeium-q-msg");
 }
 
 void CDKGSessionManager::StopMessageHandlerPool()
@@ -72,11 +72,7 @@ void CDKGSessionManager::ProcessMessage(CNode* pfrom, const std::string& strComm
     if (!sporkManager.IsSporkActive(SPORK_17_QUORUM_DKG_ENABLED))
         return;
 
-    if (strCommand != NetMsgType::QCONTRIB
-        && strCommand != NetMsgType::QCOMPLAINT
-        && strCommand != NetMsgType::QJUSTIFICATION
-        && strCommand != NetMsgType::QPCOMMITMENT
-        && strCommand != NetMsgType::QWATCH) {
+    if (strCommand != NetMsgType::QCONTRIB && strCommand != NetMsgType::QCOMPLAINT && strCommand != NetMsgType::QJUSTIFICATION && strCommand != NetMsgType::QPCOMMITMENT && strCommand != NetMsgType::QWATCH) {
         return;
     }
 
@@ -109,10 +105,7 @@ bool CDKGSessionManager::AlreadyHave(const CInv& inv) const
 
     for (const auto& p : dkgSessionHandlers) {
         auto& dkgType = p.second;
-        if (dkgType.pendingContributions.HasSeen(inv.hash)
-            || dkgType.pendingComplaints.HasSeen(inv.hash)
-            || dkgType.pendingJustifications.HasSeen(inv.hash)
-            || dkgType.pendingPrematureCommitments.HasSeen(inv.hash)) {
+        if (dkgType.pendingContributions.HasSeen(inv.hash) || dkgType.pendingComplaints.HasSeen(inv.hash) || dkgType.pendingJustifications.HasSeen(inv.hash) || dkgType.pendingPrematureCommitments.HasSeen(inv.hash)) {
             return true;
         }
     }
@@ -266,7 +259,7 @@ void CDKGSessionManager::CleanupCache()
 {
     LOCK(contributionsCacheCs);
     auto curTime = GetTimeMillis();
-    for (auto it = contributionsCache.begin(); it != contributionsCache.end(); ) {
+    for (auto it = contributionsCache.begin(); it != contributionsCache.end();) {
         if (curTime - it->second.entryTime > MAX_CONTRIBUTION_CACHE_TIME) {
             it = contributionsCache.erase(it);
         } else {

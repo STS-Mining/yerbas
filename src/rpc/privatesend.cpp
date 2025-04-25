@@ -1,5 +1,5 @@
 // Copyright (c) 2019-2020 The Dash Core developers
-// Copyright (c) 2020 The Yerbas developers
+// Copyright (c) 2020 The Memeium developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -27,8 +27,7 @@ UniValue privatesend(const JSONRPCRequest& request)
             "\nAvailable commands:\n"
             "  start       - Start mixing\n"
             "  stop        - Stop mixing\n"
-            "  reset       - Reset mixing\n"
-        );
+            "  reset       - Reset mixing\n");
 
     if (fSmartnodeMode)
         throw JSONRPCError(RPC_INTERNAL_ERROR, "Client-side mixing is not supported on smartnodes");
@@ -76,53 +75,53 @@ UniValue privatesend(const JSONRPCRequest& request)
 UniValue getpoolinfo(const JSONRPCRequest& request)
 {
     throw std::runtime_error(
-            "getpoolinfo\n"
-            "DEPRECATED. Please use getprivatesendinfo instead.\n"
-    );
+        "getpoolinfo\n"
+        "DEPRECATED. Please use getprivatesendinfo instead.\n");
 }
 
 UniValue getprivatesendinfo(const JSONRPCRequest& request)
 {
     if (request.fHelp || request.params.size() != 0) {
         throw std::runtime_error(
-                "getprivatesendinfo\n"
-                "Returns an object containing an information about PrivateSend settings and state.\n"
-                "\nResult (for regular nodes):\n"
-                "{\n"
-                "  \"enabled\": true|false,             (bool) Whether mixing functionality is enabled\n"
-                "  \"running\": true|false,             (bool) Whether mixing is currently running\n"
-                "  \"multisession\": true|false,        (bool) Whether PrivateSend Multisession option is enabled\n"
-                "  \"max_sessions\": xxx,               (numeric) How many parallel mixing sessions can there be at once\n"
-                "  \"max_rounds\": xxx,                 (numeric) How many rounds to mix\n"
-                "  \"max_amount\": xxx,                 (numeric) Target PrivateSend balance in " + CURRENCY_UNIT + "\n"
-                "  \"max_denoms\": xxx,                 (numeric) How many inputs of each denominated amount to create\n"
-                "  \"queue_size\": xxx,                 (numeric) How many queues there are currently on the network\n"
-                "  \"sessions\":                        (array of json objects)\n"
-                "    [\n"
-                "      {\n"
-                "      \"protxhash\": \"...\",            (string) The ProTxHash of the smartnode\n"
-                "      \"outpoint\": \"txid-index\",      (string) The outpoint of the smartnode\n"
-                "      \"service\": \"host:port\",        (string) The IP address and port of the smartnode\n"
-                "      \"denomination\": xxx,           (numeric) The denomination of the mixing session in " + CURRENCY_UNIT + "\n"
-                "      \"state\": \"...\",                (string) Current state of the mixing session\n"
-                "      \"entries_count\": xxx,          (numeric) The number of entries in the mixing session\n"
-                "      }\n"
-                "      ,...\n"
-                "    ],\n"
-                "  \"keys_left\": xxx,                  (numeric) How many new keys are left since last automatic backup\n"
-                "  \"warnings\": \"...\"                  (string) Warnings if any\n"
-                "}\n"
-                "\nResult (for smartnodes):\n"
-                "{\n"
-                "  \"queue_size\": xxx,                 (numeric) How many queues there are currently on the network\n"
-                "  \"denomination\": xxx,               (numeric) The denomination of the mixing session in " + CURRENCY_UNIT + "\n"
-                "  \"state\": \"...\",                    (string) Current state of the mixing session\n"
-                "  \"entries_count\": xxx,              (numeric) The number of entries in the mixing session\n"
-                "}\n"
-                "\nExamples:\n"
-                + HelpExampleCli("getprivatesendinfo", "")
-                + HelpExampleRpc("getprivatesendinfo", "")
-        );
+            "getprivatesendinfo\n"
+            "Returns an object containing an information about PrivateSend settings and state.\n"
+            "\nResult (for regular nodes):\n"
+            "{\n"
+            "  \"enabled\": true|false,             (bool) Whether mixing functionality is enabled\n"
+            "  \"running\": true|false,             (bool) Whether mixing is currently running\n"
+            "  \"multisession\": true|false,        (bool) Whether PrivateSend Multisession option is enabled\n"
+            "  \"max_sessions\": xxx,               (numeric) How many parallel mixing sessions can there be at once\n"
+            "  \"max_rounds\": xxx,                 (numeric) How many rounds to mix\n"
+            "  \"max_amount\": xxx,                 (numeric) Target PrivateSend balance in " +
+            CURRENCY_UNIT + "\n"
+                            "  \"max_denoms\": xxx,                 (numeric) How many inputs of each denominated amount to create\n"
+                            "  \"queue_size\": xxx,                 (numeric) How many queues there are currently on the network\n"
+                            "  \"sessions\":                        (array of json objects)\n"
+                            "    [\n"
+                            "      {\n"
+                            "      \"protxhash\": \"...\",            (string) The ProTxHash of the smartnode\n"
+                            "      \"outpoint\": \"txid-index\",      (string) The outpoint of the smartnode\n"
+                            "      \"service\": \"host:port\",        (string) The IP address and port of the smartnode\n"
+                            "      \"denomination\": xxx,           (numeric) The denomination of the mixing session in " +
+            CURRENCY_UNIT + "\n"
+                            "      \"state\": \"...\",                (string) Current state of the mixing session\n"
+                            "      \"entries_count\": xxx,          (numeric) The number of entries in the mixing session\n"
+                            "      }\n"
+                            "      ,...\n"
+                            "    ],\n"
+                            "  \"keys_left\": xxx,                  (numeric) How many new keys are left since last automatic backup\n"
+                            "  \"warnings\": \"...\"                  (string) Warnings if any\n"
+                            "}\n"
+                            "\nResult (for smartnodes):\n"
+                            "{\n"
+                            "  \"queue_size\": xxx,                 (numeric) How many queues there are currently on the network\n"
+                            "  \"denomination\": xxx,               (numeric) The denomination of the mixing session in " +
+            CURRENCY_UNIT + "\n"
+                            "  \"state\": \"...\",                    (string) Current state of the mixing session\n"
+                            "  \"entries_count\": xxx,              (numeric) The number of entries in the mixing session\n"
+                            "}\n"
+                            "\nExamples:\n" +
+            HelpExampleCli("getprivatesendinfo", "") + HelpExampleRpc("getprivatesendinfo", ""));
     }
 
     UniValue obj(UniValue::VOBJ);
@@ -141,25 +140,27 @@ UniValue getprivatesendinfo(const JSONRPCRequest& request)
         return obj;
     }
 
-    obj.push_back(Pair("keys_left",     pwallet->nKeysLeftSinceAutoBackup));
-    obj.push_back(Pair("warnings",      pwallet->nKeysLeftSinceAutoBackup < PRIVATESEND_KEYS_THRESHOLD_WARNING
-                                        ? "WARNING: keypool is almost depleted!" : ""));
+    obj.push_back(Pair("keys_left", pwallet->nKeysLeftSinceAutoBackup));
+    obj.push_back(Pair("warnings", pwallet->nKeysLeftSinceAutoBackup < PRIVATESEND_KEYS_THRESHOLD_WARNING
+                                       ? "WARNING: keypool is almost depleted!"
+                                       : ""));
 #endif // ENABLE_WALLET
 
     return obj;
 }
 
 static const CRPCCommand commands[] =
-    { //  category              name                      actor (function)         okSafe argNames
+    {
+        //  category              name                      actor (function)         okSafe argNames
         //  --------------------- ------------------------  -----------------------  ------ ----------
-        { "yerbas",               "getpoolinfo",            &getpoolinfo,            true,  {} },
-        { "yerbas",               "getprivatesendinfo",     &getprivatesendinfo,     true,  {} },
+        {"memeium", "getpoolinfo", &getpoolinfo, true, {}},
+        {"memeium", "getprivatesendinfo", &getprivatesendinfo, true, {}},
 #ifdef ENABLE_WALLET
-        { "yerbas",               "privatesend",            &privatesend,            false, {} },
+        {"memeium", "privatesend", &privatesend, false, {}},
 #endif // ENABLE_WALLET
 };
 
-void RegisterPrivateSendRPCCommands(CRPCTable &t)
+void RegisterPrivateSendRPCCommands(CRPCTable& t)
 {
     for (unsigned int vcidx = 0; vcidx < ARRAYLEN(commands); vcidx++)
         t.appendCommand(commands[vcidx].name, &commands[vcidx]);
